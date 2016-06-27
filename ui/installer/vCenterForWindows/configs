@@ -1,0 +1,15 @@
+REM Enter the IP of the server running vCenter for Windows
+SET target_vcenter_ip=
+
+REM Enter the password of the administrator@vsphere.local account
+SET vcenter_password=
+
+REM Enter 1 if your server has the SFTP service enabled or 0 if not
+SET sftp_supported=1
+
+REM Enter SFTP username and password
+SET sftp_username=
+SET sftp_password=
+
+REM Location of C:\ProgramData\VMware\vCenterServer\cfg\vsphere-client\vc-packages\vsphere-serenity relative to the root of SFTP connection
+SET target_vc_packages_path=/vsphere-client/vc-packages/vsphere-client-serenity/

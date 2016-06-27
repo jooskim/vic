@@ -1,0 +1,5 @@
+# Enter the IP of the server running VCSA
+VCENTER_IP=""
+
+# Enter the password of the administrator@vsphere.local account. Special characters should be escaped with a backslash (\) character
+VCENTER_ADMIN_PASSWORD=""
