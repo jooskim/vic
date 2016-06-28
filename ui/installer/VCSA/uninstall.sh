@@ -37,20 +37,21 @@ VCENTER_ADMIN_USERNAME="administrator@vsphere.local"
 VCENTER_SDK_URL="https://${VCENTER_IP}/sdk/"
 COMMONFLAGS="--url $VCENTER_SDK_URL --username $VCENTER_ADMIN_USERNAME --password $VCENTER_ADMIN_PASSWORD"
 WEBCLIENT_PLUGINS_FOLDER="/etc/vmware/vsphere-client/vc-packages/vsphere-client-serenity/"
+PLATFORM=$(uname)
+
+if [[ $PLATFORM == "Linux" ]] ; then
+    XML="./xml"
+else
+    XML="./xml-darwin"
+fi
 
 parse_and_unregister_plugins () {
     for d in ../vsphere-client-serenity/* ; do
         if [[ -d $d ]] ; then
             echo "Reading plugin-package.xml..."
-            line_num=$(sed -n '/^\<pluginPackage/=' < ${d}/plugin-package.xml)
-            package_def_body=$(sed -n "$[$line_num] p" < ${d}/plugin-package.xml)
-
-            # if the pluginPack tag is split into two lines merge them into one line
-            if [[ ${package_def_body: -2: 1} == "\"" ]] ; then
-                package_def_body="${package_def_body%?} $(sed -n "$[$line_num+1] p" < ${d}/plugin-package.xml)"
-            fi
-
-            unregister_package "$package_def_body" $d
+            local plugin_flags=$($XML sel -t -o "--key " -v "/pluginPackage/@id" $d/plugin-package.xml)
+            echo "Unregistering vCenter Server Extension..."
+            java -jar register-plugin.jar $COMMONFLAGS $plugin_flags --unregister
         fi
     done
 }
@@ -61,36 +62,6 @@ rename_package_folder () {
         echo "Error! Could not rename folder"
         exit 1
     fi
-}
-
-unregister_package () {
-    # look for id, version, name and description
-    local tag_stripped=$(echo $1 | sed 's/\<pluginPackage\ //')
-    local num_fields=$(echo $tag_stripped | awk -F "\"" '{print NF}')
-    local field_i=1
-
-    while [ $field_i -lt $num_fields ] ; do
-        local field_ref='$'$field_i
-        local field_val=$(echo $tag_stripped | awk -F "\"" "{print $field_ref}")
-        if [[ $[$field_i % 2] == 1 ]] ; then
-            field_i=$[$field_i + 1]
-            field_ref='$'$field_i
-            local field_name=${field_val%?}
-
-            field_val=$(echo $tag_stripped | awk -F "\"" "{print $field_ref}")
-            eval "local $field_name=\"$field_val\""
-
-            field_i=$[$field_i + 1]
-        fi
-
-    done
-
-    if [[ ! -d "../vsphere-client-serenity/$id-$version" ]] ; then
-        rename_package_folder $2 "../vsphere-client-serenity/$id-$version"
-    fi
-    
-    echo "Unregistering vCenter Server Extension..."
-    java -jar register-plugin.jar $COMMONFLAGS --key $id --unregister
 }
 
 # Read from each plugin bundle the plugin-package.xml file and register a vCenter Server Extension based off of it

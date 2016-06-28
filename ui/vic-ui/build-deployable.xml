@@ -28,6 +28,7 @@
    <property name="DEPLOY_DIR" value="${basedir}/deploy"/>
    <property name="PLUGINS_DIR" value="${DEPLOY_DIR}/plugins"/>
    <property name="SERVICE_MODULE_DIR" value="${basedir}/../${PROJECT_NAME}-service"/>
+   <xmlproperty file="${basedir}/plugin-package.xml"/>
 
    <!-- Check a service project exists -->
    <condition property="service-exists">
@@ -84,12 +85,13 @@
    <!-- Run the above steps in order and archive the scratch folder's contents into a ZIP file. Remove the scrach folder once done -->
    <target name="make-deployable" depends="make-folder,compile-ui,copy-ui-module,compile-service-and-copy">
       <copy file="${basedir}/plugin-package.xml" tofile="${DEPLOY_DIR}/plugin-package.xml"/>
-      <zip basedir="${DEPLOY_DIR}" destfile="${basedir}/${PROJECT_NAME}.zip"/>
+      <zip basedir="${DEPLOY_DIR}" destfile="${basedir}/../installer/vsphere-client-serenity/${pluginPackage(id)}-${pluginPackage(version)}.zip"/>
+      <copy todir="${basedir}/../installer/vsphere-client-serenity/${pluginPackage(id)}-${pluginPackage(version)}">
+         <fileset dir="${DEPLOY_DIR}"/>
+      </copy>
       <delete dir="${DEPLOY_DIR}"/>
+      <echo>${pluginPackage(id)} ${pluginPackage(version)}</echo>
       <echo>${PROJECT_NAME}.zip was created under ${basedir}</echo>
-      <echo>--------------------------------------------------------</echo>
-      <echo>Build was successful. Please make sure to register your plugin package as a vCenter Server Extension</echo>
-      <echo>by following instructions on http://pubs.vmware.com/vsphere-60/index.jsp#com.vmware.wcsdk.pg.doc/ModulesAndPackages_Chapter.14.4.html</echo>
    </target>
    
 </project>
