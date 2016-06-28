@@ -25,13 +25,23 @@ FOR /F "tokens=*" %%A IN (configs) DO (
 
 SET utils_path=%parent%utils\
 SET vcenter_username=administrator@vsphere.local
-SET vcenter_reg_common_flags=--url https://%target_vcenter_ip%/sdk/ --username %vcenter_username% --password %vcenter_password% --pluginurl "NOURL" --showInSolutionManager
+SET vcenter_reg_common_flags=--url https://%target_vcenter_ip%/sdk/ --username %vcenter_username% --password %vcenter_password% --showInSolutionManager
 
-IF %sftp_supported% EQU 1 (
-    ECHO Copying plugins...
-    "%utils_path%winscp.com" /command "open -hostkey=* sftp://%sftp_username%:%sftp_password%@%target_vcenter_ip%" "put ..\vsphere-client-serenity\* %target_vc_packages_path%" "exit"
+IF /I %vic_ui_host_url% NEQ NOURL (
+    IF /I %vic_ui_host_url:~0,5%==https (
+        SET vcenter_reg_common_flags=%vcenter_reg_common_flags% --serverThumbprint %vic_ui_host_thumbprint%
+    )
+
+    IF %vic_ui_host_url:~-1,1% NEQ / (
+        SET vic_ui_host_url=%vic_ui_host_url%/
+    )    
 ) ELSE (
-    ECHO SFTP not enabled. You have to manually copy the content of \ui\vsphere-client-serenity to %VMWARE_CFG_DIR%\vsphere-client\vc-packages\vsphere-client-serenity
+    IF %sftp_supported% EQU 1 (
+        ECHO Copying plugins...
+        "%utils_path%winscp.com" /command "open -hostkey=* sftp://%sftp_username%:%sftp_password%@%target_vcenter_ip%" "put -filemask=|*.zip ..\vsphere-client-serenity\* %target_vc_packages_path%" "exit"
+    ) ELSE (
+        ECHO SFTP not enabled. You have to manually copy the content of \ui\vsphere-client-serenity to %VMWARE_CFG_DIR%\vsphere-client\vc-packages\vsphere-client-serenity
+    )
 )
 
 IF %ERRORLEVEL% GTR 0 (
@@ -45,12 +55,17 @@ IF EXIST _scratch_flags.txt (
 
 cd ..\vsphere-client-serenity
 FOR /D %%i IN (*) DO (
-    "%utils_path%xml.exe" sel -t -o "--key " -v "/pluginPackage/@id" -o " --name \"" -v "/pluginPackage/@name" -o "\" --version " -v "/pluginPackage/@version" -o " --summary \"" -v "/pluginPackage/@description" -o "\" --company \"" -v "/pluginPackage/@vendor" -o "\"" -n %%i\plugin-package.xml >> ..\vCenterForWindows\_scratch_flags.txt
+    IF /I %vic_ui_host_url%==NOURL (
+        "%utils_path%xml.exe" sel -t -o "--key " -v "/pluginPackage/@id" -o " --name \"" -v "/pluginPackage/@name" -o "\" --version " -v "/pluginPackage/@version" -o " --summary \"" -v "/pluginPackage/@description" -o "\" --company \"" -v "/pluginPackage/@vendor" -o "\" --pluginurl NOURL" -n %%i\plugin-package.xml >> ..\vCenterForWindows\_scratch_flags.txt
+    ) ELSE (
+        "%utils_path%xml.exe" sel -t -o "--key " -v "/pluginPackage/@id" -o " --name \"" -v "/pluginPackage/@name" -o "\" --version " -v "/pluginPackage/@version" -o " --summary \"" -v "/pluginPackage/@description" -o "\" --company \"" -v "/pluginPackage/@vendor" -o "\" --pluginurl %vic_ui_host_url%" -v "/pluginPackage/@id" -o "-" -v "/pluginPackage/@version" -o ".zip" -n %%i\plugin-package.xml >> ..\vCenterForWindows\_scratch_flags.txt
+    )
 )
 
 ECHO Registering VIC UI Plugins...
 FOR /F "tokens=*" %%A IN (..\vCenterForWindows\_scratch_flags.txt) DO (
     IF NOT %%A=="" (
+        REM This will be eventually replaced with go command
         java -jar "%parent%register-plugin.jar" %vcenter_reg_common_flags% %%A
     )
 )
