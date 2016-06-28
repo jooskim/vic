@@ -38,6 +38,18 @@ VCENTER_SDK_URL="https://${VCENTER_IP}/sdk/"
 COMMONFLAGS="--url $VCENTER_SDK_URL --username $VCENTER_ADMIN_USERNAME --password $VCENTER_ADMIN_PASSWORD"
 WEBCLIENT_PLUGINS_FOLDER="/etc/vmware/vsphere-client/vc-packages/vsphere-client-serenity/"
 
+if [[ $VIC_UI_HOST_URL != 'NOURL' ]] ; then
+    if [[ ${VIC_UI_HOST_URL:0:5} == 'https' ]] ; then
+        COMMONFLAGS="${COMMONFLAGS} --serverThumbprint ${VIC_UI_HOST_THUMBPRINT}"
+    elif [[ ${VIC_UI_HOST_URL:0:5} == 'HTTPS' ]] ; then
+        COMMONFLAGS="${COMMONFLAGS} --serverThumbprint ${VIC_UI_HOST_THUMBPRINT}"
+    fi
+
+    if [[ ${VIC_UI_HOST_URL: -1: 1} != "/" ]] ; then
+        VIC_UI_HOST_URL="$VIC_UI_HOST_URL/"
+    fi
+fi
+
 parse_and_register_plugins () {
     for d in ../vsphere-client-serenity/* ; do
         if [[ -d $d ]] ; then
@@ -88,9 +100,26 @@ register_package () {
     if [[ ! -d "../vsphere-client-serenity/$id-$version" ]] ; then
         rename_package_folder $2 "../vsphere-client-serenity/$id-$version"
     fi
+
+    local plugin_url="$VIC_UI_HOST_URL"
+    if [[ $VIC_UI_HOST_URL != 'NOURL' ]] ; then
+        if [[ ! -f "../vsphere-client-serenity/$id-$version.zip" ]] ; then
+            echo "File $id-$version.zip does not exist!"
+            exit 1
+        fi
+        local plugin_url="$plugin_url$id-$version.zip"
+    fi
     
     echo "Registering vCenter Server Extension..."
-    java -jar register-plugin.jar $COMMONFLAGS --key $id --name "$name" --summary "$description" --version "$version" --company "VMware" --pluginurl "DUMMY" --showInSolutionManager
+    # This will eventually change so that go command will be used so the command is going to be like:
+    # vic-machine register-ui --key $id --name "$name" --summary "$description" --version "$version" --company "VMware" --pluginurl "DUMMY" --showInSolutionManager
+    java -jar register-plugin.jar $COMMONFLAGS --key $id\
+        --name "$name"\
+        --summary "$description"\
+        --version "$version"\
+        --company "VMware"\
+        --pluginurl "$plugin_url"\
+        --showInSolutionManager
 }
 
 upload_packages () {
@@ -125,11 +154,13 @@ update_ownership () {
 # Also, rename the folders such that they follow the convention of $PLUGIN_KEY-$PLUGIN_VERSION
 parse_and_register_plugins
 
-# Upload the folders to VCSA's vSphere Web Client plugins cache folder
-upload_packages
-
-# Chown the uploaded folders from root to vsphere-client
-update_ownership
+# if VIC_UI_HOST_URL is NOURL
+if [[ $VIC_UI_HOST_URL == "NOURL" ]] ; then
+    # Upload the folders to VCSA's vSphere Web Client plugins cache folder
+    upload_packages
+    # Chown the uploaded folders from root to vsphere-client
+    update_ownership
+fi
 
 if [[ $? > 0 ]] ; then
     echo "There was a problem in the VIC UI registration process"
