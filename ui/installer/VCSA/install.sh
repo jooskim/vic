@@ -32,6 +32,10 @@ while IFS='' read -r line; do
     eval $line
 done < $CONFIGS_FILE
 
+echo -n "Enter your vCenter Administrator Password: "
+read -s VCENTER_ADMIN_PASSWORD
+echo ""
+
 PLUGIN_BUNDLES=''
 VCENTER_ADMIN_USERNAME="administrator@vsphere.local"
 VCENTER_SDK_URL="https://${VCENTER_IP}/sdk/"

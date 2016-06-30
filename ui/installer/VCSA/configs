@@ -1,8 +1,5 @@
 # Enter the IP of the server running VCSA
-VCENTER_IP=""
-
-# Enter the password of the administrator@vsphere.local account. Special characters should be escaped with a backslash (\) character
-VCENTER_ADMIN_PASSWORD=""
+VCENTER_IP="10.17.109.155"
 
 # Update the following lines if you have a local web server that is accessable from your VCSA and VIC UI zip files are uploaded to it
 
