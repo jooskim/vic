@@ -50,16 +50,24 @@ if [[ $VIC_UI_HOST_URL != 'NOURL' ]] ; then
     fi
 fi
 
+check_prerequisite () {
+    if [[ ! -d ../vsphere-client-serenity ]] ; then
+        echo "Error! VIC UI plugin bundle was not found. Please try downloading the VIC UI installer again"
+        exit 1
+    fi
+}
+
 parse_and_register_plugins () {
     for d in ../vsphere-client-serenity/* ; do
         if [[ -d $d ]] ; then
             echo "Reading plugin-package.xml..."
             line_num=$(sed -n '/^\<pluginPackage/=' < ${d}/plugin-package.xml)
             package_def_body=$(sed -n "$[$line_num] p" < ${d}/plugin-package.xml)
+            package_def_body=$(echo -ne $(echo -e "$package_def_body" | sed -e 's/^[[:space:]]*//'))
 
             # if the pluginPack tag is split into two lines merge them into one line
-            if [[ ${package_def_body: -2: 1} == "\"" ]] ; then
-                package_def_body="${package_def_body%?} $(sed -n "$[$line_num+1] p" < ${d}/plugin-package.xml)"
+            if [[ ${package_def_body: -1: 1} == "\"" ]] ; then
+                package_def_body="${package_def_body} $(sed -n "$[$line_num+1] p" < ${d}/plugin-package.xml)"
             fi
 
             register_package "$package_def_body" $d
@@ -111,8 +119,14 @@ register_package () {
     fi
     
     echo "Registering vCenter Server Extension..."
+    # todo
     # This will eventually change so that go command will be used so the command is going to be like:
     # vic-machine register-ui --key $id --name "$name" --summary "$description" --version "$version" --company "VMware" --pluginurl "DUMMY" --showInSolutionManager
+    
+    if [[ $description == "" ]] ; then
+        local description=$name
+    fi
+
     java -jar register-plugin.jar $COMMONFLAGS --key $id\
         --name "$name"\
         --summary "$description"\
@@ -120,6 +134,11 @@ register_package () {
         --company "VMware"\
         --pluginurl "$plugin_url"\
         --showInSolutionManager
+
+    # todo
+    # once vic-machine register-ui (or something like that) is ready, it has to return 0 for success and any value higher than 0 upon error so that
+    # installer can exit with a proper error message
+    # one possible situation is when the already registered plugin is being registered again
 }
 
 upload_packages () {
@@ -149,6 +168,9 @@ update_ownership () {
         exit 1
     fi
 }
+
+# Check if plugin is located properly 
+check_prerequisite
 
 # Read from each plugin bundle the plugin-package.xml file and register a vCenter Server Extension based off of it
 # Also, rename the folders such that they follow the convention of $PLUGIN_KEY-$PLUGIN_VERSION
