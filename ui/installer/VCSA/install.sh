@@ -68,36 +68,10 @@ check_prerequisite () {
     fi
 }
 
-if [[ $VIC_UI_HOST_URL != 'NOURL' ]] ; then
-    if [[ ${VIC_UI_HOST_URL:0:5} == 'https' ]] ; then
-        COMMONFLAGS="${COMMONFLAGS} --serverThumbprint ${VIC_UI_HOST_THUMBPRINT}"
-    elif [[ ${VIC_UI_HOST_URL:0:5} == 'HTTPS' ]] ; then
-        COMMONFLAGS="${COMMONFLAGS} --serverThumbprint ${VIC_UI_HOST_THUMBPRINT}"
-    fi
-
-    if [[ ${VIC_UI_HOST_URL: -1: 1} != "/" ]] ; then
-        VIC_UI_HOST_URL="$VIC_UI_HOST_URL/"
-    fi
-fi
-
-check_prerequisite () {
-    if [[ ! -d ../vsphere-client-serenity ]] ; then
-        echo "Error! VIC UI plugin bundle was not found. Please try downloading the VIC UI installer again"
-        exit 1
-    fi
-}
-
 parse_and_register_plugins () {
     for d in ../vsphere-client-serenity/* ; do
         if [[ -d $d ]] ; then
             echo "Reading plugin-package.xml..."
-            line_num=$(sed -n '/^\<pluginPackage/=' < ${d}/plugin-package.xml)
-            package_def_body=$(sed -n "$[$line_num] p" < ${d}/plugin-package.xml)
-            package_def_body=$(echo -ne $(echo -e "$package_def_body" | sed -e 's/^[[:space:]]*//'))
-
-            # if the pluginPack tag is split into two lines merge them into one line
-            if [[ ${package_def_body: -1: 1} == "\"" ]] ; then
-                package_def_body="${package_def_body} $(sed -n "$[$line_num+1] p" < ${d}/plugin-package.xml)"
             local plugin_id=$($XML sel -t -v "/pluginPackage/@id" $d/plugin-package.xml)
             local plugin_version=$($XML sel -t -v "/pluginPackage/@version" $d/plugin-package.xml)
             local plugin_flags=$($XML sel -t -o "--key " -v "/pluginPackage/@id" -o " --name \"" -v "/pluginPackage/@name" -o "\" --version " -v "/pluginPackage/@version" -o " --summary \"" -v "/pluginPackage/@description" -o "\" --company \"" -v "/pluginPackage/@vendor" -o "\"" -n $d/plugin-package.xml)
@@ -137,64 +111,6 @@ rename_package_folder () {
         echo "Error! Could not rename folder"
         exit 1
     fi
-}
-
-register_package () {
-    # look for id, version, name and description
-    local tag_stripped=$(echo $1 | sed 's/\<pluginPackage\ //')
-    local num_fields=$(echo $tag_stripped | awk -F "\"" '{print NF}')
-    local field_i=1
-
-    while [ $field_i -lt $num_fields ] ; do
-        local field_ref='$'$field_i
-        local field_val=$(echo $tag_stripped | awk -F "\"" "{print $field_ref}")
-        if [[ $[$field_i % 2] == 1 ]] ; then
-            field_i=$[$field_i + 1]
-            field_ref='$'$field_i
-            local field_name=${field_val%?}
-
-            field_val=$(echo $tag_stripped | awk -F "\"" "{print $field_ref}")
-            eval "local $field_name=\"$field_val\""
-
-            field_i=$[$field_i + 1]
-        fi
-
-    done
-
-    if [[ ! -d "../vsphere-client-serenity/$id-$version" ]] ; then
-        rename_package_folder $2 "../vsphere-client-serenity/$id-$version"
-    fi
-
-    local plugin_url="$VIC_UI_HOST_URL"
-    if [[ $VIC_UI_HOST_URL != 'NOURL' ]] ; then
-        if [[ ! -f "../vsphere-client-serenity/$id-$version.zip" ]] ; then
-            echo "File $id-$version.zip does not exist!"
-            exit 1
-        fi
-        local plugin_url="$plugin_url$id-$version.zip"
-    fi
-    
-    echo "Registering vCenter Server Extension..."
-    # todo
-    # This will eventually change so that go command will be used so the command is going to be like:
-    # vic-machine register-ui --key $id --name "$name" --summary "$description" --version "$version" --company "VMware" --pluginurl "DUMMY" --showInSolutionManager
-    
-    if [[ $description == "" ]] ; then
-        local description=$name
-    fi
-
-    java -jar register-plugin.jar $COMMONFLAGS --key $id\
-        --name "$name"\
-        --summary "$description"\
-        --version "$version"\
-        --company "VMware"\
-        --pluginurl "$plugin_url"\
-        --showInSolutionManager
-
-    # todo
-    # once vic-machine register-ui (or something like that) is ready, it has to return 0 for success and any value higher than 0 upon error so that
-    # installer can exit with a proper error message
-    # one possible situation is when the already registered plugin is being registered again
 }
 
 upload_packages () {
