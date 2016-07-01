@@ -5,6 +5,7 @@ package {
 	 * not included by the compiler.
 	 */
 	internal class ModuleClasses {
+		VchPortletMediator
 		ContainerPortletMediator
 	}
 }
