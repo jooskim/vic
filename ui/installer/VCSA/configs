@@ -1,4 +1,4 @@
-i# Enter the IP of the server running VCSA
+# Enter the IP of the server running VCSA
 VCENTER_IP=""
 
 # Update the following lines if you have a local web server that is accessable from your VCSA and VIC UI zip files are uploaded to it
