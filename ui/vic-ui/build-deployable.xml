@@ -93,7 +93,8 @@
 name="${pluginPackage(name)}"
 version="${pluginPackage(version)}"
 summary="${pluginPackage(description)}"
-company="${pluginPackage(vendor)}"</echo>
+company="${pluginPackage(vendor)}"
+      </echo>
       <delete dir="${DEPLOY_DIR}"/>
       <echo>${pluginPackage(id)} ${pluginPackage(version)}</echo>
       <echo>${PROJECT_NAME}.zip was created under ${basedir}</echo>
