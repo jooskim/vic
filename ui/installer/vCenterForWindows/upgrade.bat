@@ -23,6 +23,11 @@ FOR /F "tokens=*" %%A IN (configs) DO (
     )
 )
 
+SET "psCommand=powershell -Command "$pword = read-host 'Enter your vCenter Administrator Password' -AsSecureString ; ^
+    $BSTR=[System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($pword); ^
+        [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)""
+FOR /f "usebackq delims=" %%p in (`%psCommand%`) do set vcenter_password=%%p
+
 SET utils_path=%parent%utils\
 SET vcenter_username=administrator@vsphere.local
 SET vcenter_reg_common_flags=--url https://%target_vcenter_ip%/sdk/ --username %vcenter_username% --password %vcenter_password% --showInSolutionManager

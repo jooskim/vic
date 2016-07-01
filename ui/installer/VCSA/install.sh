@@ -32,11 +32,41 @@ while IFS='' read -r line; do
     eval $line
 done < $CONFIGS_FILE
 
+echo -n "Enter your vCenter Administrator Password: "
+read -s VCENTER_ADMIN_PASSWORD
+echo ""
+
 PLUGIN_BUNDLES=''
 VCENTER_ADMIN_USERNAME="administrator@vsphere.local"
 VCENTER_SDK_URL="https://${VCENTER_IP}/sdk/"
 COMMONFLAGS="--url $VCENTER_SDK_URL --username $VCENTER_ADMIN_USERNAME --password $VCENTER_ADMIN_PASSWORD"
 WEBCLIENT_PLUGINS_FOLDER="/etc/vmware/vsphere-client/vc-packages/vsphere-client-serenity/"
+PLATFORM=$(uname)
+
+if [[ $PLATFORM == "Linux" ]] ; then
+    XML="./xml"
+else
+    XML="./xml-darwin"
+fi
+
+if [[ $VIC_UI_HOST_URL != 'NOURL' ]] ; then
+    if [[ ${VIC_UI_HOST_URL:0:5} == 'https' ]] ; then
+        COMMONFLAGS="${COMMONFLAGS} --serverThumbprint ${VIC_UI_HOST_THUMBPRINT}"
+    elif [[ ${VIC_UI_HOST_URL:0:5} == 'HTTPS' ]] ; then
+        COMMONFLAGS="${COMMONFLAGS} --serverThumbprint ${VIC_UI_HOST_THUMBPRINT}"
+    fi
+
+    if [[ ${VIC_UI_HOST_URL: -1: 1} != "/" ]] ; then
+        VIC_UI_HOST_URL="$VIC_UI_HOST_URL/"
+    fi
+fi
+
+check_prerequisite () {
+    if [[ ! -d ../vsphere-client-serenity ]] ; then
+        echo "Error! VIC UI plugin bundle was not found. Please try downloading the VIC UI installer again"
+        exit 1
+    fi
+}
 
 if [[ $VIC_UI_HOST_URL != 'NOURL' ]] ; then
     if [[ ${VIC_UI_HOST_URL:0:5} == 'https' ]] ; then
@@ -68,9 +98,35 @@ parse_and_register_plugins () {
             # if the pluginPack tag is split into two lines merge them into one line
             if [[ ${package_def_body: -1: 1} == "\"" ]] ; then
                 package_def_body="${package_def_body} $(sed -n "$[$line_num+1] p" < ${d}/plugin-package.xml)"
+            local plugin_id=$($XML sel -t -v "/pluginPackage/@id" $d/plugin-package.xml)
+            local plugin_version=$($XML sel -t -v "/pluginPackage/@version" $d/plugin-package.xml)
+            local plugin_flags=$($XML sel -t -o "--key " -v "/pluginPackage/@id" -o " --name \"" -v "/pluginPackage/@name" -o "\" --version " -v "/pluginPackage/@version" -o " --summary \"" -v "/pluginPackage/@description" -o "\" --company \"" -v "/pluginPackage/@vendor" -o "\"" -n $d/plugin-package.xml)
+            if [[ ! -d "../vsphere-client-serenity/${plugin_id}-${plugin_version}" ]] ; then
+                rename_package_folder $d "../vsphere-client-serenity/$plugin_id-$plugin_version"
             fi
 
-            register_package "$package_def_body" $d
+            local plugin_url="$VIC_UI_HOST_URL"
+            if [[ $plugin_url != 'NOURL' ]] ; then
+                if [[ ! -f "../vsphere-client-serenity/${plugin_id}-${plugin_version}.zip" ]] ; then
+                    echo "File ${plugin_id}-${plugin_version}.zip does not exist!"
+                    exit 1
+                fi
+                local plugin_url="$plugin_url$plugin_id-$plugin_version.zip"
+            fi
+
+            echo "Registering vCenter Server Extension..."
+            # todo
+            # This will eventually change so that go command will be used so the command is going to be like:
+            # vic-machine register-ui --key $id --name "$name" --summary "$description" --version "$version" --company "VMware" --pluginurl "DUMMY" --showInSolutionManager
+    
+            java -jar register-plugin.jar $COMMONFLAGS $plugin_flags \
+                --pluginurl "$plugin_url"\
+                --showInSolutionManager
+
+            # todo
+            # once vic-machine register-ui (or something like that) is ready, it has to return 0 for success and any value higher than 0 upon error so that
+            # installer can exit with a proper error message
+            # one possible situation is when the already registered plugin is being registered again
         fi
     done
 }
