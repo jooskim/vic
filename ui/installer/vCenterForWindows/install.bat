@@ -23,6 +23,11 @@ FOR /F "tokens=*" %%A IN (configs) DO (
     )
 )
 
+IF [%target_vcenter_ip%] == [] (
+    ECHO Error! vCenter IP cannot be empty. Please provide a valid IP in the configs file
+    GOTO:EOF
+)
+
 SET "psCommand=powershell -Command "$pword = read-host 'Enter your vCenter Administrator Password' -AsSecureString ; ^
     $BSTR=[System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($pword); ^
         [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)""
