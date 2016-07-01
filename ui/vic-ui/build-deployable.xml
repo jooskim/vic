@@ -89,6 +89,12 @@
       <copy todir="${basedir}/../installer/vsphere-client-serenity/${pluginPackage(id)}-${pluginPackage(version)}">
          <fileset dir="${DEPLOY_DIR}"/>
       </copy>
+      <echo file="${basedir}/../installer/vsphere-client-serenity/${pluginPackage(id)}-${pluginPackage(version)}/vc_extension_flags">key="${pluginPackage(id)}"
+name="${pluginPackage(name)}"
+version="${pluginPackage(version)}"
+summary="${pluginPackage(description)}"
+company="${pluginPackage(vendor)}"
+      </echo>
       <delete dir="${DEPLOY_DIR}"/>
       <echo>${pluginPackage(id)} ${pluginPackage(version)}</echo>
       <echo>${PROJECT_NAME}.zip was created under ${basedir}</echo>

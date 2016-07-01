@@ -32,24 +32,31 @@ while IFS='' read -r line; do
     eval $line
 done < $CONFIGS_FILE
 
+if [[ $VCENTER_IP == "" ]] ; then
+    echo "Error! vCenter IP cannot be empty. Please provide a valid IP in the configs file"
+    exit 1
+fi
+
+echo -n "Enter your vCenter Administrator Password: "
+read -s VCENTER_ADMIN_PASSWORD
+echo ""
+
 PLUGIN_BUNDLES=''
 VCENTER_ADMIN_USERNAME="administrator@vsphere.local"
 VCENTER_SDK_URL="https://${VCENTER_IP}/sdk/"
 COMMONFLAGS="--url $VCENTER_SDK_URL --username $VCENTER_ADMIN_USERNAME --password $VCENTER_ADMIN_PASSWORD"
 WEBCLIENT_PLUGINS_FOLDER="/etc/vmware/vsphere-client/vc-packages/vsphere-client-serenity/"
-PLATFORM=$(uname)
-
-if [[ $PLATFORM == "Linux" ]] ; then
-    XML="./xml"
-else
-    XML="./xml-darwin"
-fi
 
 parse_and_unregister_plugins () {
     for d in ../vsphere-client-serenity/* ; do
         if [[ -d $d ]] ; then
             echo "Reading plugin-package.xml..."
-            local plugin_flags=$($XML sel -t -o "--key " -v "/pluginPackage/@id" $d/plugin-package.xml)
+
+            while IFS='' read -r p_line; do
+                eval "local $p_line"
+            done < $d/vc_extension_flags
+
+            local plugin_flags="--key $key"
             echo "Unregistering vCenter Server Extension..."
             java -jar register-plugin.jar $COMMONFLAGS $plugin_flags --unregister
         fi
