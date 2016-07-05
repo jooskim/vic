@@ -41,7 +41,6 @@ IF /I %vic_ui_host_url% NEQ NOURL (
     IF /I %vic_ui_host_url:~0,5%==https (
         SET vcenter_reg_common_flags=%vcenter_reg_common_flags% --serverThumbprint %vic_ui_host_thumbprint%
     )
-
     IF %vic_ui_host_url:~-1,1% NEQ / (
         SET vic_ui_host_url=%vic_ui_host_url%/
     )    

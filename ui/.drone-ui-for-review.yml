@@ -2,7 +2,9 @@
 # a .drone.sec even if no secrets were changed. The secrets file is tied
 # to a specific .drone.yml so artifacts will not be uploaded to Bintray
 # in following builds without an updated .drone.sec
-# ant -f ui/vic-ui/build-deployable.xml -Denv.VSPHERE_SDK_HOME
+
+
+# following is only for testing ui build
 ---
 branches:
   - ui
@@ -20,27 +22,30 @@ build:
     commands:
       - apt-get update
       - apt-get install -yq ant
-      - ant -f ui/vic-ui/build-deployable.xml -Denv.VSPHERE_SDK_HOME=$DRONE_BUILD_DIR/ui/sdk/vsphere-client-sdk -Denv.FLEX_HOME=$DRONE_BUILD_DIR/ui/sdk/flex_sdk
-  # append to bundle task
+      - wget https://bintray.com/vmware/vic-repo/download_file?file_path=ui-sdk.tar.gz -O /tmp/ui-sdk.tar.gz
+      - tar -xvzf /tmp/ui-sdk.tar.gz -C /tmp/
+      - ant -f ui/vic-ui/build-deployable.xml -Denv.VSPHERE_SDK_HOME=/tmp/sdk/vc_sdk_min -Denv.FLEX_HOME=/tmp/sdk/flex_sdk_min
+
   bundle:
     image: golang:1.6.2
-      pull: true
-      environment:
-        BIN: bin
-        BIN_TEMP_DIR: bin/vic
-        GOPATH: /drone
-        SHELL: /bin/bash
-      commands:
-        - rm -rf $BIN_TEMP_DIR
-        - mkdir $BIN_TEMP_DIR
-        - cp LICENSE $BIN_TEMP_DIR
-        - cp doc/bundle/README $BIN_TEMP_DIR
-        - cp $BIN/vic-machine* $BIN_TEMP_DIR
-        - cp $BIN/appliance.iso $BIN_TEMP_DIR
-        - cp $BIN/bootstrap.iso $BIN_TEMP_DIR
-        - mkdir $BIN_TEMP_DIR/ui
-        - cp -rf ui/installer/* $BIN_TEMP_DIR/ui
-        - tar czvf $BIN/vic_$$BUILD_NUMBER.tar.gz -C $BIN vic
-        - shasum -a 256 $BIN/vic_$$BUILD_NUMBER.tar.gz
-      when:
-        success: true    
+    pull: true
+    environment:
+      BIN: bin
+      BIN_TEMP_DIR: bin/vic
+      GOPATH: /drone
+      SHELL: /bin/bash
+    commands:
+      - rm -rf $BIN_TEMP_DIR
+      - mkdir $BIN_TEMP_DIR
+      - cp LICENSE $BIN_TEMP_DIR
+      - cp doc/bundle/README $BIN_TEMP_DIR
+      # - cp $BIN/vic-machine* $BIN_TEMP_DIR
+      # - cp $BIN/appliance.iso $BIN_TEMP_DIR
+      # - cp $BIN/bootstrap.iso $BIN_TEMP_DIR
+      - mkdir $BIN_TEMP_DIR/ui
+      - cp -rf ui/installer/* $BIN_TEMP_DIR/ui
+      - sleep 1
+      - tar czvf $BIN/vic_$$BUILD_NUMBER.tar.gz -C $BIN vic
+      - shasum -a 256 $BIN/vic_$$BUILD_NUMBER.tar.gz
+    when:
+      success: true

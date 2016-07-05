@@ -10,12 +10,21 @@
       </resource>
    </resources>
 
-   <!-- Example: add a custom section view (portlet) in the VMs summary tab -->
-   <extension id="com.vmware.vicui.Vicui.vmSummaryView">
+   <!-- Custom section view (portlet) in the VMs summary tab for Container info -->
+   <extension id="com.vmware.vicui.Vicui.containerSummaryView">
       <extendedPoint>vsphere.core.vm.summarySectionViews</extendedPoint>
       <object>
          <name>#{container.label}</name>
          <componentClass className="com.vmware.vicui.views.ContainerPortletView"/>
       </object>
    </extension>
+   
+   <extension id="com.vmware.vicui.Vicui.vchSummaryView">
+      <extendedPoint>vsphere.core.vm.summarySectionViews</extendedPoint>
+      <object>
+         <name>#{vch.label}</name>
+         <componentClass className="com.vmware.vicui.views.VchPortletView"/>
+      </object>
+   </extension>
+   
 </plugin>

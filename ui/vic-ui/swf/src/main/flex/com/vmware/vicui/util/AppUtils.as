@@ -2,6 +2,7 @@ package com.vmware.vicui.util {
 	
 	public class AppUtils {
 		
+		//find the index array value from a key name
 		public static function findIndexOfValue( data:Array, value:String ):int {
 			var length:int = data.length;
 			var xint:int = -1;
