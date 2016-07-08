@@ -20,7 +20,7 @@
 		}
 
 		private function jumpToURL(click:MouseEvent) : void {
-		    navigateToURL(new URLRequest(click.currentTarget.label), "_blank")
+		    navigateToURL(new URLRequest(click.currentTarget.label), "_blank");
 		}
 		
 		[Bindable]

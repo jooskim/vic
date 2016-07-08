@@ -82,6 +82,7 @@ package com.vmware.vicui.views {
 					   
 					   if (keyName == AppConstants.VCH_NAME_PATH) {
 					       _view.isVch = true;
+					       continue;
 					   }
 						
 					   if (keyName == AppConstants.VCH_CLIENT_IP_PATH ) {
@@ -93,6 +94,7 @@ package com.vmware.vicui.views {
 					       
 					       _view.dockerApiEndpoint.text = "DOCKER_HOST=tcp://" + ip_ipv4 + ":2376";
 					       _view.dockerLog.label = "http://" + ip_ipv4 + ":2378";
+					       continue;
 
 					   }
 

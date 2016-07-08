@@ -80,10 +80,12 @@ package com.vmware.vicui.views {
 					   if (keyName == AppConstants.VM_CONTAINER_NAME_PATH) {
 					       _view.isContainer = true;
 					       _view.containerName.text = config[key].value as String;
+					       continue;
 					   }
 
 					   if (keyName == AppConstants.VM_CONTAINER_IMAGE_PATH) {
 					   	   _view.imageName.text = config[key].value as String;
+					   	   continue;
 					   }
 				   }
 			   }
