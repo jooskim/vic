@@ -22,6 +22,9 @@
 		public var isVch:Boolean = false;
 		]]>
 	</fx:Script>
+	<ns:PropertyGridRow label="Client IP" visible="{isVch}" includeInLayout="{isVch}">
+		<mx:Label id="clientIP" text="{getString('placeholderText')}"/>
+	</ns:PropertyGridRow>
 	<ns:PropertyGridRow label="Docker API endpoint" visible="{isVch}" includeInLayout="{isVch}">
 		<mx:Label id="dockerApiEndpoint" text="{getString('placeholderText')}"/>
 	</ns:PropertyGridRow>

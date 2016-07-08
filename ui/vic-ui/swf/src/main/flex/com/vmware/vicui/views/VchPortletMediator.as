@@ -8,9 +8,11 @@ package com.vmware.vicui.views {
 	import com.vmware.vicui.util.AppUtils;
 	
 	import flash.events.EventDispatcher;
+	import flash.utils.ByteArray;
 	
 	import mx.logging.ILogger;
 	import mx.logging.Log;
+	import mx.utils.Base64Decoder;
 	
 	[Event(name="{com.vmware.data.query.events.DataByModelRequest.REQUEST_ID}",
    type="com.vmware.data.query.events.DataByModelRequest")]
@@ -67,34 +69,32 @@ package com.vmware.vicui.views {
 	   [ResponseHandler(name="{com.vmware.data.query.events.DataByModelRequest.RESPONSE_ID}")]
 	   public function onData(event:DataByModelRequest, result:VchInfo):void {
 		   _logger.info("Vch summary data retrieved.");
+
 		   if(result != null) {
-			   
+			   var base64Decoder:Base64Decoder = new Base64Decoder();
 			   var config:Array = result.extraConfig;
 			   
-			   var arry:String;
-			   
 			   if (config != null) {
-	   
+			   	   _view.isVch = false;
+
 				   for ( var key:String in config ) {
-					   
 					   var keyName:String = config[key].key.value as String;
 					   
-					   arry += keyName;
-					   arry += ": ";
-					   arry += config[key].value;
-					   arry += "\n";
-					   
-					   //vch name
-					   var indexNum:int = AppUtils.findIndexOfValue(config, AppConstants.VCH_NAME_PATH);
-					   if (indexNum !== -1) {
-						   _view.isVch= true;
+					   if (keyName == AppConstants.VCH_NAME_PATH) {
+					       _view.isVch = true;
 					   }
-					   else {
-						   _view.isVch = false;
+						
+					   if (keyName == AppConstants.VCH_CLIENT_IP_PATH ) {
+					       base64Decoder.decode(config[key].value as String);
+
+					       var bytes:ByteArray = base64Decoder.toByteArray();
+					       var ip_digits:String = bytes.toString();
+					       
+					       _view.clientIP.text = ip_digits.charCodeAt(0) + "." + ip_digits.charCodeAt(1) + "." + ip_digits.charCodeAt(2) + "." + ip_digits.charCodeAt(3);
+
 					   }
+
 				   }
-				   
-				   //_view.vchConfig.text = arry;
 			   }
 		   } else {
 			   _view.isVch = false;
