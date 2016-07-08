@@ -89,8 +89,11 @@ package com.vmware.vicui.views {
 
 					       var bytes:ByteArray = base64Decoder.toByteArray();
 					       var ip_digits:String = bytes.toString();
+					       var ip_ipv4:String = ip_digits.charCodeAt(0) + "." + ip_digits.charCodeAt(1) + "." + ip_digits.charCodeAt(2) + "." + ip_digits.charCodeAt(3);
 					       
-					       _view.clientIP.text = ip_digits.charCodeAt(0) + "." + ip_digits.charCodeAt(1) + "." + ip_digits.charCodeAt(2) + "." + ip_digits.charCodeAt(3);
+					       _view.clientIP.text = ip_ipv4;
+					       _view.dockerApiEndpoint.text = "DOCKER_HOST=tcp://" + ip_ipv4 + ":2376";
+					       _view.dockerLog.text = "http://" + ip_ipv4 + ":2378";
 
 					   }
 
