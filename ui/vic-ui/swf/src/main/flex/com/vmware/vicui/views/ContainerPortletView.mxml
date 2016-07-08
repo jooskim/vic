@@ -28,7 +28,4 @@
 	<ns:PropertyGridRow label="Image" visible="{isContainer}" includeInLayout="{isContainer}">
 		<mx:Label id="imageName" text="{getString('placeholderText')}"/>
 	</ns:PropertyGridRow>
-	<ns:PropertyGridRow label="Port Mapping" visible="{isContainer}" includeInLayout="{isContainer}">
-		<mx:Label id="portMapping" text="{getString('placeholderText')}"/>
-	</ns:PropertyGridRow>
 </ns:PropertyGrid>
