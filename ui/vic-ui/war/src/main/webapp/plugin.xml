@@ -17,6 +17,22 @@
          <name>#{container.label}</name>
          <componentClass className="com.vmware.vicui.views.ContainerPortletView"/>
       </object>
+      <metadata>
+         <objectType>VirtualMachine</objectType>
+         <propertyConditions>
+            <com.vmware.data.query.CompositeConstraint>
+               <nestedConstraints>
+                  <com.vmware.data.query.PropertyConstraint>
+                     <propertyName>isContainer</propertyName>
+                     <comparator>EQUALS</comparator>
+                     <comparableValue>
+                        <string>true</string>
+                     </comparableValue>
+                  </com.vmware.data.query.PropertyConstraint>
+               </nestedConstraints>
+            </com.vmware.data.query.CompositeConstraint>
+         </propertyConditions>
+      </metadata>
    </extension>
    
    <extension id="com.vmware.vicui.Vicui.vchSummaryView">
@@ -25,6 +41,22 @@
          <name>#{vch.label}</name>
          <componentClass className="com.vmware.vicui.views.VchPortletView"/>
       </object>
+      <metadata>
+         <objectType>VirtualMachine</objectType>
+         <propertyConditions>
+            <com.vmware.data.query.CompositeConstraint>
+               <nestedConstraints>
+                  <com.vmware.data.query.PropertyConstraint>
+                     <propertyName>isVCH</propertyName>
+                     <comparator>EQUALS</comparator>
+                     <comparableValue>
+                        <string>true</string>
+                     </comparableValue>
+                  </com.vmware.data.query.PropertyConstraint>
+               </nestedConstraints>
+            </com.vmware.data.query.CompositeConstraint>
+         </propertyConditions>
+      </metadata>
    </extension>
    
 </plugin>

@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: vic-ui-service
+Bundle-SymbolicName: com.vmware.vicui.VicUIService
+Bundle-Version: 1.0.0
+Bundle-Vendor: VMware
+Import-Package: org.apache.commons.logging,
+ com.vmware.vise.data,
+ com.vmware.vise.data.query,
+ com.vmware.vise.data.uri
+Export-Package: com.vmware.vicui
