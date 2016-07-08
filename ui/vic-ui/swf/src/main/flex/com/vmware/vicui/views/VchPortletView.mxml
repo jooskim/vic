@@ -11,25 +11,27 @@
 	<fx:Script>
 		<![CDATA[
 		import mx.resources.ResourceManager;
+		import flash.events.MouseEvent;
 		
 		// Utilities to load strings and images from resource file 
 		
 		private function getString(key:String) : String {
-		return ResourceManager.getInstance().getString('VicuiResources', key);
+		    return ResourceManager.getInstance().getString('VicuiResources', key);
+		}
+
+		private function jumpToURL(click:MouseEvent) : void {
+		    navigateToURL(new URLRequest(click.currentTarget.label), "_blank")
 		}
 		
 		[Bindable]
 		public var isVch:Boolean = false;
 		]]>
 	</fx:Script>
-	<ns:PropertyGridRow label="Client IP" visible="{isVch}" includeInLayout="{isVch}">
-		<mx:Label id="clientIP" text="{getString('placeholderText')}"/>
-	</ns:PropertyGridRow>
 	<ns:PropertyGridRow label="Docker API endpoint" visible="{isVch}" includeInLayout="{isVch}">
-		<mx:Label id="dockerApiEndpoint" text="{getString('placeholderText')}"/>
+		<mx:Label id="dockerApiEndpoint" text="{getString('placeholderText')}" selectable="true"/>
 	</ns:PropertyGridRow>
 	<ns:PropertyGridRow label="Docker log" visible="{isVch}" includeInLayout="{isVch}">
-		<mx:Label id="dockerLog" text="{getString('placeholderText')}"/>
+		<mx:LinkButton id="dockerLog" label="{getString('placeholderText')}" textAlign="left" click="jumpToURL(event)"/>
 	</ns:PropertyGridRow>
 	<!--<ns:PropertyGridRow label="VCH config" visible="{isVch}" includeInLayout="{isVch}">
 		<mx:Label id="vchConfig" text="{getString('placeholderText')}"/>
