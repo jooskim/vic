@@ -13,7 +13,16 @@
    <osgi:reference id="dataServiceExtensionRegistry"
          interface="com.vmware.vise.data.query.DataServiceExtensionRegistry" />
          
-   <osgi:service id="VicUIService" ref="VicUIServiceImpl"
-         interface="com.vmware.vicui.VicUIService" />
+   <osgi:reference id="userSessionService"
+         interface="com.vmware.vise.usersession.UserSessionService" />
+         
+   <osgi:reference id="vimObjectReferenceService"
+         interface="com.vmware.vise.vim.data.VimObjectReferenceService" />
+         
+   <osgi:service id="VicUIService" ref="VicUIServiceImpl">
+	   <osgi:interfaces>
+	       <value>com.vmware.vise.security.ClientSessionEndListener</value>
+	   </osgi:interfaces>
+   </osgi:service>
 
 </beans>

@@ -33,6 +33,8 @@
          <classpath>
             <!-- remove this if you are not using the SDK on the java side -->
             <pathelement path="${VSPHERE_SDK_HOME}/libs/vsphere-client-lib.jar"/>
+         	<pathelement path="${VSPHERE_SDK_HOME}/libs/vim25.jar"/>
+         	<pathelement path="${VSPHERE_SDK_HOME}/libs/commons-logging-1.1.1.jar"/>
          </classpath>
       </javac>
    </target>
@@ -48,7 +50,8 @@
       <!-- Create the jar bundle -->
       <jar  destfile="${BUILD_DIR}/${JAR_FILE}"
             manifest="${RES_DIR}/META-INF/MANIFEST.MF"
-            basedir="${CLASSES}"/>
+            basedir="${CLASSES}">
+      </jar>
 
    </target>
 </project>

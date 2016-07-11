@@ -10,6 +10,8 @@
 
    <bean name="VicUIServiceImpl" class="com.vmware.vicui.VicUIServiceImpl">
       <constructor-arg index="0" ref="dataServiceExtensionRegistry"></constructor-arg>
+      <constructor-arg index="1" ref="vimObjectReferenceService"></constructor-arg>
+      <constructor-arg index="2" ref="userSessionService"></constructor-arg>
    </bean>
 
 </beans>
