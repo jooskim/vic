@@ -75,21 +75,16 @@ package com.vmware.vicui.views {
 			       _view.isContainer = false;
 			       	   
 				   for ( var key:String in config ) {
-				   	   var item = config[key];
-				   	   if(!item.key || !item.key.value) {
-				   	       continue;
-				   	   }
-
-					   var keyName:String = item.key.value as String;
+					   var keyName:String = config[key].key.value as String;
 					   
 					   if (keyName == AppConstants.VM_CONTAINER_NAME_PATH) {
 					       _view.isContainer = true;
-					       _view.containerName.text = item.value as String;
+					       _view.containerName.text = config[key].value as String;
 					       continue;
 					   }
 
 					   if (keyName == AppConstants.VM_CONTAINER_IMAGE_PATH) {
-					   	   _view.imageName.text = item.value as String;
+					   	   _view.imageName.text = config[key].value as String;
 					   	   continue;
 					   }
 				   }
