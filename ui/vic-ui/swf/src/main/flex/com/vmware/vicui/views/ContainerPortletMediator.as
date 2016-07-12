@@ -95,6 +95,10 @@ package com.vmware.vicui.views {
 	   }
 	   
 	   private function clearData() : void {
+	   	   if(_view == null) {
+	   	       return;
+	   	   }
+
 	      // clear the UI data
 		   _view.isContainer = false;
 		   _view.containerName.text = null;
