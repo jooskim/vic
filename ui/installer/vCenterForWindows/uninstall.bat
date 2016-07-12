@@ -52,6 +52,7 @@ FOR /F "tokens=*" %%A IN (..\vCenterForWindows\_scratch_flags.txt) DO (
     IF NOT %%A=="" (
         java -jar "%parent%register-plugin.jar" %vcenter_unreg_flags% %%A
     )
+    "%utils_path%winscp.com" /command "open -hostkey=* sftp://%sftp_username%:%sftp_password%@%target_vcenter_ip%" "cd %target_vc_packages_path%" "rm com.vmware.vicui.*" "exit"
 )
 
 cd ..\vCenterForWindows

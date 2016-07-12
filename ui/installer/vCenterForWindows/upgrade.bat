@@ -67,6 +67,7 @@ FOR /F "tokens=*" %%A IN (..\vCenterForWindows\_scratch_flags.txt) DO (
         java -jar %parent%register-plugin.jar --unregister %vcenter_reg_common_flags% %%A
     )
 )
+"%utils_path%winscp.com" /command "open -hostkey=* sftp://%sftp_username%:%sftp_password%@%target_vcenter_ip%" "cd %target_vc_packages_path%" "rm com.vmware.vicui.*" "exit"
 
 IF %sftp_supported% EQU 1 (
     ECHO Copying plugins...
