@@ -70,7 +70,7 @@ package com.vmware.vicui.views {
 	   public function onData(event:DataByModelRequest, result:VchInfo):void {
 		   _logger.info("Vch summary data retrieved.");
 
-		   if(result != null) {
+		   if(result != null && _view != null) {
 			   var base64Decoder:Base64Decoder = new Base64Decoder();
 			   var config:Array = result.extraConfig;
 			   
@@ -78,7 +78,12 @@ package com.vmware.vicui.views {
 			   	   _view.isVch = false;
 
 				   for ( var key:String in config ) {
-					   var keyName:String = config[key].key.value as String;
+				   	   var item = config[key];
+				   	   if(!item.key || !item.key.value) {
+				   	   	   continue;
+				   	   }
+
+					   var keyName:String = item.key.value as String;
 					   
 					   if (keyName == AppConstants.VCH_NAME_PATH) {
 					       _view.isVch = true;
@@ -86,7 +91,7 @@ package com.vmware.vicui.views {
 					   }
 						
 					   if (keyName == AppConstants.VCH_CLIENT_IP_PATH ) {
-					       base64Decoder.decode(config[key].value as String);
+					       base64Decoder.decode(item.value as String);
 
 					       var bytes:ByteArray = base64Decoder.toByteArray();
 					       var ip_raw:String = bytes.toString();
