@@ -115,6 +115,8 @@ package com.vmware.vicui.views {
 	   	   }
 	      // clear the UI data
 		   _view.isVch = false;
+		   _view.dockerApiEndpoint.text = new String("");
+		   _view.dockerLog.label = new String("");
 	   }
 	}
 }
