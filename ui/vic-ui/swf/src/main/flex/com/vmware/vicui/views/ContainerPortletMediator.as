@@ -75,6 +75,9 @@ package com.vmware.vicui.views {
 		   if(_view == null) {
 		   	   return;
 		   }
+		   
+		   _view.containerName.text = "-";
+		   _view.imageName.text = "-";
 
 		   if(result != null) {
 			   
