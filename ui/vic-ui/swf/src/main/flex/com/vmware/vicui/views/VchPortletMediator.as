@@ -84,6 +84,8 @@ package com.vmware.vicui.views {
 			   
 			   if (config != null) {
 			   	   _view.isVch = false;
+			   	   _view.dockerApiEndpoint.text = "-";
+			   	   _view.dockerLog.label = "-";
 
 				   for ( var key:String in config ) {
 					   var keyName:String = config[key].key.value as String;
