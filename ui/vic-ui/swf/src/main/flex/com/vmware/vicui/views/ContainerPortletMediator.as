@@ -7,7 +7,6 @@ package com.vmware.vicui.views {
 	import com.vmware.ui.IContextObjectHolder;
 	import com.vmware.vicui.model.ContainerInfo;
 	import com.vmware.vicui.constants.AppConstants;
-	import com.vmware.vicui.util.AppUtils;
 	
 	import flash.events.EventDispatcher;
 	
@@ -106,7 +105,8 @@ package com.vmware.vicui.views {
 
 	      // clear the UI data
 		   _view.isContainer = false;
-		   _view.containerName.text = null;
+		   _view.containerName.text = new String("");
+		   _view.imageName.text = new String("");
 	   }
 	}
 }
