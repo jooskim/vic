@@ -44,10 +44,13 @@ import com.vmware.vise.vim.data.VimObjectReferenceService;
 public class VicUIServiceImpl implements VicUIService, ClientSessionEndListener {
 	private static final Log _logger = LogFactory.getLog(VicUIServiceImpl.class);
 	private static final String[] VIC_VM_TYPES = {"isVCH", "isContainer"};
+	private static final String EXTRACONFIG_VCH_PATH = "guestinfo./init/common/name";
+	private static final String EXTRACONFIG_CONTAINER_PATH = "guestinfo./common/name";
 	private static final String SERVICE_INSTANCE = "ServiceInstance";
 	private final VimObjectReferenceService _vimObjRefService;
 	private final UserSessionService _userSessionService;
 	private static VimPortType _vimPort = initializeVimPort();
+	private static Map<String, VirtualMachineConfigInfo> vmConfigsMap;
 	
 	private static VimPortType initializeVimPort() {
 		VimService vimService = new VimService();
@@ -90,6 +93,7 @@ public class VicUIServiceImpl implements VicUIService, ClientSessionEndListener 
 		vmTypeInfo.type = "VirtualMachine";
 		vmTypeInfo.properties = VIC_VM_TYPES;
 		TypeInfo[] providerTypes = new TypeInfo[] { vmTypeInfo };
+		vmConfigsMap = new HashMap<String, VirtualMachineConfigInfo>();
 		
 		_vimObjRefService = vimObjectReferenceService;
 		_userSessionService = userSessionService;
@@ -168,21 +172,29 @@ public class VicUIServiceImpl implements VicUIService, ClientSessionEndListener 
 		return serviceContent;
 	}
 	
+	private VirtualMachineConfigInfo getCachedVMConfigInfo(String entityName) {
+		if(vmConfigsMap.containsKey(entityName)) {
+			return vmConfigsMap.get(entityName);
+		}
+		
+		return null;
+	}
+	
 	private ResultItem getProperties(Object objRef) throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
 		ResultItem resultItem = new ResultItem();
 		resultItem.resourceObject = objRef;
+		String entityType = _vimObjRefService.getResourceObjectType(objRef);
+		String entityName = _vimObjRefService.getValue(objRef);
+		String serverGuid = _vimObjRefService.getServerGuid(objRef);
 		
 		ManagedObjectReference vmMor = new ManagedObjectReference();
-		vmMor.setType(_vimObjRefService.getResourceObjectType(objRef));
-		vmMor.setValue(_vimObjRefService.getValue(objRef));
+		vmMor.setType(entityType);
+		vmMor.setValue(entityName);
 		
-		String serverGuid = _vimObjRefService.getServerGuid(objRef);
-		ServiceContent service = getServiceContent(serverGuid);
-	    if (service == null) {
-	    	return null;
-    	}
-	    
-	    PropertyValue pv_is_vch = new PropertyValue();
+		VirtualMachineConfigInfo config = null;
+		
+		// initialize properties isVCH and isContainer
+		PropertyValue pv_is_vch = new PropertyValue();
 		pv_is_vch.resourceObject = objRef;
 		pv_is_vch.propertyName = VIC_VM_TYPES[0];
 		pv_is_vch.value = false;
@@ -192,51 +204,83 @@ public class VicUIServiceImpl implements VicUIService, ClientSessionEndListener 
 		pv_is_container.propertyName = VIC_VM_TYPES[1];
 		pv_is_container.value = false;
 		
-	    VirtualMachineConfigInfo config = null;
-	    
-	    PropertySpec propertySpec = new PropertySpec();
-	    propertySpec.setAll(Boolean.FALSE);
-	    propertySpec.setType("VirtualMachine");
-	    propertySpec.getPathSet().add("config");
-	    
-	    ObjectSpec objectSpec = new ObjectSpec();
-	    objectSpec.setObj(vmMor);
-	    objectSpec.setSkip(Boolean.FALSE);
-	    
-	    PropertyFilterSpec propertyFilterSpec = new PropertyFilterSpec();
-	    propertyFilterSpec.getPropSet().add(propertySpec);
-	    propertyFilterSpec.getObjectSet().add(objectSpec);
-	    
-	    List<PropertyFilterSpec> propertyFilterSpecs = new ArrayList<PropertyFilterSpec>();
-	    propertyFilterSpecs.add(propertyFilterSpec);
+		if(!vmConfigsMap.containsKey(entityName)) {
+			ServiceContent service = getServiceContent(serverGuid);
+		    if (service == null) {
+		    	return null;
+	    	}
+		    
+		    PropertySpec propertySpec = new PropertySpec();
+		    propertySpec.setAll(Boolean.FALSE);
+		    propertySpec.setType("VirtualMachine");
+		    propertySpec.getPathSet().add("config");
+		    
+		    ObjectSpec objectSpec = new ObjectSpec();
+		    objectSpec.setObj(vmMor);
+		    objectSpec.setSkip(Boolean.FALSE);
+		    
+		    PropertyFilterSpec propertyFilterSpec = new PropertyFilterSpec();
+		    propertyFilterSpec.getPropSet().add(propertySpec);
+		    propertyFilterSpec.getObjectSet().add(objectSpec);
+		    
+		    List<PropertyFilterSpec> propertyFilterSpecs = new ArrayList<PropertyFilterSpec>();
+		    propertyFilterSpecs.add(propertyFilterSpec);
 
-	    List<ObjectContent> objectContents = _vimPort.retrieveProperties(service.getPropertyCollector(), propertyFilterSpecs);
-	    if (objectContents != null) {
-	    	for (ObjectContent content : objectContents) {
-	    		List<DynamicProperty> dps = content.getPropSet();
-	    		if (dps != null) {
-	    			for (DynamicProperty dp : dps) {
-	    				config = (VirtualMachineConfigInfo) dp.getVal();
-	    			}
-	    		}
-	    	}
-	    	
-	    	List<OptionValue> extraConfigs = config.getExtraConfig();
-	    	for(OptionValue option : extraConfigs) {
-	    		if(option.getKey().equals("guestinfo./common/name")) {
-	    			pv_is_container.value = true;
-	    			break;
-	    		}
-	    		
-	    		if(option.getKey().equals("guestinfo./init/common/name")) {
-	    			pv_is_vch.value = true;
-	    			break;
-	    		}
-	    	}
-	    }
+		    List<ObjectContent> objectContents = _vimPort.retrieveProperties(service.getPropertyCollector(), propertyFilterSpecs);
+		    if (objectContents != null) {
+		    	for (ObjectContent content : objectContents) {
+		    		List<DynamicProperty> dps = content.getPropSet();
+		    		if (dps != null) {
+		    			for (DynamicProperty dp : dps) {
+		    				config = (VirtualMachineConfigInfo) dp.getVal();
+		    				
+		    				List<OptionValue> extraConfigs = config.getExtraConfig();
+		    				for(OptionValue option : extraConfigs) {
+		    		    		if(option.getKey().equals(EXTRACONFIG_CONTAINER_PATH)) {
+		    		    			pv_is_container.value = true;
+		    		    			break;
+		    		    		}
+		    		    		
+		    		    		if(option.getKey().equals(EXTRACONFIG_VCH_PATH)) {
+		    		    			pv_is_vch.value = true;
+		    		    			break;
+		    		    		}
+		    		    	}
+		    			}
+		    			
+		    			vmConfigsMap.put(entityName, (pv_is_container.value.equals(true) || pv_is_vch.value.equals(true)) ? config : null);
+		    		}
+		    	}
+		    	
+		    	resultItem.properties = new PropertyValue[] {pv_is_vch, pv_is_container};
+		    	
+		    	return resultItem;
+		    }
+		}
+		
+		VirtualMachineConfigInfo cachedVMConfigInfo = getCachedVMConfigInfo(entityName);
+		
+		if(cachedVMConfigInfo == null) {
+			return null;
+		}
+		
+		List<OptionValue> extraConfigs = cachedVMConfigInfo.getExtraConfig();
+		_logger.info("VIC: Container or VCH VM information served from cache for " + entityName);
+		
+    	for(OptionValue option : extraConfigs) {
+    		if(option.getKey().equals(EXTRACONFIG_CONTAINER_PATH)) {
+    			pv_is_container.value = true;
+    			break;
+    		}
+    		
+    		if(option.getKey().equals(EXTRACONFIG_VCH_PATH)) {
+    			pv_is_vch.value = true;
+    			break;
+    		}
+    	}
 		
 		resultItem.properties = new PropertyValue[] {pv_is_vch, pv_is_container};
-		
+
 		return resultItem;
 	}
 	
