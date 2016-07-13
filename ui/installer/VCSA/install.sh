@@ -122,7 +122,7 @@ upload_packages () {
 
     echo ""
     echo "Please enter the root password for your machine running VCSA"
-    scp -qr $PLUGIN_BUNDLES root@$VCENTER_IP:$WEBCLIENT_PLUGINS_FOLDER
+    scp -qr $PLUGIN_BUNDLES root@$VCENTER_IP:/tmp/
     if [[ $? > 0 ]] ; then
         echo "Error! Could not upload the VIC plugins to the target VCSA"
         exit 1
@@ -134,7 +134,7 @@ update_ownership () {
     echo ""
     local PLUGIN_BUNDLES_WITHOUT_PREFIX=$(echo $PLUGIN_BUNDLES | sed 's/\.\.\/vsphere\-client\-serenity\///g')
     echo "Please enter the root password for your machine running VCSA"
-    ssh -t root@$VCENTER_IP "cd $WEBCLIENT_PLUGINS_FOLDER; chown -R vsphere-client:users ${PLUGIN_BUNDLES_WITHOUT_PREFIX}"
+    ssh -t root@$VCENTER_IP "mkdir -p $WEBCLIENT_PLUGINS_FOLDER; cp -rf /tmp/$PLUGIN_BUNDLES_WITHOUT_PREFIX $WEBCLIENT_PLUGINS_FOLDER; cd $WEBCLIENT_PLUGINS_FOLDER; chown -R vsphere-client:users /etc/vmware/vsphere-client/vc-packages"
     if [[ $? > 0 ]] ; then
         echo "Error! Failed to update the ownership of folders. Please manually set them to vsphere-client:users"
         exit 1
