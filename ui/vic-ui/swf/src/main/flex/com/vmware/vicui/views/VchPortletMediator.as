@@ -2,6 +2,8 @@ package com.vmware.vicui.views {
 
 	import com.vmware.core.model.IResourceReference;
 	import com.vmware.data.query.events.DataByModelRequest;
+	import com.vmware.data.query.events.DataRequestInfo;
+	import com.vmware.data.query.DataUpdateSpec;
 	import com.vmware.ui.IContextObjectHolder;
 	import com.vmware.vicui.model.VchInfo;
 	import com.vmware.vicui.constants.AppConstants;
@@ -62,8 +64,11 @@ package com.vmware.vicui.views {
 	   }
 	
 	   private function requestData():void {
+	   	   // Default data request option allowing implicit updates of the view
+	   	   var requestInfo:DataRequestInfo = new DataRequestInfo(DataUpdateSpec.newImplicitInstance());
+
 		   // Dispatch an event to fetch the _contextObject data from the server along the specified model.
-		   dispatchEvent(DataByModelRequest.newInstance(_contextObject, VchInfo));
+		   dispatchEvent(DataByModelRequest.newInstance(_contextObject, VchInfo, requestInfo));
 	   }
 	   
 	   [ResponseHandler(name="{com.vmware.data.query.events.DataByModelRequest.RESPONSE_ID}")]
