@@ -74,7 +74,11 @@ package com.vmware.vicui.views {
 	   public function onData(event:DataByModelRequest, result:VchInfo):void {
 		   _logger.info("Vch summary data retrieved.");
 
-		   if(result != null && _view != null) {
+		   if(_view == null) {
+		   	   return;
+		   }
+
+		   if(result != null) {
 			   var base64Decoder:Base64Decoder = new Base64Decoder();
 			   var config:Array = result.extraConfig;
 			   

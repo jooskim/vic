@@ -71,7 +71,12 @@ package com.vmware.vicui.views {
 	   [ResponseHandler(name="{com.vmware.data.query.events.DataByModelRequest.RESPONSE_ID}")]
 	   public function onData(event:DataByModelRequest, result:ContainerInfo):void {
 		   _logger.info("Container summary data retrieved.");
-		   if(result != null && _view != null) {
+		   
+		   if(_view == null) {
+		   	   return;
+		   }
+
+		   if(result != null) {
 			   
 			   var config:Array = result.extraConfig;
 			   
