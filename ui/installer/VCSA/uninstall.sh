@@ -57,7 +57,7 @@ parse_and_unregister_plugins () {
             done < $d/vc_extension_flags
             
             echo "Please enter the root password for your machine running VCSA"
-            ssh -t root@$VCENTER_IP "cd $WEBCLIENT_PLUGINS_FOLDER; rm -rf $key-$version"
+            ssh -t root@$VCENTER_IP "cd $WEBCLIENT_PLUGINS_FOLDER; rm -rf $key-*"
 
             local plugin_flags="--key $key"
             echo "Unregistering vCenter Server Extension..."
