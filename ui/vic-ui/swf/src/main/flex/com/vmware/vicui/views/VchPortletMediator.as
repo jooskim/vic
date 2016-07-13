@@ -7,7 +7,6 @@ package com.vmware.vicui.views {
 	import com.vmware.ui.IContextObjectHolder;
 	import com.vmware.vicui.model.VchInfo;
 	import com.vmware.vicui.constants.AppConstants;
-	import com.vmware.vicui.util.AppUtils;
 	
 	import flash.events.EventDispatcher;
 	import flash.utils.ByteArray;
