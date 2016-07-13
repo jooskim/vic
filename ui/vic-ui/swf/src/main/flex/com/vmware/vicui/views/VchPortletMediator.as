@@ -96,8 +96,8 @@ package com.vmware.vicui.views {
 					       var ip_raw:String = bytes.toString();
 					       var ip_ipv4:String = ip_raw.charCodeAt(0) + "." + ip_raw.charCodeAt(1) + "." + ip_raw.charCodeAt(2) + "." + ip_raw.charCodeAt(3);
 					       
-					       _view.dockerApiEndpoint.text = "DOCKER_HOST=tcp://" + ip_ipv4 + ":2376";
-					       _view.dockerLog.label = "http://" + ip_ipv4 + ":2378";
+					       _view.dockerApiEndpoint.text = "DOCKER_HOST=tcp://" + ip_ipv4 + AppConstants.VCH_ENDPOINT_PORT;
+					       _view.dockerLog.label = "http://" + ip_ipv4 + AppConstants.VCH_LOG_PORT;
 					       continue;
 
 					   }
