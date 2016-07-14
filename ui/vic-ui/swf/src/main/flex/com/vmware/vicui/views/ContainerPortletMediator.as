@@ -111,11 +111,9 @@ package com.vmware.vicui.views {
 							}
 					   }
 				   }
-			    } else {
-				   _view.isContainer = false;
-			    }
-		   } else {
-			   return false;
+			  } else {
+				 _view.isContainer = false;
+			  }
 		   }
 	   }
 	   

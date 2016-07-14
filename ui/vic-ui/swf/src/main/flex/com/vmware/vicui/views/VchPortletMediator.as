@@ -74,7 +74,7 @@ package com.vmware.vicui.views {
 	   public function onData(event:DataByModelRequest, result:VchInfo):void {
 		   _logger.info("Vch summary data retrieved.");
 
-		   if(_view != null) {
+		   if (_view != null) {
 			   
 			   //set default placeholder data
 			   _view.isVch = new Boolean(false);
@@ -125,10 +125,10 @@ package com.vmware.vicui.views {
 							}
 					   }
 				   }
+			   } else {
+				   _view.isVch = false;
 			   }
-		   } else {
-			   _view.isVch = false;
-		   }
+	   	   }
 	   }
 	   
 	   private function clearData() : void {
