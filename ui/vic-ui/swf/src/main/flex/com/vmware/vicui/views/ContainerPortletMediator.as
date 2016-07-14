@@ -1,12 +1,12 @@
 package com.vmware.vicui.views {
 
 	import com.vmware.core.model.IResourceReference;
+	import com.vmware.data.query.DataUpdateSpec;
 	import com.vmware.data.query.events.DataByModelRequest;
 	import com.vmware.data.query.events.DataRequestInfo;
-	import com.vmware.data.query.DataUpdateSpec;
 	import com.vmware.ui.IContextObjectHolder;
-	import com.vmware.vicui.model.ContainerInfo;
 	import com.vmware.vicui.constants.AppConstants;
+	import com.vmware.vicui.model.ContainerInfo;
 	
 	import flash.events.EventDispatcher;
 	
@@ -72,52 +72,60 @@ package com.vmware.vicui.views {
 	   public function onData(event:DataByModelRequest, result:ContainerInfo):void {
 		   _logger.info("Container summary data retrieved.");
 		   
-		   if(_view == null) {
-		   	   return;
-		   }
-		   
-		   _view.containerName.text = "-";
-		   _view.imageName.text = "-";
+		   if (_view != null) {
+		   	   
+			   //set default placeholder data
+			   _view.isContainer = new Boolean(false);
+			   _view.containerName.text = new String("-");
+			   _view.imageName.text = new String("-");
+			   
+			   if (result != null) {
+				   
+				   var config:Array = new Array();
+				   
+				   //extraConfig data from vm config
+				   config = result.extraConfig;
+				   
+				   if (config != null) {
 
-		   if(result != null) {
-			   
-			   var config:Array = result.extraConfig;
-			   
-			   if (config != null) {
-			       _view.isContainer = false;
-			       	   
-				   for ( var key in config ) {
-					   
-					   if (key !== null) {
-						   var keyName:String = config[key].key.value as String;
+					   var keyName:String = new String();
+					   var keyVal:String = new String();
+					   var key:String = new String();
+					    
+					   for (key in config) {
 						   
-						   if (keyName == AppConstants.VM_CONTAINER_NAME_PATH) {
-						       _view.isContainer = true;
-						       _view.containerName.text = config[key].value as String;
-						       continue;
-						   }
-	
-						   if (keyName == AppConstants.VM_CONTAINER_IMAGE_PATH) {
-						   	   _view.imageName.text = config[key].value as String;
-						   	   continue;
-						   }
+					    	keyName = config[key].key.value as String;
+							keyVal = config[key].value as String;
+							
+							//determine if this is container vm
+							if (keyName == AppConstants.VM_CONTAINER_NAME_PATH) {
+							    _view.isContainer = true;
+							    _view.containerName.text = keyVal;
+							    continue;
+							}
+							
+							//get container image name
+							if (keyName == AppConstants.VM_CONTAINER_IMAGE_PATH) {
+							    _view.imageName.text = keyVal;
+							   	continue;
+							}
 					   }
 				   }
-			   }
+			    } else {
+				   _view.isContainer = false;
+			    }
 		   } else {
-			   _view.isContainer = false;
+			   return false;
 		   }
 	   }
 	   
 	   private function clearData() : void {
-	   	   if(_view == null) {
-	   	       return;
-	   	   }
-
-	      // clear the UI data
-		   _view.isContainer = false;
-		   _view.containerName.text = new String("");
-		   _view.imageName.text = new String("");
+	   	   if (_view != null) {
+		      // clear the UI data
+			   _view.isContainer = false;
+			   _view.containerName.text = new String("-");
+			   _view.imageName.text = new String("-");
+		   }
 	   }
 	}
 }

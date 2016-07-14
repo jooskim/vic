@@ -1,12 +1,12 @@
 package com.vmware.vicui.views {
 
 	import com.vmware.core.model.IResourceReference;
+	import com.vmware.data.query.DataUpdateSpec;
 	import com.vmware.data.query.events.DataByModelRequest;
 	import com.vmware.data.query.events.DataRequestInfo;
-	import com.vmware.data.query.DataUpdateSpec;
 	import com.vmware.ui.IContextObjectHolder;
-	import com.vmware.vicui.model.VchInfo;
 	import com.vmware.vicui.constants.AppConstants;
+	import com.vmware.vicui.model.VchInfo;
 	
 	import flash.events.EventDispatcher;
 	import flash.utils.ByteArray;
@@ -74,41 +74,55 @@ package com.vmware.vicui.views {
 	   public function onData(event:DataByModelRequest, result:VchInfo):void {
 		   _logger.info("Vch summary data retrieved.");
 
-		   if(_view == null) {
-		   	   return;
-		   }
-
-		   if(result != null) {
-			   var base64Decoder:Base64Decoder = new Base64Decoder();
-			   var config:Array = result.extraConfig;
+		   if(_view != null) {
 			   
-			   if (config != null) {
-			   	   _view.isVch = false;
-			   	   _view.dockerApiEndpoint.text = "-";
-			   	   _view.dockerLog.label = "-";
-
-				   for ( var key in config ) {
+			   //set default placeholder data
+			   _view.isVch = new Boolean(false);
+			   _view.dockerApiEndpoint.text = new String("-");
+			   _view.dockerLog.label = new String("-");
+		   	   
+			   if (result != null) {
+				   
+				   var config:Array = new Array();
+				   
+				   //extraConfig data from vm config
+				   config = result.extraConfig;
+				   
+				   if (config != null) {
 					   
-					   if (key !== null) {
-						   var keyName:String = config[key].key.value as String;
-						   
-						   if (keyName == AppConstants.VCH_NAME_PATH) {
-						       _view.isVch = true;
-						       continue;
-						   }
+					   var keyName:String = new String();
+					   var keyVal:String = new String();
+					   var key:String = new String();
+
+					   for (key in config ) {
+						  
+							keyName = config[key].key.value as String;
+							keyVal = config[key].value as String;
 							
-						   if (keyName == AppConstants.VCH_CLIENT_IP_PATH ) {
-						       base64Decoder.decode(config[key].value as String);
-	
-						       var bytes:ByteArray = base64Decoder.toByteArray();
-						       var ip_raw:String = bytes.toString();
-						       var ip_ipv4:String = ip_raw.charCodeAt(0) + "." + ip_raw.charCodeAt(1) + "." + ip_raw.charCodeAt(2) + "." + ip_raw.charCodeAt(3);
-						       
-						       _view.dockerApiEndpoint.text = "DOCKER_HOST=tcp://" + ip_ipv4 + AppConstants.VCH_ENDPOINT_PORT;
-						       _view.dockerLog.label = "http://" + ip_ipv4 + AppConstants.VCH_LOG_PORT;
-						       continue;
-	
-						   }
+							//determine if its a vch
+							if (keyName == AppConstants.VCH_NAME_PATH) {
+							    _view.isVch = true;
+							    continue;
+							}
+							
+							//get container ip and decode to correct format
+							if (keyName == AppConstants.VCH_CLIENT_IP_PATH ) {
+								var base64Decoder:Base64Decoder = new Base64Decoder();
+							    base64Decoder.decode(keyVal);
+								   
+								var bytes:ByteArray = new ByteArray();
+								var ip_raw:String = new String();
+								var ip_ipv4:String = new String();
+		
+							    bytes = base64Decoder.toByteArray();
+							    ip_raw = bytes.toString();
+							    ip_ipv4 = ip_raw.charCodeAt(0) + "." + ip_raw.charCodeAt(1) + "." + ip_raw.charCodeAt(2) + "." + ip_raw.charCodeAt(3);
+							       
+							    _view.dockerApiEndpoint.text = "DOCKER_HOST=tcp://" + ip_ipv4 + AppConstants.VCH_ENDPOINT_PORT;
+							    _view.dockerLog.label = "http://" + ip_ipv4 + AppConstants.VCH_LOG_PORT;
+							    continue;
+		
+							}
 					   }
 				   }
 			   }
@@ -118,13 +132,12 @@ package com.vmware.vicui.views {
 	   }
 	   
 	   private function clearData() : void {
-	   	   if(_view == null) {
-	   	       return;
-	   	   }
-	      // clear the UI data
-		   _view.isVch = false;
-		   _view.dockerApiEndpoint.text = new String("");
-		   _view.dockerLog.label = new String("");
+	   	   if(_view != null) {  
+		      // clear the UI data
+			   _view.isVch = false;
+			   _view.dockerApiEndpoint.text = new String("-");
+			   _view.dockerLog.label = new String("-");
+		   }
 	   }
 	}
 }

@@ -225,9 +225,6 @@ public class VicUIServiceImpl implements VicUIService, ClientSessionEndListener 
 	    				
 	    				List<OptionValue> extraConfigs = config.getExtraConfig();
 	    				for(OptionValue option : extraConfigs) {
-	    					if(option.getKey().equals("guestinfo..init.networks|client.ip.IP")) {
-	    						_logger.info("VCH CLIENT IP FOUND : " + option.getValue());	    						
-	    					}
 	    					
 	    		    		if(option.getKey().equals(EXTRACONFIG_CONTAINER_PATH)) {
 	    		    			pv_is_container.value = true;
