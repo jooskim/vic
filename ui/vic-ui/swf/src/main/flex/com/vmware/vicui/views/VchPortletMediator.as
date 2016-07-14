@@ -87,27 +87,29 @@ package com.vmware.vicui.views {
 			   	   _view.dockerApiEndpoint.text = "-";
 			   	   _view.dockerLog.label = "-";
 
-				   for ( var key:String in config ) {
-					   var keyName:String = config[key].key.value as String;
+				   for ( var key in config ) {
 					   
-					   if (keyName == AppConstants.VCH_NAME_PATH) {
-					       _view.isVch = true;
-					       continue;
+					   if (key !== null) {
+						   var keyName:String = config[key].key.value as String;
+						   
+						   if (keyName == AppConstants.VCH_NAME_PATH) {
+						       _view.isVch = true;
+						       continue;
+						   }
+							
+						   if (keyName == AppConstants.VCH_CLIENT_IP_PATH ) {
+						       base64Decoder.decode(config[key].value as String);
+	
+						       var bytes:ByteArray = base64Decoder.toByteArray();
+						       var ip_raw:String = bytes.toString();
+						       var ip_ipv4:String = ip_raw.charCodeAt(0) + "." + ip_raw.charCodeAt(1) + "." + ip_raw.charCodeAt(2) + "." + ip_raw.charCodeAt(3);
+						       
+						       _view.dockerApiEndpoint.text = "DOCKER_HOST=tcp://" + ip_ipv4 + AppConstants.VCH_ENDPOINT_PORT;
+						       _view.dockerLog.label = "http://" + ip_ipv4 + AppConstants.VCH_LOG_PORT;
+						       continue;
+	
+						   }
 					   }
-						
-					   if (keyName == AppConstants.VCH_CLIENT_IP_PATH ) {
-					       base64Decoder.decode(config[key].value as String);
-
-					       var bytes:ByteArray = base64Decoder.toByteArray();
-					       var ip_raw:String = bytes.toString();
-					       var ip_ipv4:String = ip_raw.charCodeAt(0) + "." + ip_raw.charCodeAt(1) + "." + ip_raw.charCodeAt(2) + "." + ip_raw.charCodeAt(3);
-					       
-					       _view.dockerApiEndpoint.text = "DOCKER_HOST=tcp://" + ip_ipv4 + AppConstants.VCH_ENDPOINT_PORT;
-					       _view.dockerLog.label = "http://" + ip_ipv4 + AppConstants.VCH_LOG_PORT;
-					       continue;
-
-					   }
-
 				   }
 			   }
 		   } else {
