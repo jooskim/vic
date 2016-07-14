@@ -33,7 +33,4 @@
 	<ns:PropertyGridRow label="Docker log" visible="{isVch}" includeInLayout="{isVch}">
 		<mx:LinkButton id="dockerLog" label="{getString('placeholderText')}" textAlign="left" click="jumpToURL(event)"/>
 	</ns:PropertyGridRow>
-	<!--<ns:PropertyGridRow label="VCH config" visible="{isVch}" includeInLayout="{isVch}">
-		<mx:Label id="vchConfig" text="{getString('placeholderText')}"/>
-	</ns:PropertyGridRow>-->
 </ns:PropertyGrid>
