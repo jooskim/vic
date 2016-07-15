@@ -41,11 +41,18 @@ echo -n "Enter your vCenter Administrator Password: "
 read -s VCENTER_ADMIN_PASSWORD
 echo ""
 
+OS=$(uname)
 PLUGIN_BUNDLES=''
 VCENTER_ADMIN_USERNAME="administrator@vsphere.local"
 VCENTER_SDK_URL="https://${VCENTER_IP}/sdk/"
 COMMONFLAGS="--url $VCENTER_SDK_URL --username $VCENTER_ADMIN_USERNAME --password $VCENTER_ADMIN_PASSWORD"
 WEBCLIENT_PLUGINS_FOLDER="/etc/vmware/vsphere-client/vc-packages/vsphere-client-serenity/"
+
+if [[ $(echo $OS | grep -i "darwin") ]] ; then
+    PLUGIN_REGISTER_BIN="../../vic-machine-darwin"
+else
+    PLUGIN_REGISTER_BIN="../../vic-machine-linux"
+fi
 
 if [[ $VIC_UI_HOST_URL != 'NOURL' ]] ; then
     if [[ ${VIC_UI_HOST_URL:0:5} == 'https' ]] ; then
@@ -94,7 +101,9 @@ parse_and_register_plugins () {
             # todo
             # This will eventually change so that go command will be used so the command is going to be like:
             # vic-machine register-ui --key $id --name "$name" --summary "$description" --version "$version" --company "VMware" --pluginurl "DUMMY" --showInSolutionManager
-    
+
+            # echo "plugin register go bin: $PLUGIN_REGISTER_BIN"
+            # $PLUGIN_REGISTER_BIN $COMMONFLAGS $plugin_flags -- showInsolutionManager
             java -jar register-plugin.jar $COMMONFLAGS $plugin_flags --showInSolutionManager
 
             # todo

@@ -41,11 +41,18 @@ echo -n "Enter your vCenter Administrator Password: "
 read -s VCENTER_ADMIN_PASSWORD
 echo ""
 
+OS=$(uname)
 PLUGIN_BUNDLES=''
 VCENTER_ADMIN_USERNAME="administrator@vsphere.local"
 VCENTER_SDK_URL="https://${VCENTER_IP}/sdk/"
 COMMONFLAGS="--url $VCENTER_SDK_URL --username $VCENTER_ADMIN_USERNAME --password $VCENTER_ADMIN_PASSWORD"
 WEBCLIENT_PLUGINS_FOLDER="/etc/vmware/vsphere-client/vc-packages/vsphere-client-serenity/"
+
+if [[ $(echo $OS | grep -i "darwin") ]] ; then
+    PLUGIN_REGISTER_BIN="../../vic-machine-darwin"
+else
+    PLUGIN_REGISTER_BIN="../../vic-machine-linux"
+fi
 
 parse_and_unregister_plugins () {
     for d in ../vsphere-client-serenity/* ; do
@@ -61,6 +68,7 @@ parse_and_unregister_plugins () {
 
             local plugin_flags="--key $key"
             echo "Unregistering vCenter Server Extension..."
+            # $PLUGIN_REGISTER_BIN $COMMONFLAGS $plugin_flags --unregister 
             java -jar register-plugin.jar $COMMONFLAGS $plugin_flags --unregister
         fi
     done

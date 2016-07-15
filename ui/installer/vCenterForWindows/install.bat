@@ -33,6 +33,7 @@ SET "psCommand=powershell -Command "$pword = read-host 'Enter your vCenter Admin
         [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)""
 FOR /f "usebackq delims=" %%p in (`%psCommand%`) do set vcenter_password=%%p
 
+SET plugin_manager_bin=%parent%..\..\vic-machine-windows.exe something
 SET utils_path=%parent%utils\
 SET vcenter_username=administrator@vsphere.local
 SET vcenter_reg_common_flags=--url https://%target_vcenter_ip%/sdk/ --username %vcenter_username% --password %vcenter_password% --showInSolutionManager
@@ -74,7 +75,7 @@ FOR /D %%i IN (*) DO (
 ECHO Registering VIC UI Plugins...
 FOR /F "tokens=*" %%A IN (..\vCenterForWindows\_scratch_flags.txt) DO (
     IF NOT %%A=="" (
-        REM This will be eventually replaced with go command
+        REM %plugin_manager_bin% %vcenter_reg_common_flags% %%A
         java -jar "%parent%register-plugin.jar" %vcenter_reg_common_flags% %%A
     )
 )

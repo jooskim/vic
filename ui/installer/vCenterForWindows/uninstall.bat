@@ -33,7 +33,7 @@ SET "psCommand=powershell -Command "$pword = read-host 'Enter your vCenter Admin
         [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)""
 FOR /f "usebackq delims=" %%p in (`%psCommand%`) do set vcenter_password=%%p
 
-SET target_vc_packages_path=/vsphere-client/vc-packages/vsphere-client-serenity/
+SET plugin_manager_bin=%parent%..\..\vic-machine-windows.exe something
 SET utils_path=%parent%utils\
 SET vcenter_username=administrator@vsphere.local
 SET vcenter_unreg_flags=--url https://%target_vcenter_ip%/sdk/ --username %vcenter_username% --password %vcenter_password% --unregister
@@ -50,6 +50,7 @@ FOR /D %%i IN (*) DO (
 ECHO Unregistering VIC UI Plugins...
 FOR /F "tokens=*" %%A IN (..\vCenterForWindows\_scratch_flags.txt) DO (
     IF NOT %%A=="" (
+        REM %plugin_manager_bin% %vcenter_unreg_flags% %%A
         java -jar "%parent%register-plugin.jar" %vcenter_unreg_flags% %%A
     )
     "%utils_path%winscp.com" /command "open -hostkey=* sftp://%sftp_username%:%sftp_password%@%target_vcenter_ip%" "cd %target_vc_packages_path%" "rm com.vmware.vicui.*" "exit"
