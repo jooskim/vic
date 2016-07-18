@@ -96,7 +96,9 @@ parse_and_register_plugins () {
             fi
             
             local plugin_flags="--key $key --name $name --version $version --summary $summary --company $company --pluginurl $plugin_url"
+            echo "----------------------------------------"
             echo "Registering vCenter Server Extension..."
+            echo "----------------------------------------"
 
             # todo
             # This will eventually change so that go command will be used so the command is going to be like:
@@ -129,8 +131,10 @@ upload_packages () {
         fi
     done
 
-    echo ""
+    echo "-------------------------------------------------------------"
+    echo "Copying plugin contents to the vSphere Web Client..."
     echo "Please enter the root password for your machine running VCSA"
+    echo "-------------------------------------------------------------"
     scp -qr $PLUGIN_BUNDLES root@$VCENTER_IP:/tmp/
     if [[ $? > 0 ]] ; then
         echo "Error! Could not upload the VIC plugins to the target VCSA"
@@ -139,10 +143,11 @@ upload_packages () {
 }
 
 update_ownership () {
-    echo "Updating ownership of the bundles..."
-    echo ""
-    local PLUGIN_BUNDLES_WITHOUT_PREFIX=$(echo $PLUGIN_BUNDLES | sed 's/\.\.\/vsphere\-client\-serenity\///g')
+    echo "--------------------------------------------------------------"
+    echo "Updating ownership of the plugin folders..."
     echo "Please enter the root password for your machine running VCSA"
+    echo "--------------------------------------------------------------"
+    local PLUGIN_BUNDLES_WITHOUT_PREFIX=$(echo $PLUGIN_BUNDLES | sed 's/\.\.\/vsphere\-client\-serenity\///g')
     ssh -t root@$VCENTER_IP "mkdir -p $WEBCLIENT_PLUGINS_FOLDER; cp -rf /tmp/$PLUGIN_BUNDLES_WITHOUT_PREFIX $WEBCLIENT_PLUGINS_FOLDER; cd $WEBCLIENT_PLUGINS_FOLDER; chown -R vsphere-client:users /etc/vmware/vsphere-client/vc-packages"
     if [[ $? > 0 ]] ; then
         echo "Error! Failed to update the ownership of folders. Please manually set them to vsphere-client:users"
@@ -165,8 +170,9 @@ if [[ $VIC_UI_HOST_URL == "NOURL" ]] ; then
     update_ownership
 fi
 
+echo "--------------------------------------------------------------"
 if [[ $? > 0 ]] ; then
-    echo "There was a problem in the VIC UI registration process"
+    echo "Error! There was a problem in the VIC UI registration process"
     exit 1
 else
     echo "VIC UI registration was successful"

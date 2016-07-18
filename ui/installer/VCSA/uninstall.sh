@@ -49,9 +49,9 @@ COMMONFLAGS="--url $VCENTER_SDK_URL --username $VCENTER_ADMIN_USERNAME --passwor
 WEBCLIENT_PLUGINS_FOLDER="/etc/vmware/vsphere-client/vc-packages/vsphere-client-serenity/"
 
 if [[ $(echo $OS | grep -i "darwin") ]] ; then
-    PLUGIN_REGISTER_BIN="../../vic-machine-darwin"
+    PLUGIN_MANAGER_BIN="../../vic-machine-darwin"
 else
-    PLUGIN_REGISTER_BIN="../../vic-machine-linux"
+    PLUGIN_MANAGER_BIN="../../vic-machine-linux"
 fi
 
 parse_and_unregister_plugins () {
@@ -63,13 +63,17 @@ parse_and_unregister_plugins () {
                 eval "local $p_line"
             done < $d/vc_extension_flags
             
-            echo "Please enter the root password for your machine running VCSA"
-            ssh -t root@$VCENTER_IP "cd $WEBCLIENT_PLUGINS_FOLDER; rm -rf $key-*"
-
             local plugin_flags="--key $key"
+            echo "-------------------------------------------------------------"
             echo "Unregistering vCenter Server Extension..."
-            # $PLUGIN_REGISTER_BIN $COMMONFLAGS $plugin_flags --unregister 
+            echo "-------------------------------------------------------------"
+            # $PLUGIN_MANAGER_BIN $COMMONFLAGS $plugin_flags --unregister 
             java -jar register-plugin.jar $COMMONFLAGS $plugin_flags --unregister
+            echo "-------------------------------------------------------------"
+            echo "Deleting plugin contents..."
+            echo "Please enter the root password for your machine running VCSA"
+            echo "-------------------------------------------------------------"
+            ssh -t root@$VCENTER_IP "cd $WEBCLIENT_PLUGINS_FOLDER; rm -rf $key-*"
         fi
     done
 }
@@ -86,6 +90,7 @@ rename_package_folder () {
 # Also, rename the folders such that they follow the convention of $PLUGIN_KEY-$PLUGIN_VERSION
 parse_and_unregister_plugins
 
+echo "--------------------------------------------------------------"
 if [[ $? > 0 ]] ; then
     echo "There was a problem in the VIC UI unregistration process"
     exit 1
