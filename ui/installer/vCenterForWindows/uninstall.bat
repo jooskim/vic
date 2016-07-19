@@ -53,7 +53,11 @@ FOR /F "tokens=*" %%A IN (..\vCenterForWindows\_scratch_flags.txt) DO (
         REM %plugin_manager_bin% %vcenter_unreg_flags% %%A
         java -jar "%parent%register-plugin.jar" %vcenter_unreg_flags% %%A
     )
-    "%utils_path%winscp.com" /command "open -hostkey=* sftp://%sftp_username%:%sftp_password%@%target_vcenter_ip%" "cd %target_vc_packages_path%" "rm com.vmware.vicui.*" "exit"
+    IF %sftp_supported% EQU 1 (
+        "%utils_path%winscp.com" /command "open -hostkey=* sftp://%sftp_username%:%sftp_password%@%target_vcenter_ip%" "cd %target_vc_packages_path%" "rm com.vmware.vicui.*" "exit"
+    ) ELSE (
+        ECHO SFTP not enabled. You have to manually delete %VMWARE_CFG_DIR%\vsphere-client\vc-packages\vsphere-client-serenity\com.vmware.vicui.*
+    )
 )
 
 cd ..\vCenterForWindows
@@ -63,4 +67,4 @@ IF %ERRORLEVEL%==9009 (
     ECHO Error: java.exe was not found. Did you install Java?
 )
 
-ECHO Done
+ECHO VIC UI was successfully uninstalled. Make sure to log out of vSphere Web Client if are logged in, and log back in.

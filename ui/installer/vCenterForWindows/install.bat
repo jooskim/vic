@@ -87,4 +87,4 @@ IF %ERRORLEVEL%==9009 (
     ECHO Error: java.exe was not found. Did you install Java?
 )
 
-ECHO Done
+ECHO VIC UI was successfully installed. Make sure to log out of vSphere Web Client if you are logged in, and log back in.
