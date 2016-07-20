@@ -50,7 +50,7 @@ IF /I %vic_ui_host_url% NEQ NOURL (
         ECHO Copying plugins...
         "%utils_path%winscp.com" /command "open -hostkey=* sftp://%sftp_username%:%sftp_password%@%target_vcenter_ip%" "put -filemask=|*.zip ..\vsphere-client-serenity\* %target_vc_packages_path%" "exit"
     ) ELSE (
-        ECHO SFTP not enabled. You have to manually copy the content of \ui\vsphere-client-serenity to %VMWARE_CFG_DIR%\vsphere-client\vc-packages\vsphere-client-serenity
+        ECHO SFTP not enabled. You have to manually copy the com.vmware.vicui.* folder in \ui\vsphere-client-serenity to %VMWARE_CFG_DIR%\vsphere-client\vc-packages\vsphere-client-serenity
     )
 )
 
