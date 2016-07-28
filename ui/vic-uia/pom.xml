@@ -42,6 +42,32 @@
     </plugins>
   </build>
   
+  <repositories>
+  	<repository>
+  		<id>Internal-NGC-SNAPSHOT</id>
+        <url>http://sof-rila-nexus.eng.vmware.com:8081/nexus/content/repositories/ngc-vmkernel-main-snapshot/</url>
+        <releases>
+           <enabled>false</enabled>
+        </releases>
+        <snapshots>
+           <enabled>true</enabled>
+        </snapshots>
+    </repository>
+  </repositories>
+  
+  <pluginRepositories>
+  	<pluginRepository>
+  		<id>Internal-NGC-SNAPSHOT</id>
+        <url>http://sof-rila-nexus.eng.vmware.com:8081/nexus/content/repositories/ngc-vmkernel-main-snapshot/</url>
+        <releases>
+           <enabled>false</enabled>
+        </releases>
+        <snapshots>
+           <enabled>true</enabled>
+        </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+  
   <dependencies>
   	<dependency>
   		<groupId>com.vmware.vsphere.client.test</groupId>
