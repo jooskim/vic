@@ -27,9 +27,10 @@
    <property name="VSPHERE_SDK_HOME" value="${env.VSPHERE_SDK_HOME}"/>
    <property name="DEPLOY_DIR" value="${basedir}/deploy"/>
    <property name="PLUGINS_DIR" value="${DEPLOY_DIR}/plugins"/>
+   <property name="DOCKER_IMG_WORKSPACE" value="${basedir}/../vic-ui-image"/>
    <property name="SERVICE_MODULE_DIR" value="${basedir}/../${PROJECT_NAME}-service"/>
    <xmlproperty file="${basedir}/plugin-package.xml"/>
-
+   <property name="ZIP_FILENAME" value="${pluginPackage(id)}-${pluginPackage(version)}.zip"/>
    <!-- Check a service project exists -->
    <condition property="service-exists">
       <available file="${SERVICE_MODULE_DIR}" type="dir"/>
@@ -82,23 +83,37 @@
       <copy file="${SERVICE_MODULE_DIR}/target/${SERVICE_MODULE_WARFILE}" tofile="${PLUGINS_DIR}/${SERVICE_MODULE_WARFILE}"/>
    </target>
 
+   <target name="build-dockerfile-and-manifest">
+      <delete dir="${DOCKER_IMG_WORKSPACE}"/>
+      <zip basedir="${DEPLOY_DIR}" destfile="${DOCKER_IMG_WORKSPACE}/${ZIP_FILENAME}"/>
+      <mkdir dir="${DOCKER_IMG_WORKSPACE}"/>
+      <copy file="${basedir}/configs/nginx.conf" tofile="${DOCKER_IMG_WORKSPACE}/nginx.conf"/>
+      <echo file="${DOCKER_IMG_WORKSPACE}/Dockerfile">FROM nginx:alpine
+RUN ["mkdir", "-p", "/usr/share/nginx/vicui"]
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY ${ZIP_FILENAME} /usr/share/nginx/vicui/
+COPY manifest.json /usr/share/nginx/vicui/
+</echo>
+      <echo file="${DOCKER_IMG_WORKSPACE}/manifest.json">{
+    "key": "${pluginPackage(id)}",
+    "name": "${pluginPackage(name)}",
+    "version": "${pluginPackage(version)}",
+    "summary", "${pluginPackage(description)}",
+    "company": "${pluginPackage(vendor)}",
+    "zip_filename": "${ZIP_FILENAME}"
+}</echo>
+   </target>
+
+   <target name="cleanup">
+      <delete dir="${DEPLOY_DIR}"/>
+   </target>
+
    <!-- Run the above steps in order and archive the scratch folder's contents into a ZIP file. Remove the scrach folder once done -->
    <target name="make-deployable" depends="make-folder,compile-ui,copy-ui-module,compile-service-and-copy">
       <copy file="${basedir}/plugin-package.xml" tofile="${DEPLOY_DIR}/plugin-package.xml"/>
       <copy file="${VSPHERE_SDK_HOME}/libs/vim25.jar" tofile="${DEPLOY_DIR}/plugins/vim25.jar"/>
-      <zip basedir="${DEPLOY_DIR}" destfile="${basedir}/../installer/vsphere-client-serenity/${pluginPackage(id)}-${pluginPackage(version)}.zip"/>
-      <copy todir="${basedir}/../installer/vsphere-client-serenity/${pluginPackage(id)}-${pluginPackage(version)}">
-         <fileset dir="${DEPLOY_DIR}"/>
-      </copy>
-      <echo file="${basedir}/../installer/vsphere-client-serenity/${pluginPackage(id)}-${pluginPackage(version)}/vc_extension_flags">key="${pluginPackage(id)}"
-name="${pluginPackage(name)}"
-version="${pluginPackage(version)}"
-summary="${pluginPackage(description)}"
-company="${pluginPackage(vendor)}"
-      </echo>
-      <delete dir="${DEPLOY_DIR}"/>
-      <echo>${pluginPackage(id)} ${pluginPackage(version)}</echo>
-      <echo>${PROJECT_NAME}.zip was created under ${basedir}</echo>
+      <antcall target="build-dockerfile-and-manifest"/>
+      <antcall target="cleanup"/>
    </target>
    
 </project>
