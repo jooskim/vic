@@ -1,0 +1,14 @@
+clone:
+  path: github.com/vmware/vic
+  tags: true
+
+build:
+  vic-uia:
+    image: golang:1.6.3
+    pull: true
+    environment:
+      BUILD_PATH: ui/vic-uia
+    commands:
+      - apt-get update
+      - apt-get install -yq maven openjdk-7-jdk
+      - mvn package -f $BUILD_PATH/pom.xml
