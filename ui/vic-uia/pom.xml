@@ -18,55 +18,7 @@
             <filtering>true</filtering>
   		</resource>
   	</resources>
-  	<plugins>
-         <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <executions>
-               <execution>
-                  <id>generate-resources</id>
-                  <phase>prepare-package</phase>
-                  <goals>
-                     <goal>java</goal>
-                  </goals>
-               </execution>
-            </executions>
-            <configuration>
-               <mainClass>com.vmware.vsphere.client.test.i18n.gwt.PropertiesGenerator</mainClass>
-               <arguments>
-                  <argument>${project.build.outputDirectory}</argument>
-                  <argument>com.vmware.vsphere.client.automation.vm</argument>
-               </arguments>
-            </configuration>
-         </plugin>
-    </plugins>
   </build>
-  
-  <repositories>
-  	<repository>
-  		<id>Internal-NGC-SNAPSHOT</id>
-        <url>http://sof-rila-nexus.eng.vmware.com:8081/nexus/content/repositories/ngc-vmkernel-main-snapshot/</url>
-        <releases>
-           <enabled>false</enabled>
-        </releases>
-        <snapshots>
-           <enabled>true</enabled>
-        </snapshots>
-    </repository>
-  </repositories>
-  
-  <pluginRepositories>
-  	<pluginRepository>
-  		<id>Internal-NGC-SNAPSHOT</id>
-        <url>http://sof-rila-nexus.eng.vmware.com:8081/nexus/content/repositories/ngc-vmkernel-main-snapshot/</url>
-        <releases>
-           <enabled>false</enabled>
-        </releases>
-        <snapshots>
-           <enabled>true</enabled>
-        </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
   
   <dependencies>
   	<dependency>
