@@ -22,8 +22,10 @@ import com.vmware.vsphere.client.automation.provider.commontb.CommonTestBedProvi
 import com.vmware.vsphere.client.automation.srv.common.spec.ClusterSpec;
 import com.vmware.vsphere.client.automation.srv.common.spec.DatacenterSpec;
 import com.vmware.vsphere.client.automation.srv.common.spec.DatastoreSpec;
+import com.vmware.vsphere.client.automation.srv.common.spec.HostSpec;
 import com.vmware.vsphere.client.automation.srv.common.spec.SpecFactory;
 import com.vmware.vsphere.client.automation.srv.common.spec.VcSpec;
+import com.vmware.vsphere.client.automation.srv.common.spec.VmSpec;
 import com.vmware.vsphere.client.automation.srv.common.step.VerifyVmExistenceByApiStep;
 import com.vmware.vsphere.client.automation.vm.common.VmUtil;
 import com.vmware.vsphere.client.automation.vm.lib.createvm.spec.CreateVmSpec;
@@ -58,28 +60,23 @@ public class VchPortletExistsTest extends NGCTestWorkflow {
 	    // Spec for the cluster
 	    ClusterSpec requestedClusterSpec = testBed.getPublishedEntitySpec(CommonTestBedProvider.CLUSTER_ENTITY);
 	    
-	    // Spec for the datastore
-	    DatastoreSpec requestedDatastoreSpec = testBed.getPublishedEntitySpec(CommonTestBedProvider.CLUSTER_HOST_DS_ENTITY);
+	    // Spec for the host
+	    HostSpec requestedHostSpec = testBed.getPublishedEntitySpec(CommonTestBedProvider.CLUSTER_HOST_ENTITY);
 	    
-	    // Spec for the VM that will be created
-	    CreateVmSpec createVmSpec = SpecFactory.getSpec(CreateVmSpec.class, requestedClusterSpec);
-	    createVmSpec.creationType.set(VmCreationType.CREATE_NEW_VM);
-	    createVmSpec.datastore.set(requestedDatastoreSpec);
-	      
-	    // Spec for the location to the Cluster
-	    ClusterLocationSpec clusterLocationSpec = new ClusterLocationSpec(requestedClusterSpec);
-	    ClusterLocationSpec clusterSummaryLocationSpec = new ClusterLocationSpec(requestedClusterSpec, NGCNavigator.NID_ENTITY_PRIMARY_TAB_SUMMARY);
-	    clusterSummaryLocationSpec.tag.set(TAG_SUMMARY_TAB);
+	    //
+	    VmSpec vmSpec = SpecFactory.getSpec(VmSpec.class, requestedHostSpec);
+	    vmSpec.name.set("virtual-container-host");
+	    
+//	    // Spec for the location to the Cluster
+//	    ClusterLocationSpec clusterLocationSpec = new ClusterLocationSpec(requestedClusterSpec);
+//	    ClusterLocationSpec clusterSummaryLocationSpec = new ClusterLocationSpec(requestedClusterSpec, NGCNavigator.NID_ENTITY_PRIMARY_TAB_SUMMARY);
+//	    clusterSummaryLocationSpec.tag.set(TAG_SUMMARY_TAB);
 
 	    // Spec for the location to the VM
-	    VmLocationSpec vmLocationSpec = new VmLocationSpec(createVmSpec);
-
-	    // Spec for the create VM task
-	    TaskSpec createVmTaskSpec = new TaskSpec();
-//	    createVmTaskSpec.name.set(VmUtil.getLocalizedString("task.createVm.name"));
-//	    createVmTaskSpec.status.set(TaskSpec.TaskStatus.COMPLETED);
-//	    createVmTaskSpec.target.set(requestedDatacenterSpec);
-	    testSpec.add(requestedVcSpec, requestedDatacenterSpec, requestedClusterSpec, createVmSpec, clusterLocationSpec, vmLocationSpec, createVmTaskSpec);
+	    VmLocationSpec vmLocationSpec = new VmLocationSpec(vmSpec, NGCNavigator.NID_ENTITY_PRIMARY_TAB_SUMMARY);
+	    vmLocationSpec.tag.set(TAG_SUMMARY_TAB);
+	    
+	    testSpec.add(requestedVcSpec, requestedDatacenterSpec, requestedClusterSpec, vmLocationSpec);
 	    super.initSpec(testSpec, testbedBridge);
 	}
 	
@@ -87,13 +84,12 @@ public class VchPortletExistsTest extends NGCTestWorkflow {
 	public void composeTestSteps(WorkflowStepsSequence<TestWorkflowStepContext> flow) {
 		super.composeTestSteps(flow);
 		
-//		flow.appendStep("Navigating to Cluster view", new ClusterNavigationStep());
-		flow.appendStep("Navigating to Cluster view summary tab", new ClusterNavigationStep(), new String[] { TAG_SUMMARY_TAB }); 
+		flow.appendStep("Navigating to the VCH VM", new VmNavigationStep(), new String[] { TAG_SUMMARY_TAB });
 	}
 	
 	@Override
 	@Test(description = "Check if VCH portlet is visible")
-	@TestID(id = "0")
+	@TestID(id = "1")
 	public void execute() throws Exception {
 		super.execute();
 	}
