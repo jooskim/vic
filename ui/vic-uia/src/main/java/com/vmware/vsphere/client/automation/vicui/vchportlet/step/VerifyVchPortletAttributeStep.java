@@ -1,6 +1,7 @@
 package com.vmware.vsphere.client.automation.vicui.vchportlet.step;
 
 import com.vmware.client.automation.workflow.CommonUIWorkflowStep;
+import com.vmware.suitaf.SUITA;
 import com.vmware.suitaf.apl.IDGroup;
 
 public class VerifyVchPortletAttributeStep extends CommonUIWorkflowStep {
@@ -8,7 +9,9 @@ public class VerifyVchPortletAttributeStep extends CommonUIWorkflowStep {
 	
 	@Override
 	public void execute() throws Exception {
-		verifyFatal(UI.component.exists(VM_SUMMARY_VCHPORTLET_DOCKERAPIENDPOINT), "Checking if dockerApiEndpoint is visible");
+		verifyFatal(UI.condition
+				.isFound(VM_SUMMARY_VCHPORTLET_DOCKERAPIENDPOINT)
+				.await(SUITA.Environment.getPageLoadTimeout()), "Checking if dockerApiEndpoint is visible");
 	}
 	
 }

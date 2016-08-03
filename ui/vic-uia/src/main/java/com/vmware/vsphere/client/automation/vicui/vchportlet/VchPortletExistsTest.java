@@ -16,6 +16,7 @@ import com.vmware.vsphere.client.automation.srv.common.spec.SpecFactory;
 import com.vmware.vsphere.client.automation.srv.common.spec.VcSpec;
 import com.vmware.vsphere.client.automation.srv.common.spec.VmSpec;
 import com.vmware.vsphere.client.automation.vicui.common.VicUIConstants;
+import com.vmware.vsphere.client.automation.vicui.vchportlet.step.VerifyVchPortletAttributeStep;
 
 /**
  * Test class for VCH VM portlet in the NGC client.
@@ -23,7 +24,7 @@ import com.vmware.vsphere.client.automation.vicui.common.VicUIConstants;
  *  1. Open a browser
  *  2. Login as admin user
  *  3. Navigate to the VCH VM Summary tab
- *  4. Verify property "dockerApiEndpoint" exists
+ *  4. Verify if property id "dockerApiEndpoint" exists
  */ 
 
 public class VchPortletExistsTest extends NGCTestWorkflow {
@@ -56,11 +57,11 @@ public class VchPortletExistsTest extends NGCTestWorkflow {
 		
 		flow.appendStep("Navigating to the VCH VM", new VmNavigationStep());
 //		flow.appendStep("Clicking the Summary tab", new ClickSummaryTabStep());
-//	    flow.appendStep("Verifying a VCH portlet property \"dockerApiEndpoint\" exists", new VerifyVchPortletAttributeStep());
+	    flow.appendStep("Verifying a VCH portlet property \"dockerApiEndpoint\" exists", new VerifyVchPortletAttributeStep());
 	}
 	
 	@Override
-	@Test(description = "Check if VCH VM portlet exists")
+	@Test(description = "Test if VCH VM portlet exists")
 	@TestID(id = "1")
 	public void execute() throws Exception {
 		super.execute();

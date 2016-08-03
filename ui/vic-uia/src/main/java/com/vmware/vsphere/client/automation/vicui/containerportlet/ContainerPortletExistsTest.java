@@ -23,7 +23,7 @@ import com.vmware.vsphere.client.automation.vicui.containerportlet.step.VerifyCo
  * Executes the following test work-flow:
  *  1. Open a browser
  *  2. Login as admin user
- *  3. Navigate to the VCH VM Summary tab
+ *  3. Navigate to the Container VM Summary tab
  *  4. Verify property "containerName" exists
  */ 
 
@@ -41,9 +41,10 @@ public class ContainerPortletExistsTest extends NGCTestWorkflow {
 	    
 	    // VmSpec for Container VM
 	    VmSpec vmSpec = SpecFactory.getSpec(VmSpec.class, requestedHostSpec);
+	    vmSpec.name.set(VicUIConstants.VCH_VM_NAME);
 
 	    // TODO: figure out how to get extraConfig array from vmSpec
-//	    maybe using ManagedEntityUtil or VmBasicSrvA
+	    // read from an external file the name of vch vapp and vm 
 //	    vmSpec.name.set(ComponentAutomationNames.VCH_VM_NAME);
 	    
 	    // Spec for the location to the VM
@@ -64,8 +65,8 @@ public class ContainerPortletExistsTest extends NGCTestWorkflow {
 	}
 	
 	@Override
-	@Test(description = "Check if Container VM portlet exists")
-	@TestID(id = "1")
+	@Test(description = "NOT IMPLEMENTED YET: Test if Container VM portlet exists")
+	@TestID(id = "4")
 	public void execute() throws Exception {
 		super.execute();
 	}
