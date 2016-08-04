@@ -16,6 +16,8 @@ import com.vmware.vsphere.client.automation.srv.common.spec.SpecFactory;
 import com.vmware.vsphere.client.automation.srv.common.spec.VcSpec;
 import com.vmware.vsphere.client.automation.srv.common.spec.VmSpec;
 import com.vmware.vsphere.client.automation.vicui.common.VicUIConstants;
+import com.vmware.vsphere.client.automation.vicui.common.step.ClickSummaryTabStep;
+import com.vmware.vsphere.client.automation.vicui.common.step.LegacyPrimaryTabNav;
 import com.vmware.vsphere.client.automation.vicui.containerportlet.step.VerifyContainerPortletAttributeStep;
 
 /**
@@ -42,6 +44,7 @@ public class ContainerPortletExistsTest extends NGCTestWorkflow {
 	    // VmSpec for Container VM
 	    VmSpec vmSpec = SpecFactory.getSpec(VmSpec.class, requestedHostSpec);
 	    vmSpec.name.set(VicUIConstants.VCH_VM_NAME);
+	    vmSpec.name.set("virtual-container-host");
 
 	    // TODO: figure out how to get extraConfig array from vmSpec
 	    // read from an external file the name of vch vapp and vm 
@@ -60,7 +63,7 @@ public class ContainerPortletExistsTest extends NGCTestWorkflow {
 		super.composeTestSteps(flow);
 		
 		flow.appendStep("Navigating to the VCH VM", new VmNavigationStep());
-//		flow.appendStep("Clicking the Summary tab", new ClickSummaryTabStep());
+		flow.appendStep("Clicking the Summary tab", new ClickSummaryTabStep());
 //	    flow.appendStep("Verifying a Container VM portlet property \"containerName\" exists", new VerifyContainerPortletAttributeStep());
 	}
 	

@@ -16,6 +16,7 @@ import com.vmware.vsphere.client.automation.srv.common.spec.SpecFactory;
 import com.vmware.vsphere.client.automation.srv.common.spec.VcSpec;
 import com.vmware.vsphere.client.automation.srv.common.spec.VmSpec;
 import com.vmware.vsphere.client.automation.vicui.common.VicUIConstants;
+import com.vmware.vsphere.client.automation.vicui.common.step.ClickSummaryTabStep;
 import com.vmware.vsphere.client.automation.vicui.vchportlet.step.VerifyVchPortletAttributeStep;
 
 /**
@@ -56,7 +57,9 @@ public class VchPortletExistsTest extends NGCTestWorkflow {
 		super.composeTestSteps(flow);
 		
 		flow.appendStep("Navigating to the VCH VM", new VmNavigationStep());
-//		flow.appendStep("Clicking the Summary tab", new ClickSummaryTabStep());
+		if(VicUIConstants.VC_VERSION_USING.equals(VicUIConstants.VC_VERSION_6_0)) {
+			flow.appendStep("Clicking the Summary tab", new ClickSummaryTabStep());
+		}
 	    flow.appendStep("Verifying a VCH portlet property \"dockerApiEndpoint\" exists", new VerifyVchPortletAttributeStep());
 	}
 	

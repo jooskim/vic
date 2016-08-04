@@ -86,7 +86,9 @@ public class VchPortletDisplaysInfoWhileOffTest extends NGCTestWorkflow {
 		flow.appendStep("Navigating to the VIC vApp", new VappNavigationStep());
 		flow.appendStep("Power Off vApp", new TurnOffVappByApiStep());
 		flow.appendStep("Navigating to the VCH VM", new VmNavigationStep());
-//		flow.appendStep("Clicking the Summary tab", new ClickSummaryTabStep());
+		if(VicUIConstants.VC_VERSION_USING.equals(VicUIConstants.VC_VERSION_6_0)) {
+			flow.appendStep("Clicking the Summary tab", new ClickSummaryTabStep());
+		}
 	    flow.appendStep("Verifying \"dockerApiEndpoint\" shows a valid value", new VerifyVchDockerEndpointIsValidStep());
 	}
 	
