@@ -6,7 +6,6 @@ import com.vmware.client.automation.workflow.common.WorkflowStepsSequence;
 import com.vmware.client.automation.workflow.explorer.TestBedBridge;
 import com.vmware.client.automation.workflow.explorer.TestbedSpecConsumer;
 import com.vmware.client.automation.workflow.test.TestWorkflowStepContext;
-import com.vmware.vsphere.client.automation.common.workflow.NGCTestWorkflow;
 import com.vmware.vsphere.client.automation.components.navigator.NGCNavigator;
 import com.vmware.vsphere.client.automation.components.navigator.spec.VmLocationSpec;
 import com.vmware.vsphere.client.automation.components.navigator.step.VmNavigationStep;
@@ -16,6 +15,7 @@ import com.vmware.vsphere.client.automation.srv.common.spec.SpecFactory;
 import com.vmware.vsphere.client.automation.srv.common.spec.VcSpec;
 import com.vmware.vsphere.client.automation.srv.common.spec.VmSpec;
 import com.vmware.vsphere.client.automation.vicui.common.VicUIConstants;
+import com.vmware.vsphere.client.automation.vicui.common.VicUITestWorkflow;
 import com.vmware.vsphere.client.automation.vicui.common.step.ClickSummaryTabStep;
 import com.vmware.vsphere.client.automation.vicui.vchportlet.step.VerifyVchPortletAttributeStep;
 
@@ -28,7 +28,7 @@ import com.vmware.vsphere.client.automation.vicui.vchportlet.step.VerifyVchPortl
  *  4. Verify if property id "dockerApiEndpoint" exists
  */ 
 
-public class VchPortletExistsTest extends NGCTestWorkflow {
+public class VchPortletExistsTest extends VicUITestWorkflow {
 	
 	@Override
 	public void initSpec(WorkflowSpec testSpec, TestBedBridge testbedBridge) {

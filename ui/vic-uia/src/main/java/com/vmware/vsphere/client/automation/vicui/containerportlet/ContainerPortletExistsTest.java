@@ -1,12 +1,14 @@
 package com.vmware.vsphere.client.automation.vicui.containerportlet;
 
+import java.io.IOException;
+
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import com.vmware.client.automation.workflow.common.WorkflowSpec;
 import com.vmware.client.automation.workflow.common.WorkflowStepsSequence;
 import com.vmware.client.automation.workflow.explorer.TestBedBridge;
 import com.vmware.client.automation.workflow.explorer.TestbedSpecConsumer;
 import com.vmware.client.automation.workflow.test.TestWorkflowStepContext;
-import com.vmware.vsphere.client.automation.common.workflow.NGCTestWorkflow;
 import com.vmware.vsphere.client.automation.components.navigator.NGCNavigator;
 import com.vmware.vsphere.client.automation.components.navigator.spec.VmLocationSpec;
 import com.vmware.vsphere.client.automation.components.navigator.step.VmNavigationStep;
@@ -16,8 +18,8 @@ import com.vmware.vsphere.client.automation.srv.common.spec.SpecFactory;
 import com.vmware.vsphere.client.automation.srv.common.spec.VcSpec;
 import com.vmware.vsphere.client.automation.srv.common.spec.VmSpec;
 import com.vmware.vsphere.client.automation.vicui.common.VicUIConstants;
+import com.vmware.vsphere.client.automation.vicui.common.VicUITestWorkflow;
 import com.vmware.vsphere.client.automation.vicui.common.step.ClickSummaryTabStep;
-import com.vmware.vsphere.client.automation.vicui.common.step.LegacyPrimaryTabNav;
 import com.vmware.vsphere.client.automation.vicui.containerportlet.step.VerifyContainerPortletAttributeStep;
 
 /**
@@ -29,7 +31,8 @@ import com.vmware.vsphere.client.automation.vicui.containerportlet.step.VerifyCo
  *  4. Verify property "containerName" exists
  */ 
 
-public class ContainerPortletExistsTest extends NGCTestWorkflow {
+public class ContainerPortletExistsTest extends VicUITestWorkflow {
+	private static String _containerVmName;
 	
 	@Override
 	public void initSpec(WorkflowSpec testSpec, TestBedBridge testbedBridge) {
@@ -43,12 +46,8 @@ public class ContainerPortletExistsTest extends NGCTestWorkflow {
 	    
 	    // VmSpec for Container VM
 	    VmSpec vmSpec = SpecFactory.getSpec(VmSpec.class, requestedHostSpec);
-	    vmSpec.name.set(VicUIConstants.VCH_VM_NAME);
-	    vmSpec.name.set("virtual-container-host");
-
-	    // TODO: figure out how to get extraConfig array from vmSpec
-	    // read from an external file the name of vch vapp and vm 
-//	    vmSpec.name.set(ComponentAutomationNames.VCH_VM_NAME);
+	    // TODO: read from an external file the name of vch vapp and vm
+	    vmSpec.name.set(_containerVmName);
 	    
 	    // Spec for the location to the VM
 	    VmLocationSpec vmLocationSpec = new VmLocationSpec(vmSpec, NGCNavigator.NID_ENTITY_PRIMARY_TAB_SUMMARY);
@@ -63,14 +62,23 @@ public class ContainerPortletExistsTest extends NGCTestWorkflow {
 		super.composeTestSteps(flow);
 		
 		flow.appendStep("Navigating to the VCH VM", new VmNavigationStep());
-		flow.appendStep("Clicking the Summary tab", new ClickSummaryTabStep());
-//	    flow.appendStep("Verifying a Container VM portlet property \"containerName\" exists", new VerifyContainerPortletAttributeStep());
+		if(VicUIConstants.VC_VERSION_USING.equals(VicUIConstants.VC_VERSION_6_0)) {
+			flow.appendStep("Clicking the Summary tab", new ClickSummaryTabStep());			
+		}
+		
+	    flow.appendStep("Verifying a Container VM portlet property \"containerName\" exists", new VerifyContainerPortletAttributeStep());
 	}
 	
 	@Override
-	@Test(description = "NOT IMPLEMENTED YET: Test if Container VM portlet exists")
+	@Test(description = "Test if Container VM portlet exists")
 	@TestID(id = "4")
 	public void execute() throws Exception {
 		super.execute();
+	}
+	
+	@BeforeTest
+	public void loadVmNames() throws IOException {
+		System.out.println("Loading VM names");
+		_containerVmName = "eef9e73b77c9e3298869b8b81c794e5f1c52826a70f0972174e99bbd69881e10";
 	}
 }

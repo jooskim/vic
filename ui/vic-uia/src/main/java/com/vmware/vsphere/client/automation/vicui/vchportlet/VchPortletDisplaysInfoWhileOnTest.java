@@ -19,8 +19,11 @@ import com.vmware.vsphere.client.automation.srv.common.spec.VappSpec;
 import com.vmware.vsphere.client.automation.srv.common.spec.VcSpec;
 import com.vmware.vsphere.client.automation.srv.common.spec.VmSpec;
 import com.vmware.vsphere.client.automation.vicui.common.VicUIConstants;
+import com.vmware.vsphere.client.automation.vicui.common.VicUITestWorkflow;
 import com.vmware.vsphere.client.automation.vicui.common.step.ClickSummaryTabStep;
 import com.vmware.vsphere.client.automation.vicui.common.step.EnsureVappIsOffStep;
+import com.vmware.vsphere.client.automation.vicui.common.step.EnsureVappIsOnStep;
+import com.vmware.vsphere.client.automation.vicui.common.step.InvokeVappPowerOperationUiStep;
 import com.vmware.vsphere.client.automation.vicui.common.step.TurnOnVappByApiStep;
 import com.vmware.vsphere.client.automation.vicui.vchportlet.step.VerifyVchDockerEndpointIsValidStep;
 import com.vmware.vsphere.client.automation.vm.lib.ops.model.VmOpsModel.VmPowerState;
@@ -37,7 +40,7 @@ import com.vmware.vsphere.client.automation.vm.lib.ops.spec.VmPowerStateSpec;
  *  6. Verify if dockerApiEndpoint does not equal the placeholder value
  */
 
-public class VchPortletDisplaysInfoWhileOnTest extends NGCTestWorkflow {
+public class VchPortletDisplaysInfoWhileOnTest extends VicUITestWorkflow {
 	
 	@Override
 	public void initSpec(WorkflowSpec testSpec, TestBedBridge testbedBridge) {
@@ -75,19 +78,21 @@ public class VchPortletDisplaysInfoWhileOnTest extends NGCTestWorkflow {
 	public void composePrereqSteps(WorkflowStepsSequence<TestWorkflowStepContext> flow) {
 		super.composePrereqSteps(flow);
 		
-		flow.appendStep("Ensure vApp is OFF", new EnsureVappIsOffStep());
+		flow.appendStep("Ensure vApp is ON", new EnsureVappIsOnStep());
 	}
 	
 	@Override
 	public void composeTestSteps(WorkflowStepsSequence<TestWorkflowStepContext> flow) {
 		super.composeTestSteps(flow);
 		
-		flow.appendStep("Navigating to the VIC vApp", new VappNavigationStep());
-		flow.appendStep("Power On vApp", new TurnOnVappByApiStep());
+//		flow.appendStep("Navigating to the VIC vApp", new VappNavigationStep());
+//		flow.appendStep("Power On vApp", new TurnOnVappByApiStep());
 		flow.appendStep("Navigating to the VCH VM", new VmNavigationStep());
+		
 		if(VicUIConstants.VC_VERSION_USING.equals(VicUIConstants.VC_VERSION_6_0)) {
 			flow.appendStep("Clicking the Summary tab", new ClickSummaryTabStep());
 		}
+		
 	    flow.appendStep("Verifying \"dockerApiEndpoint\" shows a valid value", new VerifyVchDockerEndpointIsValidStep());
 	}
 	

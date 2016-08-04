@@ -18,6 +18,35 @@
             <filtering>true</filtering>
   		</resource>
   	</resources>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.19</version>
+        <executions>
+          <execution>
+            <id>default-test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skipTests>false</skipTests>
+              <argLine>-XX:-UseSplitVerifier</argLine>
+              <suiteXmlFiles>
+                <suiteXmlFile>testng.xml</suiteXmlFile>
+              </suiteXmlFiles>
+            </configuration>
+          </execution>
+        </executions>
+        <configuration>
+          <skipTests>false</skipTests>
+          <argLine>-XX:-UseSplitVerifier</argLine>
+          <suiteXmlFiles>
+            <suiteXmlFile>testng.xml</suiteXmlFile>
+          </suiteXmlFiles>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
   
   <dependencies>
@@ -31,6 +60,11 @@
   		<artifactId>vm-uia</artifactId>
   		<version>${project.version}</version>
   	</dependency>
+    <dependency>
+      <groupId>com.vmware.vsphere.client.test</groupId>
+      <artifactId>vapp-uia-lib</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
   
 </project>
