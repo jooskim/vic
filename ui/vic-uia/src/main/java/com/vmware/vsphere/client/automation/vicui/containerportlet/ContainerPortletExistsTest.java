@@ -1,8 +1,5 @@
 package com.vmware.vsphere.client.automation.vicui.containerportlet;
 
-import java.io.IOException;
-
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import com.vmware.client.automation.workflow.common.WorkflowSpec;
 import com.vmware.client.automation.workflow.common.WorkflowStepsSequence;
@@ -17,7 +14,6 @@ import com.vmware.vsphere.client.automation.srv.common.spec.HostSpec;
 import com.vmware.vsphere.client.automation.srv.common.spec.SpecFactory;
 import com.vmware.vsphere.client.automation.srv.common.spec.VcSpec;
 import com.vmware.vsphere.client.automation.srv.common.spec.VmSpec;
-import com.vmware.vsphere.client.automation.vicui.common.VicUIConstants;
 import com.vmware.vsphere.client.automation.vicui.common.VicUITestWorkflow;
 import com.vmware.vsphere.client.automation.vicui.common.step.ClickSummaryTabStep;
 import com.vmware.vsphere.client.automation.vicui.containerportlet.step.VerifyContainerPortletAttributeStep;
@@ -31,8 +27,7 @@ import com.vmware.vsphere.client.automation.vicui.containerportlet.step.VerifyCo
  *  4. Verify property "containerName" exists
  */ 
 
-public class ContainerPortletExistsTest extends VicUITestWorkflow {
-	private static String _containerVmName;
+public class ContainerPortletExistsTest extends VicUITestWorkflow {	
 	
 	@Override
 	public void initSpec(WorkflowSpec testSpec, TestBedBridge testbedBridge) {
@@ -46,7 +41,6 @@ public class ContainerPortletExistsTest extends VicUITestWorkflow {
 	    
 	    // VmSpec for Container VM
 	    VmSpec vmSpec = SpecFactory.getSpec(VmSpec.class, requestedHostSpec);
-	    // TODO: read from an external file the name of vch vapp and vm
 	    vmSpec.name.set(_containerVmName);
 	    
 	    // Spec for the location to the VM
@@ -62,7 +56,7 @@ public class ContainerPortletExistsTest extends VicUITestWorkflow {
 		super.composeTestSteps(flow);
 		
 		flow.appendStep("Navigating to the VCH VM", new VmNavigationStep());
-		if(VicUIConstants.VC_VERSION_USING.equals(VicUIConstants.VC_VERSION_6_0)) {
+		if(_isVcVersion6_0) {
 			flow.appendStep("Clicking the Summary tab", new ClickSummaryTabStep());			
 		}
 		
@@ -74,11 +68,5 @@ public class ContainerPortletExistsTest extends VicUITestWorkflow {
 	@TestID(id = "4")
 	public void execute() throws Exception {
 		super.execute();
-	}
-	
-	@BeforeTest
-	public void loadVmNames() throws IOException {
-		System.out.println("Loading VM names");
-		_containerVmName = "eef9e73b77c9e3298869b8b81c794e5f1c52826a70f0972174e99bbd69881e10";
 	}
 }

@@ -32,6 +32,13 @@
             <configuration>
               <skipTests>false</skipTests>
               <argLine>-XX:-UseSplitVerifier</argLine>
+              <systemPropertyVariables>
+                <!-- 6.0 / vch_3557 / eef9e73b77c9e3298869b8b81c794e5f1c52826a70f0972174e99bbd69881e10 -->
+                <!-- 6.5 / vic_3569 / null -->
+                <vcVersion>6.0</vcVersion>
+                <vchVmName>vch_3557</vchVmName>
+                <containerVmName>eef9e73b77c9e3298869b8b81c794e5f1c52826a70f0972174e99bbd69881e10</containerVmName>
+              </systemPropertyVariables>
               <suiteXmlFiles>
                 <suiteXmlFile>testng.xml</suiteXmlFile>
               </suiteXmlFiles>

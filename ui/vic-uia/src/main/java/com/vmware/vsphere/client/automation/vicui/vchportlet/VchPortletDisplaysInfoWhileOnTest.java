@@ -6,11 +6,9 @@ import com.vmware.client.automation.workflow.common.WorkflowStepsSequence;
 import com.vmware.client.automation.workflow.explorer.TestBedBridge;
 import com.vmware.client.automation.workflow.explorer.TestbedSpecConsumer;
 import com.vmware.client.automation.workflow.test.TestWorkflowStepContext;
-import com.vmware.vsphere.client.automation.common.workflow.NGCTestWorkflow;
 import com.vmware.vsphere.client.automation.components.navigator.NGCNavigator;
 import com.vmware.vsphere.client.automation.components.navigator.spec.VappLocationSpec;
 import com.vmware.vsphere.client.automation.components.navigator.spec.VmLocationSpec;
-import com.vmware.vsphere.client.automation.components.navigator.step.VappNavigationStep;
 import com.vmware.vsphere.client.automation.components.navigator.step.VmNavigationStep;
 import com.vmware.vsphere.client.automation.provider.commontb.CommonTestBedProvider;
 import com.vmware.vsphere.client.automation.srv.common.spec.HostSpec;
@@ -18,13 +16,9 @@ import com.vmware.vsphere.client.automation.srv.common.spec.SpecFactory;
 import com.vmware.vsphere.client.automation.srv.common.spec.VappSpec;
 import com.vmware.vsphere.client.automation.srv.common.spec.VcSpec;
 import com.vmware.vsphere.client.automation.srv.common.spec.VmSpec;
-import com.vmware.vsphere.client.automation.vicui.common.VicUIConstants;
 import com.vmware.vsphere.client.automation.vicui.common.VicUITestWorkflow;
 import com.vmware.vsphere.client.automation.vicui.common.step.ClickSummaryTabStep;
-import com.vmware.vsphere.client.automation.vicui.common.step.EnsureVappIsOffStep;
 import com.vmware.vsphere.client.automation.vicui.common.step.EnsureVappIsOnStep;
-import com.vmware.vsphere.client.automation.vicui.common.step.InvokeVappPowerOperationUiStep;
-import com.vmware.vsphere.client.automation.vicui.common.step.TurnOnVappByApiStep;
 import com.vmware.vsphere.client.automation.vicui.vchportlet.step.VerifyVchDockerEndpointIsValidStep;
 import com.vmware.vsphere.client.automation.vm.lib.ops.model.VmOpsModel.VmPowerState;
 import com.vmware.vsphere.client.automation.vm.lib.ops.spec.VmPowerStateSpec;
@@ -54,11 +48,11 @@ public class VchPortletDisplaysInfoWhileOnTest extends VicUITestWorkflow {
 	    
 	    // Spec for the vApp created by VIC
 	    VappSpec vAppSpec = SpecFactory.getSpec(VappSpec.class, requestedHostSpec);
-	    vAppSpec.name.set(VicUIConstants.VCH_VM_NAME);
+	    vAppSpec.name.set(_vchVmName);
 	    
 	    // VmSpec for VCH
 	    VmSpec vmSpec = SpecFactory.getSpec(VmSpec.class, requestedHostSpec);
-	    vmSpec.name.set(VicUIConstants.VCH_VM_NAME);
+	    vmSpec.name.set(_vchVmName);
 	    
 	    // Spec for the location to the vApp and VM
 	    VappLocationSpec vAppLocationSpec = new VappLocationSpec(vAppSpec);
@@ -85,11 +79,9 @@ public class VchPortletDisplaysInfoWhileOnTest extends VicUITestWorkflow {
 	public void composeTestSteps(WorkflowStepsSequence<TestWorkflowStepContext> flow) {
 		super.composeTestSteps(flow);
 		
-//		flow.appendStep("Navigating to the VIC vApp", new VappNavigationStep());
-//		flow.appendStep("Power On vApp", new TurnOnVappByApiStep());
 		flow.appendStep("Navigating to the VCH VM", new VmNavigationStep());
 		
-		if(VicUIConstants.VC_VERSION_USING.equals(VicUIConstants.VC_VERSION_6_0)) {
+		if(_isVcVersion6_0) {
 			flow.appendStep("Clicking the Summary tab", new ClickSummaryTabStep());
 		}
 		
