@@ -1,12 +1,10 @@
 import os.path
 import pexpect
+import time
 
 class VicUiInstallPexpectLibrary(object):
     TIMEOUT_LIMIT = 180
     INSTALLER_PATH = os.path.join(os.path.dirname(__file__), '../../..', 'ui', 'installer', 'VCSA')
-
-    def __init__(self):
-        self._status = ''
 
     def _prepare_and_spawn(self, operation, callback, force=False):
         try:
@@ -18,6 +16,7 @@ class VicUiInstallPexpectLibrary(object):
             self._pchild = pexpect.spawn(executable, cwd = VicUiInstallPexpectLibrary.INSTALLER_PATH, timeout = VicUiInstallPexpectLibrary.TIMEOUT_LIMIT)
             self._pchild.logfile = self._f
             callback()
+            time.sleep(1)
             self._f.close()
 
         except IOError as e:
@@ -57,7 +56,6 @@ class VicUiInstallPexpectLibrary(object):
 
     def install_fails_at_extension_reg(self, vcenter_user, vcenter_password, root_password, is_vc55=None):
         def commands():
-            # web server is used when if is_vc55 is None
             self._common_prompts(vcenter_user, vcenter_password, root_password, is_vc55)
             if is_vc55 != None:
 		self._pchild.expect('root@.*')
