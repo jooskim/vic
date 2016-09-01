@@ -54,6 +54,14 @@ class VicUiInstallPexpectLibrary(object):
 
         self._prepare_and_spawn('install', commands)
 
+    def install_fails_for_wrong_vcenter_ip(self, vcenter_user, vcenter_password, root_password, is_vc55=None):
+        def commands():
+            self._common_prompts(vcenter_user, vcenter_password, root_password, is_vc55)
+            self._pchild.expect('.*Error.*')
+            self._pchild.interact()
+
+        self._prepare_and_spawn('install', commands)
+
     def install_fails_at_extension_reg(self, vcenter_user, vcenter_password, root_password, is_vc55=None):
         def commands():
             self._common_prompts(vcenter_user, vcenter_password, root_password, is_vc55)
