@@ -9,6 +9,17 @@ ${TEST_VC_PASSWORD}         FILL_ME
 ${TEST_VC_ROOT_PASSWORD}    FILL_ME
 ${TIMEOUT}                  5 minutes
 
+${SELENIUM_SERVER_IP}       FILL_ME
+${SELENIUM_BROWSER}         *firefox
+${ESX_HOST_IP}              FILL_ME
+${ESX_HOST_PASSWORD}        FILL_ME
+${DATACENTER_NAME}          FILL_ME
+${CLUSTER_NAME}             FILL_ME
+${DATASTORE_TYPE}           NFS
+${DATASTORE_NAME}           FILL_ME
+${DATASTORE_IP}             FILL_ME
+${HOST_DATASTORE_NAME}      FILL_ME
+
 # TODO: following line should be removed when integrating it into the nightly test box
 ${UI_INSTALLERS_ROOT}       /Users/kjosh/go/src/github.com/vmware/vic/ui/installer
 

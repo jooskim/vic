@@ -36,6 +36,15 @@ Attempt To Install With vCenter IP Missing
     ${rc}  ${output}=  Run And Return Rc And Output  cd ${UI_INSTALLER_PATH} && ./install.sh
     Run Keyword And Continue On Failure  Should Contain  ${output}  Please provide a valid IP
 
+Attempt To Install With Invalid vCenter IP
+    Remove File  ${UI_INSTALLER_PATH}/configs
+    ${results}=  Replace String Using Regexp  ${configs}  VCENTER_IP=.*  VCENTER_IP=\"i-am-not-a-valid-ip\"
+    Create File  ${UI_INSTALLER_PATH}/configs  ${results}
+    Install Fails For Wrong Vcenter Ip  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}  n
+    ${output}=  OperatingSystem.GetFile  install.log
+    Should Contain  ${output}  Could not resolve the hostname
+    Remove File  install.log
+
 Attempt To Install With Wrong Vcenter Credentials
     Set Vcenter Ip
     Install Fails At Extension Reg  ${TEST_VC_USERNAME}_nope  ${TEST_VC_PASSWORD}_nope  ${TEST_VC_ROOT_PASSWORD}  n
