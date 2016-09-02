@@ -8,22 +8,26 @@ Test Teardown  Cleanup Installer Environment
 
 *** Test Cases ***
 Check Configs
+    # Store the original configs file content in a variable
+    # Set the exact paths to the installer / uninstaller scripts for use with tests
     Run Keyword  Do OS Check
 
 Ensure Vicui Is Installed Before Testing
     Set Vcenter Ip
-    Install Vicui Without Webserver  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}  n  True
+    Install Vicui Without Webserver  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}  ${TEST_VC_IS_5.5}  True
     ${output}=  OperatingSystem.GetFile  install.log
     Should Contain  ${output}  was successful
     Remove File  install.log
     
 Attempt To Uninstall With Configs File Missing
+    # Rename the configs file and run the uninstaller script to see if it fails in an expected way
     Move File  ${UI_INSTALLER_PATH}/configs  ${UI_INSTALLER_PATH}/configs_renamed
     ${rc}  ${output}=  Run And Return Rc And Output  ${UNINSTALLER_SCRIPT_PATH}
     Run Keyword And Continue On Failure  Should Contain  ${output}  Configs file is missing
     Move File  ${UI_INSTALLER_PATH}/configs_renamed  ${UI_INSTALLER_PATH}/configs
 
 Attempt To Uninstall With Plugin Missing
+    # Rename the folder containing the VIC UI binaries and run the uninstaller script to see if it fails in an expected way
     Set Vcenter Ip
     Move Directory  ${UI_INSTALLER_PATH}/../vsphere-client-serenity  ${UI_INSTALLER_PATH}/../vsphere-client-serenity-a
     Uninstall Fails  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}
@@ -33,6 +37,7 @@ Attempt To Uninstall With Plugin Missing
     Remove File  uninstall.log
 
 Attempt To Uninstall With vCenter IP Missing
+    # Leave VCENTER_IP empty and run the uninstaller script to see if it fails in an expected way
     Remove File  ${UI_INSTALLER_PATH}/configs
     ${results}=  Replace String Using Regexp  ${configs}  VCENTER_IP=.*  VCENTER_IP=\"\"
     Create File  ${UI_INSTALLER_PATH}/configs  ${results}
@@ -40,6 +45,7 @@ Attempt To Uninstall With vCenter IP Missing
     Run Keyword And Continue On Failure  Should Contain  ${output}  Please provide a valid IP
 
 Attempt To Uninstall With Wrong Vcenter Credentials
+    # Try uninstalling the plugin with wrong vCenter credentials and see if it fails in an expected way
     Set Vcenter Ip
     Uninstall Fails  ${TEST_VC_USERNAME}_nope  ${TEST_VC_PASSWORD}_nope
     ${output}=  OperatingSystem.GetFile  uninstall.log
@@ -53,3 +59,8 @@ Uninstall Successfully
     Should Match Regexp  ${output}  unregistration was successful
     Remove File  uninstall.log
 
+Attempt To Uninstall Plugin That Is Already Gone
+    Set Vcenter Ip
+    Uninstall Fails  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}
+    ${output}=  OperatingSystem.GetFile  uninstall.log
+    Should Contain  ${output}  failed to find target

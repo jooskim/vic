@@ -280,3 +280,4 @@ cleanup
 
 echo "--------------------------------------------------------------"
 echo "VIC UI registration was successful"
+echo ""

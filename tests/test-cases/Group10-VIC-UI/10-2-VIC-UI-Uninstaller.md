@@ -2,7 +2,7 @@ Test 10-2 - VIC UI Uninstallation
 ======
 
 #Purpose:
-To test all possible uninstallation failures and success scenarios on VCSA 6.0
+To test all possible uninstallation failures and success scenarios on VCSA
 
 #References:
 
@@ -18,6 +18,7 @@ To test all possible uninstallation failures and success scenarios on VCSA 6.0
 5. Try uninstalling UI with vCenter IP missing
 6. Try uninstalling UI with wrong vCenter credentials
 7. Uninstall UI successfully
+8. Try uninstalling UI when it's already uninstalled
 
 #Expected Outcome:
 * Each step should return success

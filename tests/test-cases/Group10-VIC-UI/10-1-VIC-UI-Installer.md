@@ -2,7 +2,7 @@ Test 10-1 - VIC UI Installation
 ======
 
 #Purpose:
-To test all possible installation failures and success scenarios on VCSA 6.0
+To test all possible installation failures and success scenarios on VCSA
 
 #References:
 
