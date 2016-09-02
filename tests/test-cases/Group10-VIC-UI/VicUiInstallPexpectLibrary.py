@@ -16,7 +16,6 @@ class VicUiInstallPexpectLibrary(object):
             self._pchild = pexpect.spawn(executable, cwd = VicUiInstallPexpectLibrary.INSTALLER_PATH, timeout = VicUiInstallPexpectLibrary.TIMEOUT_LIMIT)
             self._pchild.logfile = self._f
             callback()
-            time.sleep(1)
             self._f.close()
 
         except IOError as e:
@@ -34,7 +33,11 @@ class VicUiInstallPexpectLibrary(object):
     def install_vicui_without_webserver(self, vcenter_user, vcenter_password, root_password, is_vc55, force=False):
         def commands():
             self._common_prompts(vcenter_user, vcenter_password, root_password, is_vc55)
-            self._pchild.expect('root@.*')
+            match_index = self._pchild.expect(['root@.*', '.*continue connecting.*'])
+            if match_index == 1:
+                self._pchild.sendline('yes')
+                self._pchild.expect('root@.*')
+
             self._pchild.sendline(root_password)
             self._pchild.expect('root@.*')
             self._pchild.sendline(root_password)
@@ -47,7 +50,11 @@ class VicUiInstallPexpectLibrary(object):
     def install_vicui_without_webserver_nor_bash(self, vcenter_user, vcenter_password, root_password, is_vc55):
         def commands():
             self._common_prompts(vcenter_user, vcenter_password, root_password, is_vc55)
-            self._pchild.expect('root@.*')
+            match_index = self._pchild.expect(['root@.*', '.*continue connecting.*'])
+            if match_index == 1:
+                self._pchild.sendline('yes')
+                self._pchild.expect('root@.*')
+
             self._pchild.sendline(root_password)
             self._pchild.expect('.*When all done.*')
             self._pchild.interact()
@@ -66,7 +73,11 @@ class VicUiInstallPexpectLibrary(object):
         def commands():
             self._common_prompts(vcenter_user, vcenter_password, root_password, is_vc55)
             if is_vc55 != None:
-		self._pchild.expect('root@.*')
+                match_index = self._pchild.expect(['root@.*', '.*continue connecting.*'])
+                if match_index == 1:
+                    self._pchild.sendline('yes')
+                    self._pchild.expect('root@.*')
+
 		self._pchild.sendline(root_password)
 
             self._pchild.expect('.*Error.*')

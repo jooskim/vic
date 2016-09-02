@@ -96,3 +96,4 @@ parse_and_unregister_plugins
 
 echo "--------------------------------------------------------------"
 echo "VIC UI unregistration was successful"
+echo ""
