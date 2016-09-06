@@ -3,26 +3,30 @@ Documentation  Common keywords used by VIC UI installation & uninstallation test
 Library  VicUiInstallPexpectLibrary.py
 
 *** Variables ***
-${TEST_VC_IS_5.5}           n
-${TEST_VC_IP}               FILL_ME
-${TEST_VC_USERNAME}         FILL_ME
-${TEST_VC_PASSWORD}         FILL_ME
-${TEST_VC_ROOT_PASSWORD}    FILL_ME
+# TODO: these values will be replaced by the time a PR is submitted. most of these values will be populated at runtime
+${TEST_VC_VERSION}          6.0
+${TEST_VC_IP}               10.160.91.73
+${TEST_VC_USERNAME}         administrator@vsphere.local
+${TEST_VC_PASSWORD}         Admin\!23
+${TEST_VC_ROOT_PASSWORD}    vmware
 ${TIMEOUT}                  5 minutes
 
-${SELENIUM_SERVER_IP}       FILL_ME
+${SELENIUM_SERVER_IP}       10.162.122.138
+${SELENIUM_SERVER_PORT}     4444
 ${SELENIUM_BROWSER}         *firefox
-${ESX_HOST_IP}              FILL_ME
-${ESX_HOST_PASSWORD}        FILL_ME
-${DATACENTER_NAME}          FILL_ME
-${CLUSTER_NAME}             FILL_ME
+${ESX_HOST_IP}              10.160.192.224
+${ESX_HOST_PASSWORD}        ca\$hc0w
+${DATACENTER_NAME}          Datacenter0IQKp
+${CLUSTER_NAME}             Clusterjt9Ot
 ${DATASTORE_TYPE}           NFS
-${DATASTORE_NAME}           FILL_ME
-${DATASTORE_IP}             FILL_ME
-${HOST_DATASTORE_NAME}      FILL_ME
+${DATASTORE_NAME}           NFS_STORAGE_52194
+${DATASTORE_IP}             10.161.12.64
+${HOST_DATASTORE_NAME}      datastore1
+${VCH_VM_NAME}              vic_4430_2
+${CONTAINER_VM_NAME}        tender_yonath-77838612707e522965d3543ece43c60560fa0eb58953f77781b2f36994007f2d
 
 *** Keywords ***
-Do OS Check
+Set Absolute Script Paths
     # TODO: Since Docker environment is always Linux, it would be impossible to directly test the Windows script in the Drone CI system. Rather, the test could be done manually on Windows
     ${UI_INSTALLERS_ROOT}=  Run  pwd
     ${UI_INSTALLERS_ROOT}=  Join Path  ${UI_INSTALLERS_ROOT}  ../../../ui/installer
@@ -74,4 +78,3 @@ Cleanup Installer Environment
     @{folders}=  OperatingSystem.List Directory  ${UI_INSTALLER_PATH}/..  vsphere-client-serenity*
     Run Keyword If  ('@{folders}[0]' != 'vsphere-client-serenity')  Rename Folder  ${UI_INSTALLER_PATH}/../@{folders}[0]  ${UI_INSTALLER_PATH}/../vsphere-client-serenity
 
-    

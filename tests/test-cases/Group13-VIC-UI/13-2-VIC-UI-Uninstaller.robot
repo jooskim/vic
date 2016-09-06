@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation  Test 10-2 - VIC UI Uninstallation
+Documentation  Test 13-2 - VIC UI Uninstallation
 Resource  ../../resources/Util.robot
 Resource  ./vicui-common.robot
 Test Teardown  Cleanup Installer Environment
@@ -10,11 +10,11 @@ Test Teardown  Cleanup Installer Environment
 Check Configs
     # Store the original configs file content in a variable
     # Set the exact paths to the installer / uninstaller scripts for use with tests
-    Run Keyword  Do OS Check
+    Run Keyword  Set Absolute Script Paths
 
 Ensure Vicui Is Installed Before Testing
     Set Vcenter Ip
-    Install Vicui Without Webserver  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}  ${TEST_VC_IS_5.5}  True
+    Install Vicui Without Webserver  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}  ${TEST_VC_VERSION}  True
     ${output}=  OperatingSystem.GetFile  install.log
     Should Contain  ${output}  was successful
     Remove File  install.log
@@ -41,7 +41,7 @@ Attempt To Uninstall With vCenter IP Missing
     Remove File  ${UI_INSTALLER_PATH}/configs
     ${results}=  Replace String Using Regexp  ${configs}  VCENTER_IP=.*  VCENTER_IP=\"\"
     Create File  ${UI_INSTALLER_PATH}/configs  ${results}
-    ${rc}  ${output}=  Run And Return Rc And Output  cd ${UI_INSTALLER_PATH} && ./uninstall.sh
+    ${rc}  ${output}=  Run And Return Rc And Output  cd ${UI_INSTALLER_PATH} && ${UNINSTALLER_SCRIPT_PATH}
     Run Keyword And Continue On Failure  Should Contain  ${output}  Please provide a valid IP
 
 Attempt To Uninstall With Wrong Vcenter Credentials
