@@ -1,4 +1,4 @@
-Test 10-2 - VIC UI Uninstallation
+Test 13-2 - VIC UI Uninstallation
 ======
 
 #Purpose:
