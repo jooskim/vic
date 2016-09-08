@@ -11,12 +11,17 @@ Check Prerequisites
     ${pwd}=  Run  pwd
     Should Exist  ${pwd}/../../../ui/vic-uia
     Set Suite Variable  ${NGC_TESTS_PATH}  ${pwd}/../../../ui/vic-uia
+    # TODO: set the following to False once we start using Suite Setup / Teardown
+    Set Suite Variable  ${use_existing_container_vm}  True
 
     # check if the files required by the ngc automation tests exist
     Should Exist  ${NGC_TESTS_PATH}/resources/browservm.tpl.properties
     Should Exist  ${NGC_TESTS_PATH}/resources/commonTestbedProvider.tpl.properties
     Should Exist  ${NGC_TESTS_PATH}/resources/hostProvider.tpl.properties
     Should Exist  ${NGC_TESTS_PATH}/resources/vicEnvProvider.tpl.properties
+
+    # FIXME: remove the following line once we start using Suite Setup and Suite Teardown
+    Set Suite Variable  ${params}  ${EMPTY}
 
 Ensure Vicui Is Installed
     # ensure vicui is installed before running ngc automation tests
@@ -29,16 +34,16 @@ Ensure Vicui Is Installed
     Cleanup Installer Environment
 
 Run Ngc Tests Project
+    # create a container and get its name-id which is essentially the name of the vm
+    Run Keyword If  ${use_existing_container_vm} == True  Log To Console  \nUsing the container specified in vicui-common.robot  ELSE  Create And Run Test Container
+    Log To Console  Using container ${CONTAINER_VM_NAME}\n
+
     # given the information in vicui-common.robot edit the above properties files
     Set Up Testbed Config Files
 
     # start runing ngc tests and expect the output does not include words 'BUILD FAILURE'
-    #Run Keyword If  '${TEST_VC_VERSION}'=='5.5'  Skip Ngc Tests  ELSE  Start Ngc Tests
-    ${container_name}  ${container_id}  ${container_nameid}=  Create And Run Test Container
-    Log To Console  container name ${container_nameid}
-    Log To Console  existing container vm name ${CONTAINER_VM_NAME}
-    Run  docker stop ${container_id}
-    Run  docker rm ${container_id}
+    Run Keyword If  '${TEST_VC_VERSION}'=='5.5'  Skip Ngc Tests  ELSE  Start Ngc Tests
+
 
 *** Keywords ***
 Set Up Testbed Config Files
@@ -47,10 +52,6 @@ Set Up Testbed Config Files
     ${commontestbed}=  OperatingSystem.GetFile  ${NGC_TESTS_PATH}/resources/commonTestbedProvider.tpl.properties
     ${host}=  OperatingSystem.GetFile  ${NGC_TESTS_PATH}/resources/hostProvider.tpl.properties
     ${vicenv}=  OperatingSystem.GetFile  ${NGC_TESTS_PATH}/resources/vicEnvProvider.tpl.properties
-
-    # create a container and get its name-id
-    #${container_name}=  Create And Run Test Container
-    #Log To Console  container name ${container_name}
 
     # make original copies
     Set Suite Variable  ${browservm_original}  ${browser_vm}
@@ -106,9 +107,12 @@ Revert Config Files
     Create File  ${NGC_TESTS_PATH}/resources/vicEnvProvider.tpl.properties  ${vicenv_original}
 
 Create And Run Test Container
-    ${rc}  ${container_id}=  Run And Return Rc And Output  docker run -d busybox /bin/top
-    ${rc}  ${container_name}=  Run And Return Rc And Output  docker inspect ${container_id} | jq '.[0].Name' | sed 's/[\"\/]//g'
-    [Return]  ${container_name}  ${container_id}  ${container_name}-${container_id}
+    Log To Console  \nCreating a busybox container...
+    ${rc}  ${container_id}=  Run And Return Rc And Output  docker ${params} run -d busybox /bin/top
+    ${rc2}  ${container_name}=  Run And Return Rc And Output  docker ${params} inspect ${container_id} | jq '.[0].Name' | sed 's/[\"\/]//g'
+    Should Be Equal As Integers  ${rc}  0
+    Should Be Equal As Integers  ${rc2}  0
+    Set Suite Variable  ${CONTAINER_VM_NAME}  ${container_name}-${container_id}
 
 Start Ngc Tests
     # run mvn test and make sure tests are successful. timeout is applied inside the custom library not here
@@ -126,3 +130,12 @@ Clean Up Testbed Config Files
     @{files}=  OperatingSystem.List Directory  ${NGC_TESTS_PATH}/resources  *tpl.properties
     ${num_tpl_files}=  Get Length  ${files}
     Run Keyword If  ${num_tpl_files} == 0  Revert Config Files
+
+    # destroy the container after all tests are done
+    Run Keyword If  ${use_existing_container_vm} != True  Run Keyword  Destroy Test Container
+
+Destroy Test Container
+    @{container_vm_name_id}=  Split String  ${CONTAINER_VM_NAME}  -
+    ${rc}=  Run And Return Rc  docker ${params} stop @{container_vm_name_id}[1]
+    ${rc2}=  Run Keyword If  ${rc} == ${0}  Run And Return Rc  docker ${params} rm @{container_vm_name_id}[1]
+    Run Keyword If  ${rc2} != None  Should Be Equal As Integers  ${rc2}  0
