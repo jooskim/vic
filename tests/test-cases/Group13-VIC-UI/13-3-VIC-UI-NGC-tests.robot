@@ -33,7 +33,12 @@ Run Ngc Tests Project
     Set Up Testbed Config Files
 
     # start runing ngc tests and expect the output does not include words 'BUILD FAILURE'
-    Run Keyword If  '${TEST_VC_VERSION}'=='5.5'  Skip Ngc Tests  ELSE  Start Ngc Tests
+    #Run Keyword If  '${TEST_VC_VERSION}'=='5.5'  Skip Ngc Tests  ELSE  Start Ngc Tests
+    ${container_name}  ${container_id}  ${container_nameid}=  Create And Run Test Container
+    Log To Console  container name ${container_nameid}
+    Log To Console  existing container vm name ${CONTAINER_VM_NAME}
+    Run  docker stop ${container_id}
+    Run  docker rm ${container_id}
 
 *** Keywords ***
 Set Up Testbed Config Files
@@ -42,6 +47,10 @@ Set Up Testbed Config Files
     ${commontestbed}=  OperatingSystem.GetFile  ${NGC_TESTS_PATH}/resources/commonTestbedProvider.tpl.properties
     ${host}=  OperatingSystem.GetFile  ${NGC_TESTS_PATH}/resources/hostProvider.tpl.properties
     ${vicenv}=  OperatingSystem.GetFile  ${NGC_TESTS_PATH}/resources/vicEnvProvider.tpl.properties
+
+    # create a container and get its name-id
+    #${container_name}=  Create And Run Test Container
+    #Log To Console  container name ${container_name}
 
     # make original copies
     Set Suite Variable  ${browservm_original}  ${browser_vm}
@@ -95,6 +104,11 @@ Revert Config Files
     Create File  ${NGC_TESTS_PATH}/resources/commonTestbedProvider.tpl.properties  ${commontestbed_original}
     Create File  ${NGC_TESTS_PATH}/resources/hostProvider.tpl.properties  ${host_original}
     Create File  ${NGC_TESTS_PATH}/resources/vicEnvProvider.tpl.properties  ${vicenv_original}
+
+Create And Run Test Container
+    ${rc}  ${container_id}=  Run And Return Rc And Output  docker run -d busybox /bin/top
+    ${rc}  ${container_name}=  Run And Return Rc And Output  docker inspect ${container_id} | jq '.[0].Name' | sed 's/[\"\/]//g'
+    [Return]  ${container_name}  ${container_id}  ${container_name}-${container_id}
 
 Start Ngc Tests
     # run mvn test and make sure tests are successful. timeout is applied inside the custom library not here
