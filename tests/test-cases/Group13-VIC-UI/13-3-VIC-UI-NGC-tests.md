@@ -49,4 +49,9 @@ To test user interactions with VIC UI in vSphere Web Client
 * Each step should return success
 
 #Possible Problems:
-NGC automated testing is not available on VC 5.5, so if the tests were to run against a box with VC 5.5 Step 3 above would be skipped. However, you can manually run the NGC tests by following the steps above.
+1. NGC automated testing is not available on VC 5.5, so if the tests were to run against a box with VC 5.5 Step 3 above would be skipped. However, you can manually run the NGC tests by following the steps above.
+2. Some Selenium Web Drivers are known to have bugs that slow down or even crash the tests
+  - 64 bit version of the Internet Explorer Driver has an issue with text input speed where it takes about 4-5 seconds per keystroke. (using the 32 bit version solves the issue)
+  - When run with the Chrome Driver, tests fail at the login page of the vSphere Web Client; browser hangs and does not automatically enter username and password
+  - Firefox driver has been the most stable and thus was set as the default browser for testing
+  - The findings were made using the latest non-beta release of Selenium (v2.53.1) and the latest browser drivers on a Nimbus-based Windows 7 VM
