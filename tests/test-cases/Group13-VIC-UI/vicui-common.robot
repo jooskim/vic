@@ -19,8 +19,8 @@ ${ESX_HOST_PASSWORD}        ca\$hc0w
 ${DATACENTER_NAME}          Datacenter0IQKp
 ${CLUSTER_NAME}             Clusterjt9Ot
 ${DATASTORE_TYPE}           NFS
-${DATASTORE_NAME}           NFS_STORAGE_52194
-${DATASTORE_IP}             10.161.12.64
+${DATASTORE_NAME}           fake
+${DATASTORE_IP}             1.1.1.1
 ${HOST_DATASTORE_NAME}      datastore1
 ${VCH_VM_NAME}              vic_4430_2
 ${CONTAINER_VM_NAME}        tender_yonath-77838612707e522965d3543ece43c60560fa0eb58953f77781b2f36994007f2d
