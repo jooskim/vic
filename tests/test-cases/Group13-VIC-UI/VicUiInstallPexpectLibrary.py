@@ -109,10 +109,10 @@ class VicUiInstallPexpectLibrary(object):
 
         self._prepare_and_spawn('uninstall', commands)
 
-    def run_ngc_tests(self):
+    def run_ngc_tests(self, vcenter_user, vcenter_password):
         try:
             self._f = open('ngc_tests.log', 'wb')
-            self._pchild = pexpect.spawn('mvn test', cwd = VicUiInstallPexpectLibrary.NGC_TESTS_PATH, timeout = VicUiInstallPexpectLibrary.NGC_TESTS_TIMEOUT_LIMIT)
+            self._pchild = pexpect.spawn('mvn test -Denv.VC_ADMIN_USERNAME=' + vcenter_user + ' -Denv.VC_ADMIN_PASSWORD=' + vcenter_password, cwd = VicUiInstallPexpectLibrary.NGC_TESTS_PATH, timeout = VicUiInstallPexpectLibrary.NGC_TESTS_TIMEOUT_LIMIT)
             self._pchild.logfile = self._f
             self._pchild.expect(pexpect.EOF)
             self._f.close()

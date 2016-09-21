@@ -22,8 +22,8 @@ public class VicUITestWorkflow extends NGCTestWorkflow {
 	@Override
 	protected UserSpec generateUserSpec(VcSpec vcSpec) {
 		UserSpec userSpec = new UserSpec();
-		userSpec.username.set("administrator@vsphere.local");
-		userSpec.password.set("Admin!23");
+		userSpec.username.set(System.getProperty("vcAdminUsername"));
+		userSpec.password.set(System.getProperty("vcAdminPassword"));
 		userSpec.parent.set(vcSpec);
 		userSpec.tag.set(NGCTestWorkflow.TEST_USER_SPEC_TAG);
 		
