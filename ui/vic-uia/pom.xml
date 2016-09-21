@@ -35,6 +35,10 @@
               <suiteXmlFiles>
                 <suiteXmlFile>testng.xml</suiteXmlFile>
               </suiteXmlFiles>
+              <systemPropertyVariables>
+                <vcAdminUsername>${env.VC_ADMIN_USERNAME}</vcAdminUsername>
+                <vcAdminPassword>${env.VC_ADMIN_PASSWORD}</vcAdminPassword>
+              </systemPropertyVariables>
             </configuration>
           </execution>
         </executions>

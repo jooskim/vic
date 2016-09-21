@@ -117,7 +117,7 @@ Create And Run Test Container
 Start Ngc Tests
     # run mvn test and make sure tests are successful. timeout is applied inside the custom library not here
     [Timeout]  NONE
-    Run Ngc Tests
+    Run Ngc Tests  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}
     ${output}=  OperatingSystem.GetFile  ngc_tests.log
     Should Contain  ${output}  BUILD SUCCESS
     Should Not Contain  ${output}  BUILD FAILURE
