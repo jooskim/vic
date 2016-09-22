@@ -27,7 +27,7 @@ Ensure Vicui Is Installed
     # ensure vicui is installed before running ngc automation tests
     Set Absolute Script Paths
     Set Vcenter Ip
-    Install Vicui Without Webserver  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}  ${TEST_VC_VERSION}  True
+    Install Vicui Without Webserver  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}  ${TRUE}
     ${output}=  OperatingSystem.GetFile  install.log
     Should Contain  ${output}  was successful
     Remove File  install.log
