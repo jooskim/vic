@@ -23,18 +23,15 @@ class VicUiInstallPexpectLibrary(object):
         except IOError as e:
             return 'Error: ' + e.value
 
-    def _common_prompts(self, vcenter_user, vcenter_password, root_password, vc_version=None):
+    def _common_prompts(self, vcenter_user, vcenter_password, root_password):
 	self._pchild.expect('Enter your vCenter Administrator Username: ')
 	self._pchild.sendline(vcenter_user)
 	self._pchild.expect('Enter your vCenter Administrator Password: ')
 	self._pchild.sendline(vcenter_password)
-        if vc_version != None:
-	    self._pchild.expect('Are you running.*')
-	    self._pchild.sendline('y' if vc_version == '5.5' else 'n')
 
-    def install_vicui_without_webserver(self, vcenter_user, vcenter_password, root_password, vc_version, force=False):
+    def install_vicui_without_webserver(self, vcenter_user, vcenter_password, root_password, force=False):
         def commands():
-            self._common_prompts(vcenter_user, vcenter_password, root_password, vc_version)
+            self._common_prompts(vcenter_user, vcenter_password, root_password)
             match_index = self._pchild.expect(['root@.*', '.*continue connecting.*'])
             if match_index == 1:
                 self._pchild.sendline('yes')
@@ -50,9 +47,9 @@ class VicUiInstallPexpectLibrary(object):
 
         self._prepare_and_spawn('install', commands, force)
 
-    def install_vicui_without_webserver_nor_bash(self, vcenter_user, vcenter_password, root_password, vc_version):
+    def install_vicui_without_webserver_nor_bash(self, vcenter_user, vcenter_password, root_password):
         def commands():
-            self._common_prompts(vcenter_user, vcenter_password, root_password, vc_version)
+            self._common_prompts(vcenter_user, vcenter_password, root_password)
             match_index = self._pchild.expect(['root@.*', '.*continue connecting.*'])
             if match_index == 1:
                 self._pchild.sendline('yes')
@@ -65,19 +62,19 @@ class VicUiInstallPexpectLibrary(object):
 
         self._prepare_and_spawn('install', commands)
 
-    def install_fails_for_wrong_vcenter_ip(self, vcenter_user, vcenter_password, root_password, vc_version=None):
+    def install_fails_for_wrong_vcenter_ip(self, vcenter_user, vcenter_password, root_password):
         def commands():
-            self._common_prompts(vcenter_user, vcenter_password, root_password, vc_version)
+            self._common_prompts(vcenter_user, vcenter_password, root_password)
             self._pchild.expect('.*Error.*')
             self._pchild.interact()
             self._pchild.expect(pexpect.EOF)
 
         self._prepare_and_spawn('install', commands)
 
-    def install_fails_at_extension_reg(self, vcenter_user, vcenter_password, root_password, vc_version=None):
+    def install_fails_at_extension_reg(self, vcenter_user, vcenter_password, root_password, is_nourl=True):
         def commands():
-            self._common_prompts(vcenter_user, vcenter_password, root_password, vc_version)
-            if vc_version != None:
+            self._common_prompts(vcenter_user, vcenter_password, root_password)
+            if is_nourl == True:
                 match_index = self._pchild.expect(['root@.*', '.*continue connecting.*'])
                 if match_index == 1:
                     self._pchild.sendline('yes')
@@ -102,7 +99,7 @@ class VicUiInstallPexpectLibrary(object):
 
     def uninstall_vicui(self, vcenter_user, vcenter_password):
         def commands():
-            self._common_prompts(vcenter_user, vcenter_password, None, None)
+            self._common_prompts(vcenter_user, vcenter_password, None)
             self._pchild.expect(['.*successful', 'Error! Could not unregister.*'])
             self._pchild.interact()
             self._pchild.expect(pexpect.EOF)

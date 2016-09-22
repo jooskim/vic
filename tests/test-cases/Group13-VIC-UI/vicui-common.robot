@@ -49,6 +49,7 @@ Set Vcenter Ip
     # Populate VCENTER_IP with ${TEST_VC_IP}
     Remove File  ${UI_INSTALLER_PATH}/configs
     ${results}=  Replace String Using Regexp  ${configs}  VCENTER_IP=.*  VCENTER_IP=\"${TEST_VC_IP}\"
+    ${results}=  Run Keyword If  ${TEST_VC_VERSION} == '5.5'  Replace String Using Regexp  ${results}  IS_VCENTER_5_5=.*  IS_VCENTER_5_5=1  ELSE  Set Variable  ${results}
     Create File  ${UI_INSTALLER_PATH}/configs  ${results}
     Wait Until Created  ${UI_INSTALLER_PATH}/configs
     Should Contain  ${results}  ${TEST_VC_IP}
@@ -57,6 +58,7 @@ Unset Vcenter Ip
     # Revert the configs file back to what it was
     Remove File  ${UI_INSTALLER_PATH}/configs
     ${results}=  Replace String Using Regexp  ${configs}  VCENTER_IP=.*  VCENTER_IP=\"\"
+    ${results}=  Replace String Using Regexp  ${results}  IS_VCENTER_5_5=.*  IS_VCENTER_5_5=0
     Create File  ${UI_INSTALLER_PATH}/configs  ${results}
     Wait Until Created  ${UI_INSTALLER_PATH}/configs
     Should Exist  ${UI_INSTALLER_PATH}/configs

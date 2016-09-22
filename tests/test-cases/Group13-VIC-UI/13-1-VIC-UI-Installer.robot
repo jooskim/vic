@@ -27,7 +27,7 @@ Attempt To Install With Plugin Missing
     # Rename the folder containing the VIC UI binaries and run the installer script to see if it fails in an expected way
     Set Vcenter Ip
     Move Directory  ${UI_INSTALLER_PATH}/../vsphere-client-serenity  ${UI_INSTALLER_PATH}/../vsphere-client-serenity-a
-    Install Fails At Extension Reg  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}  ${TEST_VC_VERSION}
+    Install Fails At Extension Reg  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}  ${TRUE}
     ${output}=  OperatingSystem.GetFile  install.log
     Run Keyword And Continue On Failure  Should Contain  ${output}  VIC UI plugin bundle was not found
     Move Directory  ${UI_INSTALLER_PATH}/../vsphere-client-serenity-a  ${UI_INSTALLER_PATH}/../vsphere-client-serenity
@@ -46,7 +46,7 @@ Attempt To Install With Invalid vCenter IP
     Remove File  ${UI_INSTALLER_PATH}/configs
     ${results}=  Replace String Using Regexp  ${configs}  VCENTER_IP=.*  VCENTER_IP=\"i-am-not-a-valid-ip\"
     Create File  ${UI_INSTALLER_PATH}/configs  ${results}
-    Install Fails For Wrong Vcenter Ip  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}  ${TEST_VC_VERSION}
+    Install Fails For Wrong Vcenter Ip  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}
     ${output}=  OperatingSystem.GetFile  install.log
     Should Contain  ${output}  Could not resolve the hostname
     Remove File  install.log
@@ -54,7 +54,7 @@ Attempt To Install With Invalid vCenter IP
 Attempt To Install With Wrong Vcenter Credentials
     # Try installing the plugin with wrong vCenter credentials and see if it fails in an expected way
     Set Vcenter Ip
-    Install Fails At Extension Reg  ${TEST_VC_USERNAME}_nope  ${TEST_VC_PASSWORD}_nope  ${TEST_VC_ROOT_PASSWORD}  ${TEST_VC_VERSION}
+    Install Fails At Extension Reg  ${TEST_VC_USERNAME}_nope  ${TEST_VC_PASSWORD}_nope  ${TEST_VC_ROOT_PASSWORD}  ${TRUE}
     ${output}=  OperatingSystem.GetFile  install.log
     Should Contain  ${output}  Cannot complete login due to an incorrect user name or password
     Remove File  install.log
@@ -63,7 +63,7 @@ Attempt To Install With Wrong Root Password
     # Try installing the plugin with wrong vCenter root password and see if it fails in an expected way
     Log To Console  Skipping this test, as making three incorrect attempts will lock the root account for a certain amount of time
     #Set Vcenter Ip
-    #Install Vicui Without Webserver  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}_abc  ${TEST_VC_VERSION}
+    #Install Vicui Without Webserver  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}_abc
     #${output}=  OperatingSystem.GetFile  install.log
     #Should Contain  ${output}  Root password is incorrect
     #Remove File  install.log
@@ -73,7 +73,7 @@ Attempt To Install Without Webserver Nor Bash Support
     [Timeout]  ${TIMEOUT}
     Set Vcenter Ip
     Append To File  ${UI_INSTALLER_PATH}/configs  SIMULATE_NO_BASH_SUPPORT=1\n
-    Install Vicui Without Webserver Nor Bash  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}  ${TEST_VC_VERSION}
+    Install Vicui Without Webserver Nor Bash  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}
     ${output}=  OperatingSystem.GetFile  install.log
     Run Keyword And Continue On Failure  Should Contain  ${output}  Bash shell is required
     Force Remove Vicui Plugin
@@ -82,7 +82,7 @@ Attempt To Install Without Webserver Nor Bash Support
 Install Successfully Without Webserver
     [Timeout]  ${TIMEOUT}
     Set Vcenter Ip
-    Install Vicui Without Webserver  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}  ${TEST_VC_VERSION}
+    Install Vicui Without Webserver  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}
     ${output}=  OperatingSystem.GetFile  install.log
     Should Contain  ${output}  was successful
     Remove File  install.log
@@ -92,7 +92,7 @@ Attempt To Install When Plugin Is Already Registered
     # Try installing the plugin and see if it fails in an expected way
     [Timeout]  ${TIMEOUT}
     Set Vcenter Ip
-    Install Fails At Extension Reg  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}  ${TEST_VC_VERSION}
+    Install Fails At Extension Reg  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}  ${TRUE}
     ${output}=  OperatingSystem.GetFile  install.log
     Should Contain  ${output}  is already registered
     Remove File  install.log
@@ -102,7 +102,7 @@ Install Successfully Without Webserver Using Force Flag
     # Install the plugin using the --force flag and see if it succeeds
     [Timeout]  ${TIMEOUT}
     Set Vcenter Ip
-    Install Vicui Without Webserver  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}  ${TEST_VC_VERSION}  True
+    Install Vicui Without Webserver  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}  ${TRUE}
     ${output}=  OperatingSystem.GetFile  install.log
     Should Contain  ${output}  was successful
     Remove File  install.log
@@ -116,7 +116,7 @@ Attempt To Install With Webserver And Wrong Path To Plugin
     ${configs_with_fake_vicui_hosturl}=  Replace String Using Regexp  ${intermediate_configs}  VIC_UI_HOST_URL=.*  VIC_UI_HOST_URL=\"http:\/\/this-fake-host\.does-not-exist\"
     Create File  ${UI_INSTALLER_PATH}/configs  ${configs_with_fake_vicui_hosturl}
     Wait Until Created  ${UI_INSTALLER_PATH}/configs
-    Install Fails At Extension Reg  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}
+    Install Fails At Extension Reg  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}  ${FALSE}
     ${output}=  OperatingSystem.GetFile  install.log
     Should Contain  ${output}  Could not resolve the host
     Remove File  install.log
