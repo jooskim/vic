@@ -84,7 +84,9 @@ Install Successfully Without Webserver
     Set Vcenter Ip
     Install Vicui Without Webserver  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}
     ${output}=  OperatingSystem.GetFile  install.log
-    Should Contain  ${output}  was successful
+    ${run_results}=  Run Keyword And Return Status  Should Contain  ${output}  was successful
+    ${now}=  Run  date +%m%d%y-%H%M%S
+    Run Keyword If  ${run_results} == False  Copy File  install.log  install-FAIL-${now}.log
     Remove File  install.log
 
 Attempt To Install When Plugin Is Already Registered
@@ -104,7 +106,9 @@ Install Successfully Without Webserver Using Force Flag
     Set Vcenter Ip
     Install Vicui Without Webserver  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}  ${TRUE}
     ${output}=  OperatingSystem.GetFile  install.log
-    Should Contain  ${output}  was successful
+    ${run_results}=  Run Keyword And Return Status  Should Contain  ${output}  was successful
+    ${now}=  Run  date +%m%d%y-%H%M%S
+    Run Keyword If  ${run_results} == False  Copy File  install.log  install-FAIL-${now}.log
     Remove File  install.log
     Log To Console  Force removing Vicui for next tests...
     Force Remove Vicui Plugin
