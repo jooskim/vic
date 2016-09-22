@@ -5,25 +5,25 @@ Library  VicUiInstallPexpectLibrary.py
 *** Variables ***
 # TODO: these values will be replaced by the time a PR is submitted. most of these values will be populated at runtime
 ${TEST_VC_VERSION}          6.0
-${TEST_VC_IP}               10.160.91.73
+${TEST_VC_IP}               10.17.109.132
 ${TEST_VC_USERNAME}         administrator@vsphere.local
-${TEST_VC_PASSWORD}         Admin\!23
-${TEST_VC_ROOT_PASSWORD}    vmware
+${TEST_VC_PASSWORD}         ca\$hc0w
+${TEST_VC_ROOT_PASSWORD}    ca\$hc0w
 ${TIMEOUT}                  5 minutes
 
 ${SELENIUM_SERVER_IP}       10.162.122.138
 ${SELENIUM_SERVER_PORT}     4444
 ${SELENIUM_BROWSER}         *firefox
-${ESX_HOST_IP}              10.160.192.224
+${ESX_HOST_IP}              10.160.235.231
 ${ESX_HOST_PASSWORD}        ca\$hc0w
-${DATACENTER_NAME}          Datacenter0IQKp
-${CLUSTER_NAME}             Clusterjt9Ot
+${DATACENTER_NAME}          Datacenter
+${CLUSTER_NAME}             Cluster
 ${DATASTORE_TYPE}           NFS
 ${DATASTORE_NAME}           fake
 ${DATASTORE_IP}             1.1.1.1
 ${HOST_DATASTORE_NAME}      datastore1
-${VCH_VM_NAME}              vic_4430_2
-${CONTAINER_VM_NAME}        tender_yonath-77838612707e522965d3543ece43c60560fa0eb58953f77781b2f36994007f2d
+${VCH_VM_NAME}              vic_5122
+${CONTAINER_VM_NAME}        thirsty_mirzakh-8dc6931daa18b01236de93e18e150933a33ce2d83a946d34324dc57e021c6919
 
 *** Keywords ***
 Set Absolute Script Paths
