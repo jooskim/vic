@@ -5,7 +5,6 @@ import com.vmware.suitaf.apl.IDGroup;
 
 public class VerifyContainerPortletAttributeStep extends CommonUIWorkflowStep {
 	private static final IDGroup VM_SUMMARY_CONTAINERPORTLET_NAME = IDGroup.toIDGroup("containerName");
-	private static final IDGroup VM_SUMMARY_CONTAINERPORTLET_PORTMAPPING = IDGroup.toIDGroup("portmappingInfo");
 	
 	@Override
 	public void execute() throws Exception {

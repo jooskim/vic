@@ -24,6 +24,7 @@ public class InvokeVmPowerOperationUiStepConfirmYes extends CommonUIWorkflowStep
 		ensureAssigned(_powerStateSpec.powerState, "Power state is not assigned to the power spec.");
    }
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public void execute() throws Exception {
 		_logger.info("VM to work in the step: " + _powerStateSpec.vm.get().name.get());
