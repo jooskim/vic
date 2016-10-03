@@ -1,34 +1,27 @@
 package com.vmware.vsphere.client.automation.vicui.common;
 
 import java.util.Map;
-import java.util.AbstractMap.SimpleEntry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vmware.client.automation.common.spec.EntitySpec;
 import com.vmware.client.automation.common.spec.ServiceSpec;
 import com.vmware.client.automation.connector.TestbedConnector;
 import com.vmware.client.automation.exception.SsoException;
 import com.vmware.client.automation.servicespec.VcServiceSpec;
-import com.vmware.client.automation.util.VcServiceUtil;
 import com.vmware.client.automation.workflow.common.WorkflowStepContext;
 import com.vmware.client.automation.workflow.common.WorkflowStepsSequence;
 import com.vmware.client.automation.workflow.explorer.SettingsReader;
 import com.vmware.client.automation.workflow.explorer.SettingsUtil;
-import com.vmware.client.automation.workflow.explorer.SettingsWriter;
 import com.vmware.client.automation.workflow.explorer.TestBedBridge;
 import com.vmware.client.automation.workflow.explorer.TestbedSpecConsumer;
 import com.vmware.client.automation.workflow.provider.AssemblerSpec;
 import com.vmware.client.automation.workflow.provider.ProviderWorkflow;
-import com.vmware.client.automation.workflow.provider.ProviderWorkflowStep;
 import com.vmware.client.automation.workflow.provider.PublisherSpec;
 import com.vmware.vsphere.client.automation.provider.commontb.CommonTestBedProvider;
-import com.vmware.vsphere.client.automation.provider.commontb.VcProvider;
 import com.vmware.vsphere.client.automation.provider.connector.VcConnector;
 import com.vmware.vsphere.client.automation.srv.common.spec.VcSpec;
 import com.vmware.vsphere.client.automation.srv.common.spec.VmSpec;
-import com.vmware.vsphere.client.automation.vicui.common.step.VchVersionCheckProviderStep;
 
 public class VicEnvironmentProvider implements ProviderWorkflow {
 	
@@ -107,8 +100,7 @@ public class VicEnvironmentProvider implements ProviderWorkflow {
 	}
 
 	public void composeProviderSteps(WorkflowStepsSequence<? extends WorkflowStepContext> flow) throws Exception {
-		_logger.info("COMPOSING?");
-		flow.appendStep("Check if VCH is installed on target VC", new VchVersionCheckProviderStep());
+
 		
 	}
 

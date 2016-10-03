@@ -11,11 +11,9 @@ import com.vmware.vsphere.client.automation.components.navigator.spec.VmLocation
 import com.vmware.vsphere.client.automation.components.navigator.step.VmNavigationStep;
 import com.vmware.vsphere.client.automation.provider.commontb.CommonTestBedProvider;
 import com.vmware.vsphere.client.automation.srv.common.spec.HostSpec;
-import com.vmware.vsphere.client.automation.srv.common.spec.SpecFactory;
 import com.vmware.vsphere.client.automation.srv.common.spec.VcSpec;
 import com.vmware.vsphere.client.automation.srv.common.spec.VmSpec;
 import com.vmware.vsphere.client.automation.vicui.common.VicEnvironmentProvider;
-import com.vmware.vsphere.client.automation.vicui.common.VicUIConstants;
 import com.vmware.vsphere.client.automation.vicui.common.VicUITestWorkflow;
 import com.vmware.vsphere.client.automation.vicui.common.VicVcEnvSpec;
 import com.vmware.vsphere.client.automation.vicui.common.step.ClickSummaryTabStep;

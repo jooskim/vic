@@ -5,7 +5,6 @@ import static com.vmware.client.automation.common.TestSpecValidator.ensureNotNul
 
 import com.vmware.client.automation.common.datamodel.RecentTaskFilter;
 import com.vmware.client.automation.common.spec.TaskSpec;
-import com.vmware.client.automation.common.view.BaseView;
 import com.vmware.client.automation.components.navigator.ActionNavigator;
 import com.vmware.client.automation.util.TasksUtil;
 import com.vmware.client.automation.workflow.CommonUIWorkflowStep;
