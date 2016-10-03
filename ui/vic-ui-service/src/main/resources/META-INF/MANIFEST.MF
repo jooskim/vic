@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Export-Package: com.vmware.vicui;version="1.0.0";uses:="com.vmware.vise.data.query,com
+Export-Package: com.vmware.vic;version="1.0.0";uses:="com.vmware.vise.data.query,com
  .vmware.vise.security,com.vmware.vise.usersession,com.vmware.vise.vim
  .data"
 Bundle-Vendor: VMware
@@ -16,5 +16,4 @@ Import-Package: com.vmware.vim25;version="[6.0.0,7)",
  javax.xml.ws;version="0",
  javax.xml.ws.handler;version="0",
  org.apache.commons.logging;version="[1.1.1,2)"
-Bundle-SymbolicName: com.vmware.vicui.VicUIService
-
+Bundle-SymbolicName: com.vmware.vic.service

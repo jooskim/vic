@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: vic-ui
-Bundle-SymbolicName: com.vmware.vicui.Vicui
+Bundle-SymbolicName: com.vmware.vic.ui
 Bundle-Version: 1.0.0
 Bundle-Vendor: VMware
 Web-ContextPath: vsphere-client/vic-ui
