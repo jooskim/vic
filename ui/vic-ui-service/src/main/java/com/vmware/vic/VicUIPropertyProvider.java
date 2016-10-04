@@ -1,4 +1,25 @@
-package com.vmware.vicui;
+/*
+
+Copyright 2016 VMware, Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Mac OS script starting an Ant build of the current flex project
+Note: if Ant runs out of memory try defining ANT_OPTS=-Xmx512M
+
+*/
+
+package com.vmware.vic;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -30,6 +51,7 @@ import com.vmware.vim25.VimPortType;
 import com.vmware.vim25.VimService;
 import com.vmware.vim25.VirtualMachineConfigInfo;
 import com.vmware.vise.data.query.DataServiceExtensionRegistry;
+import com.vmware.vise.data.query.PropertyProviderAdapter;
 import com.vmware.vise.data.query.PropertyRequestSpec;
 import com.vmware.vise.data.query.PropertyValue;
 import com.vmware.vise.data.query.ResultSet;
@@ -41,8 +63,8 @@ import com.vmware.vise.usersession.UserSession;
 import com.vmware.vise.usersession.UserSessionService;
 import com.vmware.vise.vim.data.VimObjectReferenceService;
 
-public class VicUIServiceImpl implements VicUIService, ClientSessionEndListener {
-	private static final Log _logger = LogFactory.getLog(VicUIServiceImpl.class);
+public class VicUIPropertyProvider implements PropertyProviderAdapter, ClientSessionEndListener {
+	private static final Log _logger = LogFactory.getLog(VicUIPropertyProvider.class);
 	private static final String[] VIC_VM_TYPES = {"isVCH", "isContainer"};
 	private static final String EXTRACONFIG_VCH_PATH = "guestinfo.vice./init/common/name";
 	private static final String EXTRACONFIG_CONTAINER_PATH = "guestinfo.vice./common/name";
@@ -57,37 +79,37 @@ public class VicUIServiceImpl implements VicUIService, ClientSessionEndListener 
 	}
 
 	static {
-	      HostnameVerifier hostNameVerifier = new HostnameVerifier() {
-	         @Override
-	         public boolean verify(String urlHostName, SSLSession session) {
-	            return true;
-	         }
-	      };
-	      HttpsURLConnection.setDefaultHostnameVerifier(hostNameVerifier);
+		HostnameVerifier hostNameVerifier = new HostnameVerifier() {
+			@Override
+			public boolean verify(String urlHostName, SSLSession session) {
+				return true;
+			}
+		};
+		HttpsURLConnection.setDefaultHostnameVerifier(hostNameVerifier);
 
-	      javax.net.ssl.TrustManager[] trustAllCerts = new javax.net.ssl.TrustManager[1];
-	      javax.net.ssl.TrustManager tm = new TrustAllTrustManager();
-	      trustAllCerts[0] = tm;
-	      javax.net.ssl.SSLContext sc = null;
+		javax.net.ssl.TrustManager[] trustAllCerts = new javax.net.ssl.TrustManager[1];
+		javax.net.ssl.TrustManager tm = new TrustAllTrustManager();
+		trustAllCerts[0] = tm;
+		javax.net.ssl.SSLContext sc = null;
 
-	      try {
-	         sc = javax.net.ssl.SSLContext.getInstance("TLSv1.2");
-	      } catch (NoSuchAlgorithmException e) {
-	         _logger.info(e);
-	      }
+		try {
+			sc = javax.net.ssl.SSLContext.getInstance("TLSv1.2");
+		} catch (NoSuchAlgorithmException e) {
+			_logger.info(e);
+		}
 
-	      javax.net.ssl.SSLSessionContext sslsc = sc.getServerSessionContext();
-	      sslsc.setSessionTimeout(0);
-	      try {
-	         sc.init(null, trustAllCerts, null);
-	      } catch (KeyManagementException e) {
-	         _logger.info(e);
-	      }
-	      javax.net.ssl.HttpsURLConnection.setDefaultSSLSocketFactory(
-	            sc.getSocketFactory());
-	   }
+		javax.net.ssl.SSLSessionContext sslsc = sc.getServerSessionContext();
+		sslsc.setSessionTimeout(0);
+		try {
+			sc.init(null, trustAllCerts, null);
+		} catch (KeyManagementException e) {
+			_logger.info(e);
+		}
+		javax.net.ssl.HttpsURLConnection.setDefaultSSLSocketFactory(
+		sc.getSocketFactory());
+	}
 
-	public VicUIServiceImpl(DataServiceExtensionRegistry extensionRegistry, VimObjectReferenceService vimObjectReferenceService, UserSessionService userSessionService) {
+	public VicUIPropertyProvider(DataServiceExtensionRegistry extensionRegistry, VimObjectReferenceService vimObjectReferenceService, UserSessionService userSessionService) {
 		TypeInfo vmTypeInfo = new TypeInfo();
 		vmTypeInfo.type = "VirtualMachine";
 		vmTypeInfo.properties = VIC_VM_TYPES;
@@ -191,75 +213,75 @@ public class VicUIServiceImpl implements VicUIService, ClientSessionEndListener 
 		pv_is_container.value = false;
 
 		ServiceContent service = getServiceContent(serverGuid);
-	    if (service == null) {
-	    	return null;
-    	}
+		if (service == null) {
+			return null;
+		}
 
-	    PropertySpec propertySpec = new PropertySpec();
-	    propertySpec.setAll(Boolean.FALSE);
-	    propertySpec.setType("VirtualMachine");
-	    propertySpec.getPathSet().add("config");
+		PropertySpec propertySpec = new PropertySpec();
+		propertySpec.setAll(Boolean.FALSE);
+		propertySpec.setType("VirtualMachine");
+		propertySpec.getPathSet().add("config");
 
-	    ObjectSpec objectSpec = new ObjectSpec();
-	    objectSpec.setObj(vmMor);
-	    objectSpec.setSkip(Boolean.FALSE);
+		ObjectSpec objectSpec = new ObjectSpec();
+		objectSpec.setObj(vmMor);
+		objectSpec.setSkip(Boolean.FALSE);
 
-	    PropertyFilterSpec propertyFilterSpec = new PropertyFilterSpec();
-	    propertyFilterSpec.getPropSet().add(propertySpec);
-	    propertyFilterSpec.getObjectSet().add(objectSpec);
+		PropertyFilterSpec propertyFilterSpec = new PropertyFilterSpec();
+		propertyFilterSpec.getPropSet().add(propertySpec);
+		propertyFilterSpec.getObjectSet().add(objectSpec);
 
-	    List<PropertyFilterSpec> propertyFilterSpecs = new ArrayList<PropertyFilterSpec>();
-	    propertyFilterSpecs.add(propertyFilterSpec);
+		List<PropertyFilterSpec> propertyFilterSpecs = new ArrayList<PropertyFilterSpec>();
+		propertyFilterSpecs.add(propertyFilterSpec);
 
-	    List<ObjectContent> objectContents = _vimPort.retrieveProperties(service.getPropertyCollector(), propertyFilterSpecs);
-	    if (objectContents != null) {
-	    	for (ObjectContent content : objectContents) {
-	    		List<DynamicProperty> dps = content.getPropSet();
-	    		if (dps != null) {
-	    			for (DynamicProperty dp : dps) {
-	    				config = (VirtualMachineConfigInfo) dp.getVal();
+		List<ObjectContent> objectContents = _vimPort.retrieveProperties(service.getPropertyCollector(), propertyFilterSpecs);
+		if (objectContents != null) {
+			for (ObjectContent content : objectContents) {
+				List<DynamicProperty> dps = content.getPropSet();
+				if (dps != null) {
+					for (DynamicProperty dp : dps) {
+						config = (VirtualMachineConfigInfo) dp.getVal();
 
-	    				List<OptionValue> extraConfigs = config.getExtraConfig();
-	    				for(OptionValue option : extraConfigs) {
+						List<OptionValue> extraConfigs = config.getExtraConfig();
+						for(OptionValue option : extraConfigs) {
 
-	    		    		if(option.getKey().equals(EXTRACONFIG_CONTAINER_PATH)) {
-	    		    			pv_is_container.value = true;
-	    		    			break;
-	    		    		}
+							if(option.getKey().equals(EXTRACONFIG_CONTAINER_PATH)) {
+								pv_is_container.value = true;
+								break;
+							}
 
-	    		    		if(option.getKey().equals(EXTRACONFIG_VCH_PATH)) {
-	    		    			pv_is_vch.value = true;
-	    		    			break;
-	    		    		}
-	    		    	}
-	    			}
-	    		}
-	    	}
-	    }
+							if(option.getKey().equals(EXTRACONFIG_VCH_PATH)) {
+								pv_is_vch.value = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
 
-	    resultItem.properties = new PropertyValue[] {pv_is_vch, pv_is_container};
+		resultItem.properties = new PropertyValue[] {pv_is_vch, pv_is_container};
 
-    	return resultItem;
+		return resultItem;
 	}
 
 	private static class TrustAllTrustManager implements
-    javax.net.ssl.TrustManager, javax.net.ssl.X509TrustManager {
+	javax.net.ssl.TrustManager, javax.net.ssl.X509TrustManager {
 
-    @Override
-    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-       return null;
-    }
+		@Override
+		public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+			return null;
+		}
 
-    @Override
-    public void checkServerTrusted(java.security.cert.X509Certificate[] certs,
-          String authType) throws java.security.cert.CertificateException {
-       return;
-    }
+		@Override
+		public void checkServerTrusted(java.security.cert.X509Certificate[] certs,
+		String authType) throws java.security.cert.CertificateException {
+			return;
+		}
 
-    @Override
-    public void checkClientTrusted(java.security.cert.X509Certificate[] certs,
-          String authType) throws java.security.cert.CertificateException {
-       return;
-    }
- }
+		@Override
+		public void checkClientTrusted(java.security.cert.X509Certificate[] certs,
+		String authType) throws java.security.cert.CertificateException {
+			return;
+		}
+	}
 }
