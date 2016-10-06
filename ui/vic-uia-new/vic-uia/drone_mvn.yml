@@ -1,0 +1,17 @@
+branches:
+  - ui-vic-uia
+
+clone:
+  path: github.com/jooskim/vic
+  tags: true
+
+build:
+  vic-uia:
+    image: vmware-docker-ci-repo.bintray.io/integration/vic-test:1.9
+    pull: true
+    environment:
+      BUILD_PATH: ui/vic-uia-new/vic-uia
+    commands:
+      - apt-get update
+      - apt-get install -yq maven
+      - mvn test -f $BUILD_PATH/pom.xml
