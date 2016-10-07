@@ -6,7 +6,7 @@ class VicUiInstallPexpectLibrary(object):
     TIMEOUT_LIMIT = 180
     NGC_TESTS_TIMEOUT_LIMIT = 1800
     INSTALLER_PATH = os.path.join(os.path.dirname(__file__), '../../..', 'ui', 'installer', 'VCSA')
-    NGC_TESTS_PATH = os.path.join(os.path.dirname(__file__), '../../..', 'ui', 'vic-uia')
+    NGC_TESTS_PATH = os.path.join(os.path.dirname(__file__), '../../..', 'ui', 'vic-uia/vic-uia')
 
     def _prepare_and_spawn(self, operation, callback, force=False):
         try:

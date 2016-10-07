@@ -1,14 +1,23 @@
+branches:
+  - ui-integration-tests
+
 clone:
-  path: github.com/vmware/vic
+  path: github.com/jooskim/vic
   tags: true
 
 build:
   vic-uia:
-    image: golang:1.6.3
+    image: vmware-docker-ci-repo.bintray.io/integration/vic-test:1.9
     pull: true
     environment:
       BUILD_PATH: ui/vic-uia
+      TESTS_PATH: tests/test-cases/Group13-VIC-UI
     commands:
       - apt-get update
-      - apt-get install -yq maven openjdk-7-jdk
-      - mvn package -f $BUILD_PATH/pom.xml
+      - apt-get install -yq maven
+      #- mvn install -f $BUILD_PATH/pom.xml
+      - pip install pexpect
+      - cd $TESTS_PATH
+      - robot 13-1-VIC-UI-Installer.robot
+      - robot 13-2-VIC-UI-Uninstaller.robot
+      - robot 13-3-VIC-UI-NGC-tests.robot
