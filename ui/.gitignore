@@ -7,4 +7,5 @@ target/
 installer/vsphere-client-serenity/
 test-output/
 testResultReportFile
+screenshots/
 \$*
