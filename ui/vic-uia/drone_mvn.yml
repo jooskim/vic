@@ -18,6 +18,6 @@ build:
       #- mvn install -f $BUILD_PATH/pom.xml
       - pip install pexpect
       - cd $TESTS_PATH
-      - robot 13-1-VIC-UI-Installer.robot
-      - robot 13-2-VIC-UI-Uninstaller.robot
-      - robot 13-3-VIC-UI-NGC-tests.robot
+      - robot -C ansi 13-1-VIC-UI-Installer.robot
+      - robot -C ansi 13-2-VIC-UI-Uninstaller.robot
+      - robot -C ansi 13-3-VIC-UI-NGC-tests.robot
