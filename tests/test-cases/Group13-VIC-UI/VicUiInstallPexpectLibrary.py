@@ -15,7 +15,7 @@ class VicUiInstallPexpectLibrary(object):
                 executable += ' --force'
 
             self._f = open(operation + '.log', 'wb')
-            self._pchild = pexpect.pty_spawn.spawn(executable, cwd = VicUiInstallPexpectLibrary.INSTALLER_PATH, timeout = VicUiInstallPexpectLibrary.TIMEOUT_LIMIT)
+            self._pchild = pexpect.spawn(executable, cwd = VicUiInstallPexpectLibrary.INSTALLER_PATH, timeout = VicUiInstallPexpectLibrary.TIMEOUT_LIMIT)
             self._pchild.logfile = self._f
             callback()
             self._f.close()
@@ -117,10 +117,20 @@ class VicUiInstallPexpectLibrary(object):
         except IOError as e:
             return 'Error: ' + e.value
 
-    def generate_config(self, content, path):
+    def generate_config(self, path, content):
         try:
-            with open(path, 'wb') as f:
-                f.write(content)
+            #pty_process = pexpect.pty_spawn.spawn('/bin/sh -c echo "' + content + ' > ' + path + '"')
+            #fd = open(path, 'wb')
+            #pty_process = pexpect.spawn('/bin/sh -c "cat <<EOF && echo ' + content + ' && echo EOF"')
+            #pty_process.logfile = fd
+            #pty_process.interact()
+            #pty_process.expect(pexpect.EOF)
+            #fd.close()
+
+            #pty_process = pexpect.spawn('/bin/sh -c "cat <<EOF \ echo ' + content + ' \ echo EOF >  ' + path + '"')
+            pty_process = pexpect.spawn('/bin/sh -c "echo ' + content + ' > ' + path + '"')
+            pty_process.interact()
+            pty_process.expect(pexpect.EOF)
 
         except IOError as e:
-            return 'Error: ' + e.value 
+            return 'Error: ' + e.value
