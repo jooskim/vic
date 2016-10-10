@@ -127,8 +127,7 @@ class VicUiInstallPexpectLibrary(object):
             #pty_process.expect(pexpect.EOF)
             #fd.close()
 
-            #pty_process = pexpect.spawn('/bin/sh -c "cat <<EOF \ echo ' + content + ' \ echo EOF >  ' + path + '"')
-            pty_process = pexpect.spawn('/bin/sh -c "echo ' + content + ' > ' + path + '"')
+            pty_process = pexpect.spawn('/bin/sh -c "(echo ' + content + ' > ' + path + ')"')
             pty_process.interact()
             pty_process.expect(pexpect.EOF)
 
