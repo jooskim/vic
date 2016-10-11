@@ -78,7 +78,7 @@ Rename Folder
 
 Cleanup Installer Environment
     # Reverts the configs file and make sure the folder containing the UI binaries has its original name that might've been left modified due to a test failure
-    Unset Vcenter Ip
+    #Unset Vcenter Ip
     @{folders}=  OperatingSystem.List Directory  ${UI_INSTALLER_PATH}/..  vsphere-client-serenity*
     Run Keyword If  ('@{folders}[0]' != 'vsphere-client-serenity')  Rename Folder  ${UI_INSTALLER_PATH}/../@{folders}[0]  ${UI_INSTALLER_PATH}/../vsphere-client-serenity
 
