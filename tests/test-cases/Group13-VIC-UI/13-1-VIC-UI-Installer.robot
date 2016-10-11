@@ -13,7 +13,22 @@ Check Configs
     Run Keyword  Set Absolute Script Paths
 
 Ensure Vicui Plugin Is Not Registered Before Testing
-    Set Vcenter Ip
+    ${configs}=  Set Vcenter Ip
+    Log To Console  \nwho am i\n=============================
+    ${log_whoami}=  Run  whoami
+    Log To Console  ${log_whoami}
+    Log To Console  \nrunning chmod -R 0777 ${UI_INSTALLER_PATH}\n=============================
+    Run  chmod -R 0777 ${UI_INSTALLER_PATH}
+    Log To Console  \npermissions check\n=============================
+    ${log0}=  Run  ls -la ${UI_INSTALLER_PATH}/..
+    ${log1}=  Run  ls -la ${UI_INSTALLER_PATH}
+    Log To Console  ${log0}
+    Log To Console  ${log1}
+    Log To Console  \nwhich shell\n=============================
+    ${log2}=  Run  ps -fp $$
+    Log To Console  ${log2}
+    Log To Console  \ntry writing configs data\n=============================
+    Run  echo '${configs}' > ${UI_INSTALLER_PATH}/configs
     Run Keyword  Force Remove Vicui Plugin
 
 Attempt To Install With Configs File Missing

@@ -52,9 +52,9 @@ Set Vcenter Ip
     ${results2}=  Run Keyword If  ${TEST_VC_VERSION} == '5.5'  Replace String Using Regexp  ${results}  IS_VCENTER_5_5=.*  IS_VCENTER_5_5=1  ELSE  Set Variable  ${results}
 
     #Generate Config  ${UI_INSTALLER_PATH}/configs  '${results2}'
-    Run  echo '${results2}' > ${UI_INSTALLER_PATH}/configs
-    ${check}=  OperatingSystem.Get File  ${UI_INSTALLER_PATH}/configs
-    Should Contain  ${check}  ${TEST_VC_IP}
+    [Return]  '${results2}'
+    #${check}=  OperatingSystem.Get File  ${UI_INSTALLER_PATH}/configs
+    #Should Contain  ${check}  ${TEST_VC_IP}
 
 Unset Vcenter Ip
     # Revert the configs file back to what it was
