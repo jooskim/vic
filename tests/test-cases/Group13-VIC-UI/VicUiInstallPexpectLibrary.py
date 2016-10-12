@@ -42,7 +42,7 @@ class VicUiInstallPexpectLibrary(object):
             self._pchild.sendline(root_password)
             self._pchild.expect('root@.*')
             self._pchild.sendline(root_password)
-            self._pchild.interact()
+            #self._pchild.interact()
             self._pchild.expect(pexpect.EOF)
 
         self._prepare_and_spawn('install', commands, force)
@@ -57,7 +57,7 @@ class VicUiInstallPexpectLibrary(object):
 
             self._pchild.sendline(root_password)
             self._pchild.expect('.*When all done.*')
-            self._pchild.interact()
+            #self._pchild.interact()
             self._pchild.expect(pexpect.EOF)
 
         self._prepare_and_spawn('install', commands)
@@ -66,7 +66,7 @@ class VicUiInstallPexpectLibrary(object):
         def commands():
             self._common_prompts(vcenter_user, vcenter_password, root_password)
             self._pchild.expect('.*Error.*')
-            self._pchild.interact()
+            #self._pchild.interact()
             self._pchild.expect(pexpect.EOF)
 
         self._prepare_and_spawn('install', commands)
@@ -83,7 +83,7 @@ class VicUiInstallPexpectLibrary(object):
 		self._pchild.sendline(root_password)
 
             self._pchild.expect('.*Error.*')
-            self._pchild.interact()
+            #self._pchild.interact()
             self._pchild.expect(pexpect.EOF)
 
         self._prepare_and_spawn('install', commands)
@@ -92,7 +92,7 @@ class VicUiInstallPexpectLibrary(object):
         def commands():
             self._common_prompts(vcenter_user, vcenter_password, None)
             self._pchild.expect('.*Error.*')
-            self._pchild.interact()
+            #self._pchild.interact()
             self._pchild.expect(pexpect.EOF)
 
         self._prepare_and_spawn('uninstall', commands)
@@ -101,7 +101,7 @@ class VicUiInstallPexpectLibrary(object):
         def commands():
             self._common_prompts(vcenter_user, vcenter_password, None)
             self._pchild.expect(['.*successful', 'Error! Could not unregister.*'])
-            self._pchild.interact()
+            #self._pchild.interact()
             self._pchild.expect(pexpect.EOF)
 
         self._prepare_and_spawn('uninstall', commands)
@@ -129,7 +129,7 @@ class VicUiInstallPexpectLibrary(object):
 
             #pty_process = pexpect.spawn('/bin/sh -c "(echo ' + content + ' > ' + path + ')"')
             pty_process = pexpect.spawn('/bin/sh -c "echo ' + content + ' | sudo tee ' + path + ' > /dev/null"')
-            pty_process.interact()
+            #pty_process.interact()
             pty_process.expect(pexpect.EOF)
 
         except IOError as e:

@@ -47,14 +47,13 @@ Set Script Filename
 
 Set Vcenter Ip
     # Populate VCENTER_IP with ${TEST_VC_IP}
-    #Remove File  ${UI_INSTALLER_PATH}/configs
+    Remove File  ${UI_INSTALLER_PATH}/configs
     ${results}=  Replace String Using Regexp  ${configs}  VCENTER_IP=.*  VCENTER_IP=\"${TEST_VC_IP}\"
     ${results2}=  Run Keyword If  ${TEST_VC_VERSION} == '5.5'  Replace String Using Regexp  ${results}  IS_VCENTER_5_5=.*  IS_VCENTER_5_5=1  ELSE  Set Variable  ${results}
 
-    #Generate Config  ${UI_INSTALLER_PATH}/configs  '${results2}'
-    [Return]  '${results2}'
-    #${check}=  OperatingSystem.Get File  ${UI_INSTALLER_PATH}/configs
-    #Should Contain  ${check}  ${TEST_VC_IP}
+    Create File  ${UI_INSTALLER_PATH}/configs  ${results2}
+    ${check}=  OperatingSystem.Get File  ${UI_INSTALLER_PATH}/configs
+    Should Contain  ${check}  ${TEST_VC_IP}
 
 Unset Vcenter Ip
     # Revert the configs file back to what it was
@@ -78,7 +77,7 @@ Rename Folder
 
 Cleanup Installer Environment
     # Reverts the configs file and make sure the folder containing the UI binaries has its original name that might've been left modified due to a test failure
-    #Unset Vcenter Ip
+    Unset Vcenter Ip
     @{folders}=  OperatingSystem.List Directory  ${UI_INSTALLER_PATH}/..  vsphere-client-serenity*
     Run Keyword If  ('@{folders}[0]' != 'vsphere-client-serenity')  Rename Folder  ${UI_INSTALLER_PATH}/../@{folders}[0]  ${UI_INSTALLER_PATH}/../vsphere-client-serenity
 
