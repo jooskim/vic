@@ -28,8 +28,10 @@ Ensure Vicui Plugin Is Not Registered Before Testing
     ${log2}=  Run  ps -fp $$
     Log To Console  ${log2}
     Log To Console  \ntry writing configs data\n=============================
-    #${rc}=  Run And Return Rc  echo '${configs_c}' > ${UI_INSTALLER_PATH}/configs
-    ${status}=  Run Keyword And Return Status  Create File  ${UI_INSTALLER_PATH}/configs  ${configs_c}
+    ${rm_configs}=  Run  rm -v ${UI_INSTALLER_PATH}/configs
+    Log To Console  ${rm_configs}
+    ${rc}=  Run And Return Rc  echo '${configs_c}' | tee ${UI_INSTALLER_PATH}/configs
+    #${status}=  Run Keyword And Return Status  Create File  ${UI_INSTALLER_PATH}/configs  ${configs_c}
     ${d}=  OperatingSystem.Get File  ${UI_INSTALLER_PATH}/configs
     Log To Console  ${d}
     Run Keyword  Force Remove Vicui Plugin
