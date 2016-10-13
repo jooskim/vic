@@ -116,21 +116,3 @@ class VicUiInstallPexpectLibrary(object):
 
         except IOError as e:
             return 'Error: ' + e.value
-
-    def generate_config(self, path, content):
-        try:
-            #pty_process = pexpect.pty_spawn.spawn('/bin/sh -c echo "' + content + ' > ' + path + '"')
-            #fd = open(path, 'wb')
-            #pty_process = pexpect.spawn('/bin/sh -c "cat <<EOF && echo ' + content + ' && echo EOF"')
-            #pty_process.logfile = fd
-            #pty_process.interact()
-            #pty_process.expect(pexpect.EOF)
-            #fd.close()
-
-            #pty_process = pexpect.spawn('/bin/sh -c "(echo ' + content + ' > ' + path + ')"')
-            pty_process = pexpect.spawn('/bin/sh -c "echo ' + content + ' | sudo tee ' + path + ' > /dev/null"')
-            #pty_process.interact()
-            pty_process.expect(pexpect.EOF)
-
-        except IOError as e:
-            return 'Error: ' + e.value

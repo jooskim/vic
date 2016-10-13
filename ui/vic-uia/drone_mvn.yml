@@ -1,7 +1,3 @@
-#clone:
-#  path: github.com/jooskim/vic
-#  tags: true
-
 # retrieve vc and esxi information
 # install vch
 # create / modify configs files
@@ -25,7 +21,7 @@ build:
       - apt-get install -yq maven
       - pip install pexpect
       - cd /go/src
-      - git clone -b ui-integration-tests-lr https://github.com/jooskim/vic
+      - git clone -b ui-integration-tests https://github.com/jooskim/vic
       - wget -nv $BINTRAY_DOWNLOAD_PATH$SDK_PACKAGE_ARCHIVE -O /tmp/$SDK_PACKAGE_ARCHIVE
       - wget -nv $BINTRAY_DOWNLOAD_PATH$VIC_UI_BIN -O /go/src/vic/ui/$VIC_UI_BIN
       - chmod +x /go/src/vic/ui/$VIC_UI_BIN
