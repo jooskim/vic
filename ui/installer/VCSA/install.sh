@@ -115,6 +115,10 @@ check_prerequisite () {
     fi
 }
 
+remove_old_key_installation () {
+    $PLUGIN_MANAGER_BIN remove $COMMONFLAGS --key com.vmware.vicui.Vicui > /dev/null
+}
+
 parse_and_register_plugins () {
     for d in ../vsphere-client-serenity/* ; do
         if [[ -d $d ]] ; then
@@ -266,6 +270,7 @@ verify_plugin_url () {
 }
 
 check_prerequisite
+remove_old_key_installation
 
 if [[ $VIC_UI_HOST_URL == "NOURL" ]] ; then
     parse_and_register_plugins

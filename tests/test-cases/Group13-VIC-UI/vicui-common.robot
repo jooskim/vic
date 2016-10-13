@@ -14,16 +14,16 @@ ${TIMEOUT}                  5 minutes
 ${SELENIUM_SERVER_IP}       10.162.122.138
 ${SELENIUM_SERVER_PORT}     4444
 ${SELENIUM_BROWSER}         *firefox
-${ESX_HOST_IP}              10.160.235.231
+${ESX_HOST_IP}              10.17.109.167
 ${ESX_HOST_PASSWORD}        ca\$hc0w
 ${DATACENTER_NAME}          Datacenter
 ${CLUSTER_NAME}             Cluster
 ${DATASTORE_TYPE}           NFS
 ${DATASTORE_NAME}           fake
 ${DATASTORE_IP}             1.1.1.1
-${HOST_DATASTORE_NAME}      datastore1
-${VCH_VM_NAME}              vic_5122
-${CONTAINER_VM_NAME}        thirsty_mirzakh-8dc6931daa18b01236de93e18e150933a33ce2d83a946d34324dc57e021c6919
+${HOST_DATASTORE_NAME}      DStore
+${VCH_VM_NAME}              vic_5728
+${CONTAINER_VM_NAME}        sharp_feynman-d39db0a231f2f639a073814c2affc03e4737d9ad361649069eb424e6c4e09b52
 
 *** Keywords ***
 Set Absolute Script Paths

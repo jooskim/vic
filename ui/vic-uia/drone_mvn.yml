@@ -8,6 +8,8 @@ build:
   vic-uia:
     image: vmware-docker-ci-repo.bintray.io/integration/vic-test:1.9
     pull: true
+    volumes:
+      - /tmp:/log_store
     environment:
       BUILD_PATH: vic/ui/vic-uia
       TESTS_PATH: vic/tests/test-cases/Group13-VIC-UI
@@ -27,8 +29,17 @@ build:
       - chmod +x /go/src/vic/ui/$VIC_UI_BIN
       - tar --warning=no-unknown-keyword -xzf /tmp/$SDK_PACKAGE_ARCHIVE -C /tmp/
       - ant -f vic/ui/vic-ui/build-deployable.xml -Denv.VSPHERE_SDK_HOME=$ENV_VSPHERE_SDK_HOME -Denv.FLEX_HOME=$ENV_FLEX_SDK_HOME
-      #- mvn install -f $BUILD_PATH/pom.xml
+      - mvn install -f $BUILD_PATH/pom.xml
       - cd $TESTS_PATH
       - robot -C ansi 13-1-VIC-UI-Installer.robot
+      - mv output.xml /log_store/output_13-1-VIC-UI-Installer.xml
+      - mv log.html /log_store/log_13-1-VIC-UI-Installer.html
       - robot -C ansi 13-2-VIC-UI-Uninstaller.robot
+      - mv output.xml /log_store/output_13-2-VIC-UI-Uninstaller.xml
+      - mv log.html /log_store/log_13-2-VIC-UI-Uninstaller.html
       - robot -C ansi 13-3-VIC-UI-NGC-tests.robot
+      - mv output.xml /log_store/output_13-3-NGC-tests.xml
+      - mv log.html /log_store/log_13-3-NGC-tests.html
+      - mv ngc_tests.log /log_store/ngc_tests-$(date +%m%d%y-%H%M%S).log
+      - cd /log_store && tar -cvf VIC-UI-test-logs.tgz ./
+

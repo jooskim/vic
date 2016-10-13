@@ -9,8 +9,8 @@ Test Teardown  Clean Up Testbed Config Files
 *** Test Cases ***
 Check Prerequisites
     ${pwd}=  Run  pwd
-    Should Exist  ${pwd}/../../../ui/vic-uia
-    Set Suite Variable  ${NGC_TESTS_PATH}  ${pwd}/../../../ui/vic-uia
+    Should Exist  ${pwd}/../../../ui/vic-uia/vic-uia
+    Set Suite Variable  ${NGC_TESTS_PATH}  ${pwd}/../../../ui/vic-uia/vic-uia
     # TODO: set the following to False once we start using Suite Setup / Teardown
     Set Suite Variable  ${use_existing_container_vm}  True
 
@@ -119,9 +119,8 @@ Start Ngc Tests
     [Timeout]  NONE
     Run Ngc Tests  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}
     ${output}=  OperatingSystem.GetFile  ngc_tests.log
-    Should Contain  ${output}  BUILD SUCCESS
-    Should Not Contain  ${output}  BUILD FAILURE
-    Remove File  ngc_tests.log
+    ${cond1}=  Run Keyword And Return Status  Should Contain  ${output}  BUILD SUCCESS
+    ${cond2}=  Run Keyword And Return Status  Should Not Contain  ${output}  BUILD FAILURE
 
 Skip Ngc Tests
     Log To Console  Target VC is 5.5 which is not supported by NGC automation test framework. Skipping...
