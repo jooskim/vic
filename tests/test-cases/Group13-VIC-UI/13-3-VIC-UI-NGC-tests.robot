@@ -3,8 +3,8 @@ Documentation  Test 13-3 - VIC UI NGC tests
 Resource  ../../resources/Util.robot
 Resource  ./vicui-common.robot
 Test Teardown  Clean Up Testbed Config Files
-#Suite Setup  Install VIC Appliance To Test Server
-#Suite Teardown  Cleanup VIC Appliance On Test Server
+Suite Setup  Setup Testbed
+Suite Teardown  Destroy Testbed
 
 *** Test Cases ***
 Check Prerequisites
@@ -12,16 +12,13 @@ Check Prerequisites
     Should Exist  ${pwd}/../../../ui/vic-uia/vic-uia
     Set Suite Variable  ${NGC_TESTS_PATH}  ${pwd}/../../../ui/vic-uia/vic-uia
     # TODO: set the following to False once we start using Suite Setup / Teardown
-    Set Suite Variable  ${use_existing_container_vm}  True
+    Set Suite Variable  ${use_existing_container_vm}  False
 
     # check if the files required by the ngc automation tests exist
     Should Exist  ${NGC_TESTS_PATH}/resources/browservm.tpl.properties
     Should Exist  ${NGC_TESTS_PATH}/resources/commonTestbedProvider.tpl.properties
     Should Exist  ${NGC_TESTS_PATH}/resources/hostProvider.tpl.properties
     Should Exist  ${NGC_TESTS_PATH}/resources/vicEnvProvider.tpl.properties
-
-    # FIXME: remove the following line once we start using Suite Setup and Suite Teardown
-    Set Suite Variable  ${params}  ${EMPTY}
 
 Ensure Vicui Is Installed
     # ensure vicui is installed before running ngc automation tests

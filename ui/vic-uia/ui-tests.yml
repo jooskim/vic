@@ -8,9 +8,16 @@ build:
   vic-uia:
     image: vmware-docker-ci-repo.bintray.io/integration/vic-test:1.9
     pull: true
-    volumes:
-      - /tmp:/log_store
     environment:
+      SHELL: /bin/bash
+      DRONE_SERVER: $$DRONE_SERVER
+      DRONE_TOKEN: $$DRONE_TOKEN
+      NIMBUS_USER: $$NIMBUS_USER
+      NIMBUS_PASSWORD: $$NIMBUS_PASSWORD
+      NIMBUS_GW: $$NIMBUS_GW
+      TEST_DATASTORE: $$TEST_DATASTORE
+      TEST_RESOURCE: $$TEST_RESOURCE
+      GOVC_INSECURE: true
       BUILD_PATH: vic/ui/vic-uia
       TESTS_PATH: vic/tests/test-cases/Group13-VIC-UI
       BINTRAY_DOWNLOAD_PATH: "https://bintray.com/vmware/vic-repo/download_file?file_path="

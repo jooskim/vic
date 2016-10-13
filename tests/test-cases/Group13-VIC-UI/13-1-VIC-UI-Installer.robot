@@ -3,8 +3,8 @@ Documentation  Test 13-1 - VIC UI Installation
 Resource  ../../resources/Util.robot
 Resource  ./vicui-common.robot
 Test Teardown  Cleanup Installer Environment
-#Suite Setup  Install VIC Appliance To Test Server
-#Suite Teardown  Cleanup VIC Appliance On Test Server
+Suite Setup  Setup Testbed
+Suite Teardown  Destroy Testbed
 
 *** Test Cases ***
 Check Configs
