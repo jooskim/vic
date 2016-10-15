@@ -4,29 +4,39 @@ Resource  ../../resources/Util.robot
 Library  VicUiInstallPexpectLibrary.py
 
 *** Variables ***
-# TODO: these values will be replaced by the time a PR is submitted. most of these values will be populated at runtime
 ${TEST_VC_VERSION}          6.0
-${TEST_VC_IP}               10.17.109.132
-${TEST_VC_USERNAME}         administrator@vsphere.local
-${TEST_VC_PASSWORD}         ca\$hc0w
+${TEST_VC_NAME}             %{TEST_VC_NAME}
+${TEST_VC_IP}               %{TEST_VC_IP}
+${TEST_VC_USERNAME}         %{TEST_USERNAME}
+${TEST_VC_PASSWORD}         %{TEST_PASSWORD}
 ${TEST_VC_ROOT_PASSWORD}    ca\$hc0w
 ${TIMEOUT}                  5 minutes
 
 ${SELENIUM_SERVER_IP}       10.162.122.138
 ${SELENIUM_SERVER_PORT}     4444
 ${SELENIUM_BROWSER}         *firefox
-${ESX_HOST_IP}              10.17.109.167
-${ESX_HOST_PASSWORD}        ca\$hc0w
+${TEST_ESX_NAME}            %{TEST_ESX_NAME}
+${ESX_HOST_IP}              %{ESX_HOST_IP}
+${ESX_HOST_PASSWORD}        %{ESX_HOST_PASSWORD}
 ${DATACENTER_NAME}          Datacenter
 ${CLUSTER_NAME}             Cluster
 ${DATASTORE_TYPE}           NFS
 ${DATASTORE_NAME}           fake
 ${DATASTORE_IP}             1.1.1.1
-${HOST_DATASTORE_NAME}      DStore
-${VCH_VM_NAME}              vic_5728
+${HOST_DATASTORE_NAME}      %{TEST_DATASTORE}
+${VCH_VM_NAME}              %{VCH_VM_NAME}
 ${CONTAINER_VM_NAME}        sharp_feynman-d39db0a231f2f639a073814c2affc03e4737d9ad361649069eb424e6c4e09b52
 
 *** Keywords ***
+Load Nimbus Testbed Env
+    # tbi
+    # todo: load temp file and register each line as an enviroment variable key-value pair
+    # this keyword will be called as the VERY FIRST step (before Install VIC)
+
+Destroy Testbed
+    Run Keyword And Ignore Error  Kill Nimbus Server  %{NIMBUS_USER}  %{NIMBUS_PASSWORD}  %{NIMBUS_USER}-ESX-UITEST-*
+    Run Keyword And Ignore Error  Kill Nimbus Server  %{NIMBUS_USER}  %{NIMBUS_PASSWORD}  ${NIMBUS_USER}-VC-UITEST-*
+
 Set Absolute Script Paths
     # TODO: Since Docker environment is always Linux, it would be impossible to directly test the Windows script in the Drone CI system. Rather, the test could be done manually on Windows
     ${UI_INSTALLERS_ROOT}=  Run  pwd
@@ -81,85 +91,3 @@ Cleanup Installer Environment
     Unset Vcenter Ip
     @{folders}=  OperatingSystem.List Directory  ${UI_INSTALLER_PATH}/..  vsphere-client-serenity*
     Run Keyword If  ('@{folders}[0]' != 'vsphere-client-serenity')  Rename Folder  ${UI_INSTALLER_PATH}/../@{folders}[0]  ${UI_INSTALLER_PATH}/../vsphere-client-serenity
-
-Setup Testbed
-    ${esx1}  ${esx1-ip}=  Deploy Nimbus ESXi Server  %{NIMBUS_USER}  %{NIMBUS_PASSWORD}
-    Set Suite Variable  ${TEST_ESX_NAME}  ${esx1}
-    Set Suite Variable  ${ESX_HOST_IP}  ${esx1-ip}
-    Set Suite Variable  ${ESX_HOST_PASSWORD}  e2eFunctionalTest
-    Set Suite Variable  ${HOST_DATASTORE_NAME}  %{TEST_DATASTORE}
-
-    ${vc}  ${vc-ip}=  Deploy Nimbus vCenter Server For NGC Testing  %{NIMBUS_USER}  %{NIMBUS_PASSWORD}
-    Set Suite Variable  ${TEST_VC_NAME}  ${vc}
-
-    Log To Console  Create a datacenter on the VC
-    ${out}=  Run  govc datacenter.create Datacenter
-    Should Be Empty  ${out}
-
-    #make a cluster here
-    Log To Console  Create a cluster on the datacenter
-    ${out}=  Run  govc cluster.create -dc=Datacenter Cluster
-    Should Be Empty  ${out}
-
-    Log To Console  Add ESX host to the VC
-    ${out}=  Run  govc host.add -hostname=${esx1-ip} -username=root -dc=Datacenter -password=e2eFunctionalTest -noverify=true
-    Should Contain  ${out}  OK
-
-    Log To Console  Add ESX host to Cluster
-    ${out}=  Run  govc cluster.add -dc=Datacenter -username=root -password=e2eFunctionalTest -noverify=true hostname=${esx1-ip}
-    Should Contain  ${out}  OK
-
-    Log To Console  Create a distributed switch
-    ${out}=  Run  govc dvs.create -dc=Datacenter test-ds
-    Should Contain  ${out}  OK
-
-    Log To Console  Create three new distributed switch port groups for management and vm network traffic
-    ${out}=  Run  govc dvs.portgroup.add -nports 12 -dc=Datacenter -dvs=test-ds management
-    Should Contain  ${out}  OK
-    ${out}=  Run  govc dvs.portgroup.add -nports 12 -dc=Datacenter -dvs=test-ds vm-network
-    Should Contain  ${out}  OK
-
-    #check here for cluster
-    Log To Console  Add the ESXi hosts to the portgroups
-    ${out}=  Run  govc dvs.add -dvs=test-ds -pnic=vmnic1 ${esx1-ip}  
-    Should Contain  ${out}  OK
-
-    Log To Console  Deploy VIC to the VC cluster
-    Set Environment Variable  TEST_URL_ARRAY  ${vc-ip}
-    Set Environment Variable  TEST_USERNAME  Administrator@vsphere.local
-    Set Environment Variable  TEST_PASSWORD  Admin\!23
-    Set Suite Variable  ${TEST_VC_PASSWORD}  Admin\!23
-    Set Environment Variable  EXTERNAL_NETWORK  vm-network
-    Set Environment Variable  TEST_TIMEOUT  30m
-
-    Install VIC Appliance To Test Server  ${false}  default
-    Set Suite Variable  ${VCH_VM_NAME}  ${vch-name}
-
-Deploy Nimbus vCenter Server For NGC Testing
-    [Arguments]  ${user}  ${password}  ${version}=3634791
-    ${name}=  Evaluate  'VC-' + str(random.randint(1000,9999))  modules=random
-    Log To Console  \nDeploying Nimbus vCenter server: ${name}
-    Open Connection  %{NIMBUS_GW}
-    Login  ${user}  ${password}
-
-    ${out}=  Execute Command  nimbus-vcvadeploy --vcvaBuild ${version} --useQaNgc ${name}
-    # Make sure the deploy actually worked
-    Should Contain  ${out}  Overall Status: Succeeded
-    # Now grab the IP address and return the name and ip for later use
-    @{out}=  Split To Lines  ${out}
-    :FOR  ${item}  IN  @{out}
-    \   ${status}  ${message}=  Run Keyword And Ignore Error  Should Contain  ${item}  Cloudvm is running on IP
-    \   Run Keyword If  '${status}' == 'PASS'  Set Suite Variable  ${line}  ${item}
-    ${ip}=  Fetch From Right  ${line}  ${SPACE}
-
-    Set Environment Variable  GOVC_INSECURE  1
-    Set Environment Variable  GOVC_USERNAME  Administrator@vsphere.local
-    Set Environment Variable  GOVC_PASSWORD  Admin!23
-    Set Environment Variable  GOVC_URL  ${ip}
-    Log To Console  Successfully deployed new vCenter server - ${user}-${name}
-    Close connection
-    [Return]  ${user}-${name}  ${ip}
-
-Destroy Testbed
-    Run Keyword And Ignore Error  Kill Nimbus Server  %{NIMBUS_USER}  %{NIMBUS_PASSWORD}  ${TEST_ESX_NAME}
-    Run Keyword And Ignore Error  Kill Nimbus Server  %{NIMBUS_USER}  %{NIMBUS_PASSWORD}  ${TEST_VC_NAME}

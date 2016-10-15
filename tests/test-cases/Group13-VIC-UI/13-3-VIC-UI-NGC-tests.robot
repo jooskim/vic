@@ -3,10 +3,12 @@ Documentation  Test 13-3 - VIC UI NGC tests
 Resource  ../../resources/Util.robot
 Resource  ./vicui-common.robot
 Test Teardown  Clean Up Testbed Config Files
-Suite Setup  Setup Testbed
-Suite Teardown  Destroy Testbed
 
 *** Test Cases ***
+Install VIC
+    Install VIC Appliance To Test Server  ${false}  default
+    Set Environment Variable  VCH_VM_NAME  ${vch-name}
+
 Check Prerequisites
     ${pwd}=  Run  pwd
     Should Exist  ${pwd}/../../../ui/vic-uia/vic-uia
@@ -135,3 +137,6 @@ Destroy Test Container
     ${rc}=  Run And Return Rc  docker ${params} stop @{container_vm_name_id}[1]
     ${rc2}=  Run Keyword If  ${rc} == ${0}  Run And Return Rc  docker ${params} rm @{container_vm_name_id}[1]
     Run Keyword If  ${rc2} != None  Should Be Equal As Integers  ${rc2}  0
+
+Uninstall VIC
+    Cleanup VIC Appliance On Test Server

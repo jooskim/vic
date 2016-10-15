@@ -3,10 +3,12 @@ Documentation  Test 13-2 - VIC UI Uninstallation
 Resource  ../../resources/Util.robot
 Resource  ./vicui-common.robot
 Test Teardown  Cleanup Installer Environment
-Suite Setup  Setup Testbed
-Suite Teardown  Destroy Testbed
 
 *** Test Cases ***
+Install VIC
+    Install VIC Appliance To Test Server  ${false}  default
+    Set Environment Variable  VCH_VM_NAME  ${vch-name}
+
 Check Configs
     # Store the original configs file content in a variable
     # Set the exact paths to the installer / uninstaller scripts for use with tests
@@ -64,3 +66,6 @@ Attempt To Uninstall Plugin That Is Already Gone
     Uninstall Fails  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}
     ${output}=  OperatingSystem.GetFile  uninstall.log
     Should Contain  ${output}  failed to find target
+
+Uninstall VIC
+    Cleanup VIC Appliance On Test Server

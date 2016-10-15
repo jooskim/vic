@@ -3,10 +3,12 @@ Documentation  Test 13-1 - VIC UI Installation
 Resource  ../../resources/Util.robot
 Resource  ./vicui-common.robot
 Test Teardown  Cleanup Installer Environment
-Suite Setup  Setup Testbed
-Suite Teardown  Destroy Testbed
 
 *** Test Cases ***
+Install VIC
+    Install VIC Appliance To Test Server  ${false}  default
+    Set Environment Variable  VCH_VM_NAME  ${vch-name}
+
 Check Configs
     # Store the original configs file content in a variable
     # Set the exact paths to the installer / uninstaller scripts for use with tests
@@ -128,3 +130,5 @@ Attempt To Install With Webserver And Wrong Path To Plugin
     Should Contain  ${output}  Could not resolve the host
     Remove File  install.log
 
+Uninstall VIC
+    Cleanup VIC Appliance On Test Server

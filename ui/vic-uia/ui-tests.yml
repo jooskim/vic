@@ -31,22 +31,33 @@ build:
       - pip install pexpect
       - cd /go/src
       - git clone -b ui-integration-tests https://github.com/jooskim/vic
+      - LATEST_VIC_BUNDLE=$(wget -O - https://vmware.bintray.com/vic-repo | tail -n5 | head -n1 | cut -d':' -f 2 | cut -d'.' -f 3 | cut -d'>' -f 2)
       - wget -nv $BINTRAY_DOWNLOAD_PATH$SDK_PACKAGE_ARCHIVE -O /tmp/$SDK_PACKAGE_ARCHIVE
-      - wget -nv $BINTRAY_DOWNLOAD_PATH$VIC_UI_BIN -O /go/src/vic/ui/$VIC_UI_BIN
-      - chmod +x /go/src/vic/ui/$VIC_UI_BIN
+      - wget -nv https://vmware.bintray.com/vic-repo/${LATEST_VIC_BUNDLE}.tar.gz
+      - mkdir vic/bin
+      - tar xvf $LATEST_VIC_BUNDLE.tar.gz -C vic/bin/ --strip 1
+      - cp vic/bin/$VIC_UI_BIN vic/ui/$VIC_UI_BIN
       - tar --warning=no-unknown-keyword -xzf /tmp/$SDK_PACKAGE_ARCHIVE -C /tmp/
       - ant -f vic/ui/vic-ui/build-deployable.xml -Denv.VSPHERE_SDK_HOME=$ENV_VSPHERE_SDK_HOME -Denv.FLEX_HOME=$ENV_FLEX_SDK_HOME
-      - mvn install -f $BUILD_PATH/pom.xml
+      #- mvn install -f $BUILD_PATH/pom.xml
       - cd $TESTS_PATH
-      - robot -C ansi 13-1-VIC-UI-Installer.robot
-      - mv output.xml /log_store/output_13-1-VIC-UI-Installer.xml
-      - mv log.html /log_store/log_13-1-VIC-UI-Installer.html
-      - robot -C ansi 13-2-VIC-UI-Uninstaller.robot
-      - mv output.xml /log_store/output_13-2-VIC-UI-Uninstaller.xml
-      - mv log.html /log_store/log_13-2-VIC-UI-Uninstaller.html
-      - robot -C ansi 13-3-VIC-UI-NGC-tests.robot
-      - mv output.xml /log_store/output_13-3-NGC-tests.xml
-      - mv log.html /log_store/log_13-3-NGC-tests.html
-      - mv ngc_tests.log /log_store/ngc_tests-$(date +%m%d%y-%H%M%S).log
-      - cd /log_store && tar -cvf VIC-UI-test-logs.tgz ./
+      - mkdir logs
+      - ls -la ./
+      - robot -C ansi setup-testbed.robot
+      #- mv output.xml logs/output_setup-testbed.xml
+      #- mv log.html logs/log_setup-testbed.html
+      #- robot -C ansi l13-1-VIC-UI-Installer.robot
+      #- mv output.xml logs/output_13-1-VIC-UI-Installer.xml
+      #- mv log.html logs/log_13-1-VIC-UI-Installer.html
+      #- robot -C ansi 13-2-VIC-UI-Uninstaller.robot
+      #- mv output.xml logs/output_13-2-VIC-UI-Uninstaller.xml
+      #- mv log.html logs/log_13-2-VIC-UI-Uninstaller.html
+      #- robot -C ansi 13-3-VIC-UI-NGC-tests.robot
+      #- mv output.xml logs/output_13-3-NGC-tests.xml
+      #- mv log.html logs/log_13-3-NGC-tests.html
+      #- mv ngc_tests.log logs/ngc_tests-$(date +%m%d%y-%H%M%S).log
+      #- robot -C ansi destroy-testbed.robot
+      #- mv output.xml logs/output_destroy-testbed.xml
+      #- mv log.html logs/log_destroy-testbed.html
+      #- tar -cvf VIC-UI-test-logs.tgz logs
 
