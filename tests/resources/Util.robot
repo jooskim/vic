@@ -48,7 +48,7 @@ Set Test Environment Variables
     Run Keyword Unless  ${status}  Set Environment Variable  HOST_TYPE  VC
 
     # set the TLS config options suitable for vic-machine in this env
-    ${domain}=  Get Environment Variable  DOMAIN  ''
+    ${domain}=  Get Environment Variable  DOMAIN  ${EMPTY}
     Run Keyword If  '${domain}' == ''  Set Suite Variable  ${vicmachinetls}  '--no-tlsverify'
     Run Keyword If  '${domain}' != ''  Set Suite Variable  ${vicmachinetls}  '--tls-cname=*.${domain}'
 
@@ -162,8 +162,8 @@ Check Delete Success
 
 Run Secret VIC Machine Delete Command
     [Tags]  secret
-    [Arguments]  ${vch-name}
-    ${rc}  ${output}=  Run And Return Rc And Output  bin/vic-machine-linux delete --name=${vch-name} --target=%{TEST_URL}%{TEST_DATACENTER} --user=%{TEST_USERNAME} --password=%{TEST_PASSWORD} --force=true --compute-resource=%{TEST_RESOURCE} --timeout %{TEST_TIMEOUT}
+    [Arguments]  ${vch-name}  ${vic-machine}=bin/vic-machine-linux
+    ${rc}  ${output}=  Run And Return Rc And Output  ${vic-machine} delete --name=${vch-name} --target=%{TEST_URL}%{TEST_DATACENTER} --user=%{TEST_USERNAME} --password=%{TEST_PASSWORD} --force=true --compute-resource=%{TEST_RESOURCE} --timeout %{TEST_TIMEOUT}
     [Return]  ${rc}  ${output}
 
 Run VIC Machine Delete Command
