@@ -42,7 +42,7 @@ Set Absolute Script Paths
     Should Exist  ${UI_INSTALLER_PATH}
     ${configs_content}=  OperatingSystem.GetFile  ${UI_INSTALLER_PATH}/configs
     Set Suite Variable  ${configs}  ${configs_content}
-    
+
     # set exact paths for installer and uninstaller scripts
     Set Script Filename  INSTALLER_SCRIPT_PATH  ./install
     Set Script Filename  UNINSTALLER_SCRIPT_PATH  ./uninstall

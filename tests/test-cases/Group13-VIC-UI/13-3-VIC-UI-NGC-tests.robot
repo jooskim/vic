@@ -6,6 +6,10 @@ Test Teardown  Clean Up Testbed Config Files
 
 *** Test Cases ***
 Check Prerequisites
+    Set Absolute Script Paths
+    Load Nimbus Testbed Env
+    Install VIC Appliance To Test Server  ../../../bin/vic-machine-linux  ../../../bin/appliance.iso  ../../../bin/bootstrap.iso
+    Set Suite Variable  ${VCH_VM_NAME}  ${vch-name}
     ${pwd}=  Run  pwd
     Should Exist  ${pwd}/../../../ui/vic-uia/vic-uia
     Set Suite Variable  ${NGC_TESTS_PATH}  ${pwd}/../../../ui/vic-uia/vic-uia
@@ -17,12 +21,6 @@ Check Prerequisites
     Should Exist  ${NGC_TESTS_PATH}/resources/commonTestbedProvider.tpl.properties
     Should Exist  ${NGC_TESTS_PATH}/resources/hostProvider.tpl.properties
     Should Exist  ${NGC_TESTS_PATH}/resources/vicEnvProvider.tpl.properties
-
-Install VCH
-    Set Absolute Script Paths
-    Load Nimbus Testbed Env
-    Install VIC Appliance To Test Server  ../../../bin/vic-machine-linux  ../../../bin/appliance.iso  ../../../bin/bootstrap.iso
-    Set Environment Variable  VCH_VM_NAME  ${vch-name}
 
 Ensure Vicui Is Installed
     # ensure vicui is installed before running ngc automation tests
@@ -74,14 +72,14 @@ Set Up Testbed Config Files
     ${commontestbed}=  Replace String Using Regexp  ${commontestbed}  (?<!\#)testbed\.endpoint=.*  testbed\.endpoint=${TEST_VC_IP}
     ${commontestbed}=  Replace String Using Regexp  ${commontestbed}  (?<!\#)testbed\.datastore\.type=.*  testbed\.datastore\.type=${DATASTORE_TYPE}
     ${commontestbed}=  Replace String Using Regexp  ${commontestbed}  (?<!\#)testbed\.datastore=.*  testbed\.datastore=${DATASTORE_NAME}
-    ${commontestbed}=  Replace String Using Regexp  ${commontestbed}  (?<!\#)testbed\.host\.datastore\.name=.*  testbed\.host\.datastore\.name=${HOST_DATASTORE_NAME}
+    ${commontestbed}=  Replace String Using Regexp  ${commontestbed}  (?<!\#)testbed\.host\.datastore\.name=.*  testbed\.host\.datastore\.name=${TEST_DATASTORE}
     ${commontestbed}=  Replace String Using Regexp  ${commontestbed}  (?<!\#)testbed\.datastore\.ip=.*  testbed\.datastore\.ip=${DATASTORE_IP}
     ${commontestbed}=  Replace String Using Regexp  ${commontestbed}  (?<!\#)testbed\.host\.password=.*  testbed\.host\.password=${ESX_HOST_PASSWORD}
     ${commontestbed}=  Replace String Using Regexp  ${commontestbed}  (?<!\#)testbed\.user=.*  testbed\.user=${TEST_VC_USERNAME}
 
     # populate host provider props
     ${host}=  Replace String Using Regexp  ${host}  (?<!\#)testbed\.endpoint=.*  testbed\.endpoint=${ESX_HOST_IP}
-    ${host}=  Replace String Using Regexp  ${host}  (?<!\#)testbed\.local\.datastore\.name=.*  testbed\.local\.datastore\.name=${HOST_DATASTORE_NAME}
+    ${host}=  Replace String Using Regexp  ${host}  (?<!\#)testbed\.local\.datastore\.name=.*  testbed\.local\.datastore\.name=${TEST_DATASTORE}
     ${host}=  Replace String Using Regexp  ${host}  (?<!\#)testbed\.pass=.*  testbed\.pass=${ESX_HOST_PASSWORD}
 
     # populate vicenv provider props
@@ -108,10 +106,14 @@ Revert Config Files
 
 Create And Run Test Container
     Log To Console  \nCreating a busybox container...
-    ${rc}  ${container_id}=  Run And Return Rc And Output  docker ${params} run -d busybox /bin/top
-    ${rc2}  ${container_name}=  Run And Return Rc And Output  docker ${params} inspect ${container_id} | jq '.[0].Name' | sed 's/[\"\/]//g'
+    ${rc}=  Run And Return Rc  docker ${params} pull busybox
     Should Be Equal As Integers  ${rc}  0
-    Should Be Equal As Integers  ${rc2}  0
+    ${rc}  ${container_id}=  Run And Return Rc And Output  docker ${params} create -t busybox /bin/top
+    Should Be Equal As Integers  ${rc}  0
+    ${rc}=  Run And Return Rc  docker ${params} start ${container_id}
+    Should Be Equal As Integers  ${rc}  0
+    ${rc}  ${container_name}=  Run And Return Rc And Output  docker ${params} inspect ${container_id} | jq '.[0].Name' | sed 's/[\"\/]//g'
+    Should Be Equal As Integers  ${rc}  0
     Set Suite Variable  ${CONTAINER_VM_NAME}  ${container_name}-${container_id}
 
 Start Ngc Tests
@@ -121,6 +123,9 @@ Start Ngc Tests
     ${output}=  OperatingSystem.GetFile  ngc_tests.log
     ${cond1}=  Run Keyword And Return Status  Should Contain  ${output}  BUILD SUCCESS
     ${cond2}=  Run Keyword And Return Status  Should Not Contain  ${output}  BUILD FAILURE
+    Uninstall VCH
+    Run Keyword And Ignore Error  Remove File  testbed-information
+    Should Be True  ${cond1} and ${cond2}
 
 Skip Ngc Tests
     Log To Console  Target VC is 5.5 which is not supported by NGC automation test framework. Skipping...

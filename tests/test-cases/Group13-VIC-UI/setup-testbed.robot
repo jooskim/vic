@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation  Set up testbed before the UI test
+Documentation  Set up testbed before running the UI tests
 Resource  ../../resources/Util.robot
 
 *** Keywords ***
@@ -19,34 +19,11 @@ Check If Nimbus VMs Exist
     Close connection
 
     Run Keyword If  ${out_len} == 0  Setup Testbed  ELSE  Load Testbed  ${out}
-    Create File  testbed-information  TEST_ESX_NAME=%{TEST_ESX_NAME}\nESX_HOST_IP=%{ESX_HOST_IP}\nESX_HOST_PASSWORD=%{ESX_HOST_PASSWORD}\nTEST_VC_NAME=%{TEST_VC_NAME}\nTEST_VC_IP=%{TEST_VC_IP}\nTEST_URL_ARRAY=%{TEST_URL_ARRAY}\nTEST_USERNAME=%{TEST_USERNAME}\nTEST_PASSWORD=%{TEST_PASSWORD}\nEXTERNAL_NETWORK=%{EXTERNAL_NETWORK}\nTEST_TIMEOUT=%{TEST_TIMEOUT}\nGOVC_INSECURE=%{GOVC_INSECURE}\nGOVC_USERNAME=%{GOVC_USERNAME}\nGOVC_PASSWORD=%{GOVC_PASSWORD}\nGOVC_URL=%{GOVC_URL}\n
-
-    # this will get called first to check on Nimbus to see if ESXi and VCSA instances are already available for UI tests
-    # these VMs will have names that have a certain rule such that it is easy to destroy them later manually, if not expired
-    # todo: find out how to look up a VM in Nimbus
-    # todo: write that into a keyword
-    # todo: using that keyword, continue to write a logic that does the following:
-    #     - if VMs are not found, run the "Setup Testbed" keyword
-    #     - if VMs are found, get the following information and store them into env variables
-    #       1) TEST_ESX_NAME
-    #       2) ESX_HOST_IP
-    #       3) ESX_HOST_PASSWORD (fix it to e2eFunctionalTest)
-    #       4) TEST_VC_NAME
-    #       5) TEST_VC_IP
-    #       6) TEST_URL_ARRAY (same as TEST_VC_IP)
-    #       7) TEST_USERNAME (fix it to Administrator@vsphere.local)
-    #       8) TEST_PASSWORD (fix it to Admin\!23)
-    #       9) EXTERNAL_NETWORK (fix it to vm-network)
-    #      10) TEST_TIMEOUT (fix it to 30m)
-    #      11) GOVC_INSECURE (fix it to 1)
-    #      12) GOVC_USERNAME (same as 7)
-    #      13) GOVC_PASSWORD (same as 8)
-    #      14) GOVC_URL (same as 5)
-    # todo: finally, export the above information as a temp file which will then be consumed by vicui-common keyword that reads that file and loads its content into memory
+    Create File  testbed-information  TEST_ESX_NAME=%{TEST_ESX_NAME}\nESX_HOST_IP=%{ESX_HOST_IP}\nESX_HOST_PASSWORD=%{ESX_HOST_PASSWORD}\nTEST_VC_NAME=%{TEST_VC_NAME}\nTEST_VC_IP=%{TEST_VC_IP}\nTEST_URL_ARRAY=%{TEST_URL_ARRAY}\nTEST_USERNAME=%{TEST_USERNAME}\nTEST_PASSWORD=%{TEST_PASSWORD}\nTEST_DATASTORE=datastore1\nEXTERNAL_NETWORK=%{EXTERNAL_NETWORK}\nTEST_TIMEOUT=%{TEST_TIMEOUT}\nGOVC_INSECURE=%{GOVC_INSECURE}\nGOVC_USERNAME=%{GOVC_USERNAME}\nGOVC_PASSWORD=%{GOVC_PASSWORD}\nGOVC_URL=%{GOVC_URL}\n
 
 Load Testbed
     [Arguments]  ${list}
-    Log To Console  \nRetrieving VMs information for UI testing...\n
+    Log To Console  Retrieving VMs information for UI testing...\n
     Open Connection  %{NIMBUS_GW}
     Login  %{NIMBUS_USER}  %{NIMBUS_PASSWORD}
     ${len}=  Get Length  ${list}
