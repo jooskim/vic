@@ -44,9 +44,9 @@ build:
       - mkdir logs
       - ls -la ./
       - robot -C ansi setup-testbed.robot
-      #- mv output.xml logs/output_setup-testbed.xml
-      #- mv log.html logs/log_setup-testbed.html
-      #- robot -C ansi l13-1-VIC-UI-Installer.robot
+      - mv output.xml logs/output_setup-testbed.xml
+      - mv log.html logs/log_setup-testbed.html
+      - robot -C ansi 13-1-VIC-UI-Installer.robot
       #- mv output.xml logs/output_13-1-VIC-UI-Installer.xml
       #- mv log.html logs/log_13-1-VIC-UI-Installer.html
       #- robot -C ansi 13-2-VIC-UI-Uninstaller.robot

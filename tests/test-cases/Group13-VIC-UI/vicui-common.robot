@@ -5,33 +5,30 @@ Library  VicUiInstallPexpectLibrary.py
 
 *** Variables ***
 ${TEST_VC_VERSION}          6.0
-${TEST_VC_NAME}             %{TEST_VC_NAME}
-${TEST_VC_IP}               %{TEST_VC_IP}
-${TEST_VC_USERNAME}         %{TEST_USERNAME}
-${TEST_VC_PASSWORD}         %{TEST_PASSWORD}
-${TEST_VC_ROOT_PASSWORD}    ca\$hc0w
+${TEST_VC_ROOT_PASSWORD}    vmware
 ${TIMEOUT}                  5 minutes
 
 ${SELENIUM_SERVER_IP}       10.162.122.138
 ${SELENIUM_SERVER_PORT}     4444
 ${SELENIUM_BROWSER}         *firefox
-${TEST_ESX_NAME}            %{TEST_ESX_NAME}
-${ESX_HOST_IP}              %{ESX_HOST_IP}
-${ESX_HOST_PASSWORD}        %{ESX_HOST_PASSWORD}
 ${DATACENTER_NAME}          Datacenter
 ${CLUSTER_NAME}             Cluster
 ${DATASTORE_TYPE}           NFS
 ${DATASTORE_NAME}           fake
 ${DATASTORE_IP}             1.1.1.1
-${HOST_DATASTORE_NAME}      %{TEST_DATASTORE}
-${VCH_VM_NAME}              %{VCH_VM_NAME}
 ${CONTAINER_VM_NAME}        sharp_feynman-d39db0a231f2f639a073814c2affc03e4737d9ad361649069eb424e6c4e09b52
 
 *** Keywords ***
 Load Nimbus Testbed Env
-    # tbi
-    # todo: load temp file and register each line as an enviroment variable key-value pair
-    # this keyword will be called as the VERY FIRST step (before Install VIC)
+    Should Exist  testbed-information
+    ${envs}=  OperatingSystem.Get File  testbed-information
+    @{envs}=  Split To Lines  ${envs}
+    :FOR  ${item}  IN  @{envs}
+    \  @{kv}=  Split String  ${item}  =
+    \  Set Environment Variable  @{kv}[0]  @{kv}[1]
+    \  Set Suite Variable  \$@{kv}[0]  @{kv}[1]
+    Set Suite Variable  ${TEST_VC_USERNAME}  %{TEST_USERNAME}
+    Set Suite Variable  ${TEST_VC_PASSWORD}  %{TEST_PASSWORD}
 
 Destroy Testbed
     Run Keyword And Ignore Error  Kill Nimbus Server  %{NIMBUS_USER}  %{NIMBUS_PASSWORD}  %{NIMBUS_USER}-ESX-UITEST-*

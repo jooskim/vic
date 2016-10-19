@@ -5,10 +5,6 @@ Resource  ./vicui-common.robot
 Test Teardown  Clean Up Testbed Config Files
 
 *** Test Cases ***
-Install VIC
-    Install VIC Appliance To Test Server  ${false}  default
-    Set Environment Variable  VCH_VM_NAME  ${vch-name}
-
 Check Prerequisites
     ${pwd}=  Run  pwd
     Should Exist  ${pwd}/../../../ui/vic-uia/vic-uia
@@ -22,9 +18,14 @@ Check Prerequisites
     Should Exist  ${NGC_TESTS_PATH}/resources/hostProvider.tpl.properties
     Should Exist  ${NGC_TESTS_PATH}/resources/vicEnvProvider.tpl.properties
 
+Install VCH
+    Set Absolute Script Paths
+    Load Nimbus Testbed Env
+    Install VIC Appliance To Test Server  ../../../bin/vic-machine-linux  ../../../bin/appliance.iso  ../../../bin/bootstrap.iso
+    Set Environment Variable  VCH_VM_NAME  ${vch-name}
+
 Ensure Vicui Is Installed
     # ensure vicui is installed before running ngc automation tests
-    Set Absolute Script Paths
     Set Vcenter Ip
     Install Vicui Without Webserver  ${TEST_VC_USERNAME}  ${TEST_VC_PASSWORD}  ${TEST_VC_ROOT_PASSWORD}  ${TRUE}
     ${output}=  OperatingSystem.GetFile  install.log
@@ -138,5 +139,13 @@ Destroy Test Container
     ${rc2}=  Run Keyword If  ${rc} == ${0}  Run And Return Rc  docker ${params} rm @{container_vm_name_id}[1]
     Run Keyword If  ${rc2} != None  Should Be Equal As Integers  ${rc2}  0
 
-Uninstall VIC
-    Cleanup VIC Appliance On Test Server
+Uninstall VCH
+    Log To Console  Gathering logs from the test server...
+    Gather Logs From Test Server
+    Log To Console  Deleting the VCH appliance...
+    ${rc}  ${output}=  Run Secret VIC Machine Delete Command  ${vch-name}  ../../../bin/vic-machine-linux
+    Check Delete Success  ${vch-name}
+    Should Be Equal As Integers  ${rc}  0
+    Should Contain  ${output}  Completed successfully
+    ${output}=  Run  rm -f ${vch-name}-*.pem
+    ${out}=  Run Keyword If  '%{HOST_TYPE}' == 'ESXi'  Run  govc host.portgroup.remove ${vch-name}-bridge

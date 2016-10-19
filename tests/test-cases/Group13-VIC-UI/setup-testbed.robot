@@ -1,22 +1,25 @@
 *** Settings ***
 Documentation  Set up testbed before the UI test
 Resource  ../../resources/Util.robot
-#Library  OperatingSystem
-#Library  String
 
 *** Keywords ***
 Check If Nimbus VMs Exist
+    # remove testbed-information if it exists
+    ${ti_exists}=  Run Keyword And Return Status  OperatingSystem.Should Exist  testbed-information
+    Run Keyword Unless  ${ti_exists}  Remove File  testbed-information
+
     ${nimbus_machines}=  Set Variable  %{NIMBUS_USER}-UITEST-*
     Log To Console  \nFinding Nimbus machines for UI tests
     Open Connection  %{NIMBUS_GW}
     Login  %{NIMBUS_USER}  %{NIMBUS_PASSWORD}
 
-    ${out}=  Execute Command  nimbus-ctl list | grep -i "%{NIMBUS_USER}-*"
+    ${out}=  Execute Command  nimbus-ctl list | grep -i "${nimbus_machines}"
     @{out}=  Split To Lines  ${out}
-    :FOR  ${item}  IN  @{out}
-    \  Log To Console  ${item}
-
+    ${out_len}=  Get Length  ${out}
     Close connection
+
+    Run Keyword If  ${out_len} == 0  Setup Testbed  ELSE  Load Testbed  ${out}
+    Create File  testbed-information  TEST_ESX_NAME=%{TEST_ESX_NAME}\nESX_HOST_IP=%{ESX_HOST_IP}\nESX_HOST_PASSWORD=%{ESX_HOST_PASSWORD}\nTEST_VC_NAME=%{TEST_VC_NAME}\nTEST_VC_IP=%{TEST_VC_IP}\nTEST_URL_ARRAY=%{TEST_URL_ARRAY}\nTEST_USERNAME=%{TEST_USERNAME}\nTEST_PASSWORD=%{TEST_PASSWORD}\nEXTERNAL_NETWORK=%{EXTERNAL_NETWORK}\nTEST_TIMEOUT=%{TEST_TIMEOUT}\nGOVC_INSECURE=%{GOVC_INSECURE}\nGOVC_USERNAME=%{GOVC_USERNAME}\nGOVC_PASSWORD=%{GOVC_PASSWORD}\nGOVC_URL=%{GOVC_URL}\n
 
     # this will get called first to check on Nimbus to see if ESXi and VCSA instances are already available for UI tests
     # these VMs will have names that have a certain rule such that it is easy to destroy them later manually, if not expired
@@ -41,6 +44,46 @@ Check If Nimbus VMs Exist
     #      14) GOVC_URL (same as 5)
     # todo: finally, export the above information as a temp file which will then be consumed by vicui-common keyword that reads that file and loads its content into memory
 
+Load Testbed
+    [Arguments]  ${list}
+    Log To Console  \nRetrieving VMs information for UI testing...\n
+    Open Connection  %{NIMBUS_GW}
+    Login  %{NIMBUS_USER}  %{NIMBUS_PASSWORD}
+    ${len}=  Get Length  ${list}
+    :FOR  ${vm}  IN  @{list}
+    \  @{vm_items}=  Split String  ${vm}  :
+    \  ${is_esx}=  Run Keyword And Return Status  Should Match Regexp  @{vm_items}[1]  (?i)esx
+    \  Run Keyword If  ${is_esx}  Extract Esx Info  @{vm_items}  ELSE  Extract Vcsa Info  @{vm_items}
+    Close connection
+
+Extract Esx Info
+    [Arguments]  @{vm_fields}
+    ${vm_name}=  Evaluate  '@{vm_fields}[1]'.strip()
+    ${out}=  Execute Command  NIMBUS=@{vm_fields}[0] nimbus-ctl ip ${vm_name} | grep -i ".*: %{NIMBUS_USER}-.*"
+    @{out}=  Split String  ${out}  :
+    ${vm_ip}=  Evaluate  '@{out}[2]'.strip()
+    Set Environment Variable  TEST_ESX_NAME  ${vm_name}
+    Set Environment Variable  ESX_HOST_IP  ${vm_ip}
+    Set Environment Variable  ESX_HOST_PASSWORD  e2eFunctionalTest
+
+Extract Vcsa Info
+    [Arguments]  @{vm_fields}
+    ${vm_name}=  Evaluate  '@{vm_fields}[1]'.strip()
+    ${out}=  Execute Command  NIMBUS=@{vm_fields}[0] nimbus-ctl ip ${vm_name} | grep -i ".*: %{NIMBUS_USER}-.*"
+    @{out}=  Split String  ${out}  :
+    ${vm_ip}=  Evaluate  '@{out}[2]'.strip()
+    Set Environment Variable  TEST_VC_NAME  ${vm_name}
+    Set Environment Variable  TEST_VC_IP  ${vm_ip}
+    Set Environment Variable  TEST_URL_ARRAY  ${vm_ip}
+    Set Environment Variable  TEST_USERNAME  Administrator@vsphere.local
+    Set Environment Variable  TEST_PASSWORD  Admin\!23
+    Set Environment Variable  EXTERNAL_NETWORK  vm-network
+    Set Environment Variable  TEST_TIMEOUT  30m
+    Set Environment Variable  GOVC_INSECURE  1
+    Set Environment Variable  GOVC_USERNAME  Administrator@vsphere.local
+    Set Environment Variable  GOVC_PASSWORD  Admin\!23
+    Set Environment Variable  GOVC_URL  ${vm_ip}
+
 Setup Testbed
     # deploy an esxi server
     ${esx1}  ${esx1-ip}=  Deploy Nimbus ESXi Server For NGC Testing  %{NIMBUS_USER}  %{NIMBUS_PASSWORD}
@@ -62,15 +105,12 @@ Setup Testbed
     Log To Console  Create a cluster on the datacenter
     ${out}=  Run  govc cluster.create -dc=Datacenter Cluster
     Should Be Empty  ${out}
-
-    # todo: make sure this block does not conflict with the next block
-    # Log To Console  Add ESX host to the VC
-    # ${out}=  Run  govc host.add -hostname=${esx1-ip} -username=root -dc=Datacenter -password=e2eFunctionalTest -noverify=true
-    # Should Contain  ${out}  OK
+    ${out}=  Run  govc cluster.change -dc=Datacenter -drs-enabled=true /Datacenter/host/Cluster
+    Should Be Empty  ${out}
 
     # add the esx host to the cluster
     Log To Console  Add ESX host to Cluster
-    ${out}=  Run  govc cluster.add -dc=Datacenter -username=root -password=e2eFunctionalTest -noverify=true hostname=${esx1-ip}
+    ${out}=  Run  govc cluster.add -dc=Datacenter -cluster=/Datacenter/host/Cluster -username=root -password=e2eFunctionalTest -noverify=true -hostname=${esx1-ip}
     Should Contain  ${out}  OK
 
     # create a distributed switch
@@ -84,11 +124,13 @@ Setup Testbed
     Should Contain  ${out}  OK
     ${out}=  Run  govc dvs.portgroup.add -nports 12 -dc=Datacenter -dvs=test-ds vm-network
     Should Contain  ${out}  OK
+    ${out}=  Run  govc dvs.portgroup.add -nports 12 -dc=Datacenter -dvs=test-ds network
+    Should Contain  ${out}  OK
 
     # todo: check here for cluster
     # add the esx host to the portgroups
     Log To Console  Add the ESXi hosts to the portgroups
-    ${out}=  Run  govc dvs.add -dvs=test-ds -pnic=vmnic1 ${esx1-ip}
+    ${out}=  Run  govc dvs.add -dvs=test-ds -pnic=vmnic1 -host.ip=${esx1-ip} ${esx1-ip}
     Should Contain  ${out}  OK
 
     Log To Console  Deploy VIC to the VC cluster

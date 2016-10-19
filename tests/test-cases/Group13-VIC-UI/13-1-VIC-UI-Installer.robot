@@ -5,14 +5,15 @@ Resource  ./vicui-common.robot
 Test Teardown  Cleanup Installer Environment
 
 *** Test Cases ***
-Install VIC
-    Install VIC Appliance To Test Server  ${false}  default
-    Set Environment Variable  VCH_VM_NAME  ${vch-name}
-
 Check Configs
     # Store the original configs file content in a variable
     # Set the exact paths to the installer / uninstaller scripts for use with tests
     Run Keyword  Set Absolute Script Paths
+
+Install VCH
+    Load Nimbus Testbed Env
+    Install VIC Appliance To Test Server  ../../../bin/vic-machine-linux  ../../../bin/appliance.iso  ../../../bin/bootstrap.iso
+    Set Environment Variable  VCH_VM_NAME  ${vch-name}
 
 Ensure Vicui Plugin Is Not Registered Before Testing
     Set Vcenter Ip
@@ -130,5 +131,13 @@ Attempt To Install With Webserver And Wrong Path To Plugin
     Should Contain  ${output}  Could not resolve the host
     Remove File  install.log
 
-Uninstall VIC
-    Cleanup VIC Appliance On Test Server
+Uninstall VCH
+    Log To Console  Gathering logs from the test server...
+    Gather Logs From Test Server
+    Log To Console  Deleting the VCH appliance...
+    ${rc}  ${output}=  Run Secret VIC Machine Delete Command  ${vch-name}  ../../../bin/vic-machine-linux
+    Check Delete Success  ${vch-name}
+    Should Be Equal As Integers  ${rc}  0
+    Should Contain  ${output}  Completed successfully
+    ${output}=  Run  rm -f ${vch-name}-*.pem
+    ${out}=  Run Keyword If  '%{HOST_TYPE}' == 'ESXi'  Run  govc host.portgroup.remove ${vch-name}-bridge
