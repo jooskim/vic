@@ -59,22 +59,8 @@ mvn install -f ui/vic-uia/pom.xml
 cd tests/test-cases/Group13-VIC-UI
 mkdir logs
 
-drone exec --trusted -e test="robot -C ansi setup-testbed.robot" -E nightly_ui_tests_secrets.yml --yaml ./ui-tests.yml
-mv output.xml logs/output_setup-testbed.xml
-mv log.html logs/log_setup-testbed.html
-
-drone exec --trusted -e test="robot -C ansi 13-1-VIC-UI-Installer.robot" -E nightly_ui_tests_secrets.yml --yaml ./ui-tests.yml
-mv output.xml logs/output_13-1-VIC-UI-Installer.xml
-mv log.html logs/log_13-1-VIC-UI-Installer.html
-
-drone exec --trusted -e test="robot -C ansi 13-2-VIC-UI-Uninstaller.robot" -E nightly_ui_tests_secrets.yml --yaml ./ui-tests.yml
-mv output.xml logs/output_13-2-VIC-UI-Uninstaller.xml
-mv log.html logs/log_13-2-VIC-UI-Uninstaller.html
-
-drone exec --trusted -e test="robot -C ansi 13-3-VIC-UI-NGC-tests.robot" -E nightly_ui_tests_secrets.yml --yaml ./ui-tests.yml
-mv output.xml logs/output_13-3-NGC-tests.xml
-mv log.html logs/log_13-3-NGC-tests.html
-mv ngc_tests.log logs/ngc_tests-$(date +%m%d%y-%H%M%S).log
+drone exec --trusted -e test="install_tests" -E nightly_ui_tests_secrets.yml --yaml ./ui-tests.yml
+drone exec --trusted -e test="13-3-VIC-UI-NGC-tests" -E nightly_ui_tests_secrets.yml --yaml ./ui-tests.yml
 
 # move log files
 # tbi

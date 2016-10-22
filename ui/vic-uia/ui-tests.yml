@@ -6,6 +6,8 @@
 
 build:
   vic-uia:
+    volumes:
+      - /Users/kjosh/go/src/github.com/vmware/vic:/vic
     image: vmware-docker-ci-repo.bintray.io/integration/vic-test:1.9
     pull: true
     environment:
@@ -20,6 +22,7 @@ build:
       GOVC_INSECURE: true
       BUILD_PATH: vic/ui/vic-uia
       TESTS_PATH: vic/tests/test-cases/Group13-VIC-UI
+      TEST_LOGS_PATH: /vic/ui/vic-uia/VIC-UI-testlogs
       BINTRAY_DOWNLOAD_PATH: "https://bintray.com/vmware/vic-repo/download_file?file_path="
       SDK_PACKAGE_ARCHIVE: "ui-sdk.tar.gz"
       VIC_UI_BIN: "vic-ui-linux"
@@ -41,12 +44,12 @@ build:
       - ant -f vic/ui/vic-ui/build-deployable.xml -Denv.VSPHERE_SDK_HOME=$ENV_VSPHERE_SDK_HOME -Denv.FLEX_HOME=$ENV_FLEX_SDK_HOME
       - mvn install -f $BUILD_PATH/pom.xml
       - cd $TESTS_PATH
-      - mkdir logs
+      - TEST_LOGS_PATH=${TEST_LOGS_PATH}-$(date +%m%d%y-%H%M%S)
+      - mkdir -p ${TEST_LOGS_PATH}
       - robot -C ansi setup-testbed.robot
-      - mv output.xml logs/output_setup-testbed.xml
-      - mv log.html logs/log_setup-testbed.html
-      - robot -C ansi $$test.robot
-      - mv output.xml logs/output_$$test.xml
-      - mv log.html logs/log_$$test.html
-      - mv ngc_tests.log logs/ngc_tests-$(date +%m%d%y-%H%M%S).log &2>/dev/null
-      - tar -cvf VIC-UI-$$test-log.tgz logs
+      - cp output.xml ${TEST_LOGS_PATH}/output_setup-testbed.xml
+      - cp log.html ${TEST_LOGS_PATH}/log_setup-testbed.html
+      - if [ $$test = "installer_tests" ] ; then robot -C ansi 13-1-VIC-UI-Installer.robot 13-2-VIC-UI-Uninstaller.robot ; else robot -C ansi 13-3-VIC-UI-NGC-tests.robot ; fi
+      - if [ $$test = "installer_tests" ] ; then cp output.xml ${TEST_LOGS_PATH}/output_installer_tests.xml ; else cp log.html ${TEST_LOGS_PATH}/output_ngc_tests.xml ; fi
+      - if [ $$test = "installer_tests" ] ; then cp log.html ${TEST_LOGS_PATH}/log_installer_tests.html ; else cp log.html ${TEST_LOGS_PATH}/log_ngc_tests.html ; fi
+      - if [ $$test != "installer_tests" ] ; then cp ngc_tests.log ${TEST_LOGS_PATH}/ngc_tests.log &2>/dev/null ; fi

@@ -124,6 +124,8 @@ Start Ngc Tests
     ${cond1}=  Run Keyword And Return Status  Should Contain  ${output}  BUILD SUCCESS
     ${cond2}=  Run Keyword And Return Status  Should Not Contain  ${output}  BUILD FAILURE
     Uninstall VCH
+    Log To Console  checking log
+    Log To Console  ${output}
     Run Keyword And Ignore Error  Remove File  testbed-information
     Should Be True  ${cond1} and ${cond2}
 

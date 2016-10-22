@@ -15,6 +15,5 @@
 #
 
 # need to download the nightly_ui_tests_secrets.yml file
-drone exec --trusted -e test="13-1-VIC-UI-Installer" -E nightly_ui_tests_secrets.yml --yaml ./ui-tests.yml
-drone exec --trusted -e test="13-2-VIC-UI-Uninstaller" -E nightly_ui_tests_secrets.yml --yaml ./ui-tests.yml
+drone exec --trusted -e test="installer_tests" -E nightly_ui_tests_secrets.yml --yaml ./ui-tests.yml
 drone exec --trusted -e test="13-3-VIC-UI-NGC-tests" -E nightly_ui_tests_secrets.yml --yaml ./ui-tests.yml
