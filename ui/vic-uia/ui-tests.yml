@@ -6,9 +6,7 @@
 
 build:
   vic-uia:
-    volumes:
-      - /Users/kjosh/go/src/github.com/vmware/vic:/vic
-    image: vmware-docker-ci-repo.bintray.io/integration/vic-test:1.9
+    image: vmware-docker-ci-repo.bintray.io/integration/vic-test:1.13
     pull: true
     environment:
       SHELL: /bin/bash
@@ -29,27 +27,28 @@ build:
       ENV_VSPHERE_SDK_HOME: "/tmp/sdk/vc_sdk_min"
       ENV_FLEX_SDK_HOME: "/tmp/sdk/flex_sdk_min"
     commands:
-      - apt-get update
+      #- apt-get update
       - apt-get install -yq maven
       - pip install pexpect
-      - cd /go/src
-      - git clone -b ui-integration-tests https://github.com/jooskim/vic
-      - LATEST_VIC_BUNDLE=$(wget -O - https://vmware.bintray.com/vic-repo | tail -n5 | head -n1 | cut -d':' -f 2 | cut -d'.' -f 3 | cut -d'>' -f 2)
-      - wget -nv $BINTRAY_DOWNLOAD_PATH$SDK_PACKAGE_ARCHIVE -O /tmp/$SDK_PACKAGE_ARCHIVE
-      - wget -nv https://vmware.bintray.com/vic-repo/${LATEST_VIC_BUNDLE}.tar.gz
-      - mkdir vic/bin
-      - tar xvf $LATEST_VIC_BUNDLE.tar.gz -C vic/bin/ --strip 1
-      - cp vic/bin/$VIC_UI_BIN vic/ui/$VIC_UI_BIN
-      - tar --warning=no-unknown-keyword -xzf /tmp/$SDK_PACKAGE_ARCHIVE -C /tmp/
-      - ant -f vic/ui/vic-ui/build-deployable.xml -Denv.VSPHERE_SDK_HOME=$ENV_VSPHERE_SDK_HOME -Denv.FLEX_HOME=$ENV_FLEX_SDK_HOME
-      - mvn install -f $BUILD_PATH/pom.xml
-      - cd $TESTS_PATH
-      - TEST_LOGS_PATH=${TEST_LOGS_PATH}-$(date +%m%d%y-%H%M%S)
-      - mkdir -p ${TEST_LOGS_PATH}
-      - robot -C ansi setup-testbed.robot
-      - cp output.xml ${TEST_LOGS_PATH}/output_setup-testbed.xml
-      - cp log.html ${TEST_LOGS_PATH}/log_setup-testbed.html
-      - if [ $$test = "installer_tests" ] ; then robot -C ansi 13-1-VIC-UI-Installer.robot 13-2-VIC-UI-Uninstaller.robot ; else robot -C ansi 13-3-VIC-UI-NGC-tests.robot ; fi
-      - if [ $$test = "installer_tests" ] ; then cp output.xml ${TEST_LOGS_PATH}/output_installer_tests.xml ; else cp log.html ${TEST_LOGS_PATH}/output_ngc_tests.xml ; fi
-      - if [ $$test = "installer_tests" ] ; then cp log.html ${TEST_LOGS_PATH}/log_installer_tests.html ; else cp log.html ${TEST_LOGS_PATH}/log_ngc_tests.html ; fi
-      - if [ $$test != "installer_tests" ] ; then cp ngc_tests.log ${TEST_LOGS_PATH}/ngc_tests.log &2>/dev/null ; fi
+      #- cd /go/src
+      #- git clone -b ui-integration-tests https://github.com/jooskim/vic
+      #- LATEST_VIC_BUNDLE=$(wget -O - https://vmware.bintray.com/vic-repo | tail -n5 | head -n1 | cut -d':' -f 2 | cut -d'.' -f 3 | cut -d'>' -f 2)
+      #- wget -nv $BINTRAY_DOWNLOAD_PATH$SDK_PACKAGE_ARCHIVE -O /tmp/$SDK_PACKAGE_ARCHIVE
+      #- wget -nv https://vmware.bintray.com/vic-repo/${LATEST_VIC_BUNDLE}.tar.gz
+      #- mkdir vic/bin
+      #- tar xvf $LATEST_VIC_BUNDLE.tar.gz -C vic/bin/ --strip 1
+      #- cp vic/bin/$VIC_UI_BIN vic/ui/$VIC_UI_BIN
+      #- tar --warning=no-unknown-keyword -xzf /tmp/$SDK_PACKAGE_ARCHIVE -C /tmp/
+      #- ant -f vic/ui/vic-ui/build-deployable.xml -Denv.VSPHERE_SDK_HOME=$ENV_VSPHERE_SDK_HOME -Denv.FLEX_HOME=$ENV_FLEX_SDK_HOME
+      - $$test
+      #- mvn install -f $BUILD_PATH/pom.xml
+      #- cd $TESTS_PATH
+      #- TEST_LOGS_PATH=${TEST_LOGS_PATH}-$(date +%m%d%y-%H%M%S)
+      #- mkdir -p ${TEST_LOGS_PATH}
+      #- robot -C ansi setup-testbed.robot
+      #- cp output.xml ${TEST_LOGS_PATH}/output_setup-testbed.xml
+      #- cp log.html ${TEST_LOGS_PATH}/log_setup-testbed.html
+      #- if [ $$test = "installer_tests" ] ; then robot -C ansi 13-1-VIC-UI-Installer.robot 13-2-VIC-UI-Uninstaller.robot ; else robot -C ansi 13-3-VIC-UI-NGC-tests.robot ; fi
+      #- if [ $$test = "installer_tests" ] ; then cp output.xml ${TEST_LOGS_PATH}/output_installer_tests.xml ; else cp log.html ${TEST_LOGS_PATH}/output_ngc_tests.xml ; fi
+      #- if [ $$test = "installer_tests" ] ; then cp log.html ${TEST_LOGS_PATH}/log_installer_tests.html ; else cp log.html ${TEST_LOGS_PATH}/log_ngc_tests.html ; fi
+      #- if [ $$test != "installer_tests" ] ; then cp ngc_tests.log ${TEST_LOGS_PATH}/ngc_tests.log &2>/dev/null ; fi

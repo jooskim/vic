@@ -32,6 +32,7 @@ if [[ $? -gt 0 ]] ; then apt-get install -yq maven ; fi
 pip show pexpect 2> /dev/null 1> /dev/null
 if [[ $? -gt 0 ]] ; then pip install pexpect ; fi
 
+# clone ui integration tests branch and change working directory to it
 git clone -b ui-integration-tests https://github.com/jooskim/vic vic-ui-branch
 cd vic-ui-branch
 
@@ -59,6 +60,7 @@ mvn install -f ui/vic-uia/pom.xml
 cd tests/test-cases/Group13-VIC-UI
 mkdir logs
 
+# todo: if robot/pybot is installed on this machine locally then there's no need to 
 drone exec --trusted -e test="install_tests" -E nightly_ui_tests_secrets.yml --yaml ./ui-tests.yml
 drone exec --trusted -e test="13-3-VIC-UI-NGC-tests" -E nightly_ui_tests_secrets.yml --yaml ./ui-tests.yml
 
