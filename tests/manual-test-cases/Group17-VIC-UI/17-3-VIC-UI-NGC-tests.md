@@ -1,4 +1,4 @@
-Test 13-3 - VIC UI NGC Tests
+Test 17-3 - VIC UI NGC Tests
 ======
 
 #Purpose:

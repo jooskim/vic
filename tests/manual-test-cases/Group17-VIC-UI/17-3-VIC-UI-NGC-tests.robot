@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation  Test 13-3 - VIC UI NGC tests
+Documentation  Test 17-3 - VIC UI NGC tests
 Resource  ../../resources/Util.robot
 Resource  ./vicui-common.robot
 Test Teardown  Clean Up Testbed Config Files

@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation  Test 13-1 - VIC UI Installation
+Documentation  Test 17-1 - VIC UI Installation
 Resource  ../../resources/Util.robot
 Resource  ./vicui-common.robot
 Test Teardown  Cleanup Installer Environment

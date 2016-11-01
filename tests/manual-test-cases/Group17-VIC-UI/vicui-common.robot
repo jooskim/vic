@@ -6,7 +6,7 @@ Library  VicUiInstallPexpectLibrary.py
 *** Variables ***
 ${TEST_VC_VERSION}          6.0
 ${TEST_VC_ROOT_PASSWORD}    vmware
-${TIMEOUT}                  5 minutes
+${TIMEOUT}                  10 minutes
 
 ${SELENIUM_SERVER_IP}       10.162.122.138
 ${SELENIUM_SERVER_PORT}     4444

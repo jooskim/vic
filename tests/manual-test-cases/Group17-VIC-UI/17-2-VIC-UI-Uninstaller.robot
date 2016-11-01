@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation  Test 13-2 - VIC UI Uninstallation
+Documentation  Test 17-2 - VIC UI Uninstallation
 Resource  ../../resources/Util.robot
 Resource  ./vicui-common.robot
 Test Teardown  Cleanup Installer Environment

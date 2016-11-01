@@ -185,7 +185,8 @@ Check Variables
     ${isset_TEST_DATASTORE}=  Run Keyword And Return Status  Environment Variable Should Be Set  TEST_DATASTORE
     ${isset_TEST_RESOURCE}=  Run Keyword And Return Status  Environment Variable Should Be Set  TEST_RESOURCE
     ${isset_GOVC_INSECURE}=  Run Keyword And Return Status  Environment Variable Should Be Set  GOVC_INSECURE
-    Log To Console  \nSHELL ${isset_SHELL}
+    Log To Console  \nChecking environment variables
+    Log To Console  SHELL ${isset_SHELL}
     Log To Console  DRONE_SERVER ${isset_DRONE_SERVER}
     Log To Console  DRONE_TOKEN ${isset_DRONE_TOKEN}
     Log To Console  NIMBUS_USER ${isset_NIMBUS_USER}
@@ -194,6 +195,7 @@ Check Variables
     Log To Console  TEST_DATASTORE ${isset_TEST_DATASTORE}
     Log To Console  TEST_RESOURCE ${isset_TEST_RESOURCE}
     Log To Console  GOVC_INSECURE ${isset_GOVC_INSECURE}
+    Should Be True  ${isset_SHELL} and ${isset_DRONE_SERVER} and ${isset_DRONE_TOKEN} and ${isset_NIMBUS_USER} and ${isset_NIMBUS_GW} and ${isset_TEST_DATASTORE} and ${isset_TEST_RESOURCE} and ${isset_GOVC_INSECURE}
 
 Check Nimbus Machines
     Check If Nimbus VMs Exist
