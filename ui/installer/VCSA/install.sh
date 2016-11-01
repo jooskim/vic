@@ -148,7 +148,7 @@ parse_and_register_plugins () {
             echo "Registering vCenter Server Extension..."
             echo "----------------------------------------"
 
-            if [[ $OLD_PLUGIN_FOLDERS -eq "" ]] ; then
+            if [[ "$OLD_PLUGIN_FOLDERS" -eq "" ]] ; then
                 OLD_PLUGIN_FOLDERS="$key-*"
             else
                 OLD_PLUGIN_FOLDERS="$OLD_PLUGIN_FOLDERS $key-*"

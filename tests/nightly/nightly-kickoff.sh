@@ -16,7 +16,7 @@
 
 echo "Removing VIC directory if present"
 echo "Cleanup logs from previous run"
-rm -rf bin 5-1-DistributedSwitch 5-2-Cluster 5-3-EnhancedLinkedMode 5-5-Heterogenous-ESXi 5-6-1-VSAN-Simple 5-6-2-VSAN-Complex 5-7-NSX 5-8-DRS 5-10-Multiple-Datacenter 5-11-MultipleCluster
+rm -rf bin 5-1-DistributedSwitch 5-2-Cluster 5-3-EnhancedLinkedMode 5-5-Heterogenous-ESXi 5-6-1-VSAN-Simple 5-6-2-VSAN-Complex 5-7-NSX 5-8-DRS 5-10-Multiple-Datacenter 5-11-MultipleCluster 13-1-VIC-UI-Installer 13-2-VIC-UI-Uninstaller 13-3-VIC-UI-NGC-tests
 rm -rf *.zip *.log
 
 input=$(wget -O - https://vmware.bintray.com/vic-repo |tail -n5 |head -n1 |cut -d':' -f 2 |cut -d'.' -f 3| cut -d'>' -f 2)
@@ -161,7 +161,14 @@ fi
 mv *.log 5-11-MultipleCluster
 mv *.zip 5-11-MultipleCluster
 
-if [[ $DistributedSwitchStatus = "Passed" && $ClusterStatus = "Passed" && $EnhancedLinkedModeStatus = "Passed" && $HeterogenousStatus = "Passed" && $VSANStatus = "Passed" && $VSANComplexStatus = "Passed" && $NSXStatus = "Passed" &&  $DRSStatus = "Passed" && $MultipleDCStatus =  "Passed" && $MultipleClusterStatus = "Passed" ]]
+./ui/vic-uia/run.sh
+if [ $? -eq 0 ] ; then
+    VicUIStatus="Passed"
+else
+    VicUIStatus="FAILED!"
+fi
+
+if [[ $DistributedSwitchStatus = "Passed" && $ClusterStatus = "Passed" && $EnhancedLinkedModeStatus = "Passed" && $HeterogenousStatus = "Passed" && $VSANStatus = "Passed" && $VSANComplexStatus = "Passed" && $NSXStatus = "Passed" &&  $DRSStatus = "Passed" && $MultipleDCStatus =  "Passed" && $MultipleClusterStatus = "Passed" && $VicUIStatus = "Passed" ]]
 then
 buildStatus=0
 else
