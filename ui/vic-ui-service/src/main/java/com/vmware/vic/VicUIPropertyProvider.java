@@ -22,7 +22,11 @@ Note: if Ant runs out of memory try defining ANT_OPTS=-Xmx512M
 package com.vmware.vic;
 
 import java.security.KeyManagementException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,13 +34,13 @@ import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSession;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.vmware.utils.ssl.SslThumbprintVerifier;
 import com.vmware.vim25.DynamicProperty;
 import com.vmware.vim25.InvalidPropertyFaultMsg;
 import com.vmware.vim25.ManagedObjectReference;
@@ -72,6 +76,7 @@ public class VicUIPropertyProvider implements PropertyProviderAdapter, ClientSes
 	private final VimObjectReferenceService _vimObjRefService;
 	private final UserSessionService _userSessionService;
 	private static VimPortType _vimPort = initializeVimPort();
+	private static String _serverThumbprint;
 
 	private static VimPortType initializeVimPort() {
 		VimService vimService = new VimService();
@@ -79,17 +84,12 @@ public class VicUIPropertyProvider implements PropertyProviderAdapter, ClientSes
 	}
 
 	static {
-		HostnameVerifier hostNameVerifier = new HostnameVerifier() {
-			@Override
-			public boolean verify(String urlHostName, SSLSession session) {
-				return true;
-			}
-		};
-		HttpsURLConnection.setDefaultHostnameVerifier(hostNameVerifier);
+		HostnameVerifier defaultHostnameVerifier = HttpsURLConnection.getDefaultHostnameVerifier();
+		HttpsURLConnection.setDefaultHostnameVerifier(defaultHostnameVerifier);
 
-		javax.net.ssl.TrustManager[] trustAllCerts = new javax.net.ssl.TrustManager[1];
-		javax.net.ssl.TrustManager tm = new TrustAllTrustManager();
-		trustAllCerts[0] = tm;
+		javax.net.ssl.TrustManager[] tms = new javax.net.ssl.TrustManager[1];
+		javax.net.ssl.TrustManager tm = new ThumbprintTrustManager();
+		tms[0] = tm;
 		javax.net.ssl.SSLContext sc = null;
 
 		try {
@@ -101,7 +101,7 @@ public class VicUIPropertyProvider implements PropertyProviderAdapter, ClientSes
 		javax.net.ssl.SSLSessionContext sslsc = sc.getServerSessionContext();
 		sslsc.setSessionTimeout(0);
 		try {
-			sc.init(null, trustAllCerts, null);
+			sc.init(null, tms, null);
 		} catch (KeyManagementException e) {
 			_logger.info(e);
 		}
@@ -195,6 +195,9 @@ public class VicUIPropertyProvider implements PropertyProviderAdapter, ClientSes
 		String entityName = _vimObjRefService.getValue(objRef);
 		String serverGuid = _vimObjRefService.getServerGuid(objRef);
 
+		ServerInfo serverInfoObject = getServerInfoObject(serverGuid);
+		_serverThumbprint = serverInfoObject.thumbprint;
+
 		ManagedObjectReference vmMor = new ManagedObjectReference();
 		vmMor.setType(entityType);
 		vmMor.setValue(entityName);
@@ -264,8 +267,10 @@ public class VicUIPropertyProvider implements PropertyProviderAdapter, ClientSes
 		return resultItem;
 	}
 
-	private static class TrustAllTrustManager implements
+	private static class ThumbprintTrustManager implements
 	javax.net.ssl.TrustManager, javax.net.ssl.X509TrustManager {
+
+		private SslThumbprintVerifier _thumbprintVerifier;
 
 		@Override
 		public java.security.cert.X509Certificate[] getAcceptedIssuers() {
@@ -273,9 +278,47 @@ public class VicUIPropertyProvider implements PropertyProviderAdapter, ClientSes
 		}
 
 		@Override
-		public void checkServerTrusted(java.security.cert.X509Certificate[] certs,
-		String authType) throws java.security.cert.CertificateException {
+		public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) throws java.security.cert.CertificateException {
+			_thumbprintVerifier = new SslThumbprintVerifier();
+			String[] thumbprints = new String[] {_serverThumbprint};
+			_thumbprintVerifier.setThumbprints(thumbprints);
+
+			String certThumbprint = null;
+			SslThumbprintVerifier.Result verifyResult = SslThumbprintVerifier.Result.UNKNOWN;
+
+			try {
+				certThumbprint = computeCertificateThumbprint(certs[0]);
+			} catch (Exception e) {
+				throw new CertificateException("Unable to compute server certificate thumbprint", e);
+			}
+
+			if (_thumbprintVerifier != null) {
+				verifyResult = _thumbprintVerifier.verify(certThumbprint);
+			}
+
+			if (verifyResult != SslThumbprintVerifier.Result.MATCH) {
+				throw new CertificateException("Server certificate thumbprint doesn't match");
+			}
+
 			return;
+		}
+
+		public static String computeCertificateThumbprint(X509Certificate cert)
+				throws NoSuchAlgorithmException, CertificateEncodingException {
+			String HEX = "0123456789ABCDEF";
+			MessageDigest md = MessageDigest.getInstance("SHA-1");
+			byte[] digest = md.digest(cert.getEncoded());
+
+			StringBuilder thumbprint = new StringBuilder();
+			for (int i = 0, len = digest.length; i < len; ++i) {
+				if (i > 0) {
+					thumbprint.append(':');
+				}
+				byte b = digest[i];
+				thumbprint.append(HEX.charAt((b & 0xF0) >> 4));
+				thumbprint.append(HEX.charAt(b & 0x0F));
+			}
+			return thumbprint.toString();
 		}
 
 		@Override
