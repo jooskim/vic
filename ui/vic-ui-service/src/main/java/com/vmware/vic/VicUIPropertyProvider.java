@@ -24,13 +24,13 @@ package com.vmware.vic;
 import java.security.KeyManagementException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -40,7 +40,6 @@ import javax.xml.ws.handler.MessageContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.vmware.utils.ssl.SslThumbprintVerifier;
 import com.vmware.vim25.DynamicProperty;
 import com.vmware.vim25.InvalidPropertyFaultMsg;
 import com.vmware.vim25.ManagedObjectReference;
@@ -73,10 +72,10 @@ public class VicUIPropertyProvider implements PropertyProviderAdapter, ClientSes
 	private static final String EXTRACONFIG_VCH_PATH = "guestinfo.vice./init/common/name";
 	private static final String EXTRACONFIG_CONTAINER_PATH = "guestinfo.vice./common/name";
 	private static final String SERVICE_INSTANCE = "ServiceInstance";
+	private static final Set<String> THUMBPRINTS = new HashSet<String>();
 	private final VimObjectReferenceService _vimObjRefService;
 	private final UserSessionService _userSessionService;
 	private static VimPortType _vimPort = initializeVimPort();
-	private static String _serverThumbprint;
 
 	private static VimPortType initializeVimPort() {
 		VimService vimService = new VimService();
@@ -153,6 +152,10 @@ public class VicUIPropertyProvider implements PropertyProviderAdapter, ClientSes
 
 		for (ServerInfo sinfo : userSession.serversInfo) {
 			if (sinfo.serviceGuid.equalsIgnoreCase(serverGuid)) {
+				String thumbprint = sinfo.thumbprint;
+				if(thumbprint != null) {
+					THUMBPRINTS.add(thumbprint.replaceAll(":", "").toLowerCase());
+				}
 				return sinfo;
 			}
 		}
@@ -194,9 +197,6 @@ public class VicUIPropertyProvider implements PropertyProviderAdapter, ClientSes
 		String entityType = _vimObjRefService.getResourceObjectType(objRef);
 		String entityName = _vimObjRefService.getValue(objRef);
 		String serverGuid = _vimObjRefService.getServerGuid(objRef);
-
-		ServerInfo serverInfoObject = getServerInfoObject(serverGuid);
-		_serverThumbprint = serverInfoObject.thumbprint;
 
 		ManagedObjectReference vmMor = new ManagedObjectReference();
 		vmMor.setType(entityType);
@@ -270,7 +270,26 @@ public class VicUIPropertyProvider implements PropertyProviderAdapter, ClientSes
 	private static class ThumbprintTrustManager implements
 	javax.net.ssl.TrustManager, javax.net.ssl.X509TrustManager {
 
-		private SslThumbprintVerifier _thumbprintVerifier;
+		private static String getThumbprint(java.security.cert.X509Certificate cert) throws java.security.cert.CertificateException {
+			try {
+				MessageDigest md = MessageDigest.getInstance("SHA-1");
+				byte[] certBytes = cert.getEncoded();
+				byte[] bytes = md.digest(certBytes);
+
+				StringBuilder builder = new StringBuilder();
+				for (byte b : bytes) {
+					String hex = Integer.toHexString(0xFF & b);
+					if (hex.length() == 1) {
+						builder.append("0");
+					}
+					builder.append(hex);
+				}
+				return builder.toString().toLowerCase();
+
+			} catch (NoSuchAlgorithmException ex) {
+				return null;
+			}
+		}
 
 		@Override
 		public java.security.cert.X509Certificate[] getAcceptedIssuers() {
@@ -279,46 +298,22 @@ public class VicUIPropertyProvider implements PropertyProviderAdapter, ClientSes
 
 		@Override
 		public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) throws java.security.cert.CertificateException {
-			_thumbprintVerifier = new SslThumbprintVerifier();
-			String[] thumbprints = new String[] {_serverThumbprint};
-			_thumbprintVerifier.setThumbprints(thumbprints);
 
-			String certThumbprint = null;
-			SslThumbprintVerifier.Result verifyResult = SslThumbprintVerifier.Result.UNKNOWN;
+			boolean found = false;
+			for (java.security.cert.X509Certificate cert : certs) {
+				String thumbprint = ThumbprintTrustManager.getThumbprint(cert);
+				found = THUMBPRINTS.contains(thumbprint);
 
-			try {
-				certThumbprint = computeCertificateThumbprint(certs[0]);
-			} catch (Exception e) {
-				throw new CertificateException("Unable to compute server certificate thumbprint", e);
+				if (found) {
+					break;
+				}
 			}
 
-			if (_thumbprintVerifier != null) {
-				verifyResult = _thumbprintVerifier.verify(certThumbprint);
-			}
-
-			if (verifyResult != SslThumbprintVerifier.Result.MATCH) {
+			if (!found) {
 				throw new CertificateException("Server certificate thumbprint doesn't match");
 			}
 
 			return;
-		}
-
-		public static String computeCertificateThumbprint(X509Certificate cert)
-				throws NoSuchAlgorithmException, CertificateEncodingException {
-			String HEX = "0123456789ABCDEF";
-			MessageDigest md = MessageDigest.getInstance("SHA-1");
-			byte[] digest = md.digest(cert.getEncoded());
-
-			StringBuilder thumbprint = new StringBuilder();
-			for (int i = 0, len = digest.length; i < len; ++i) {
-				if (i > 0) {
-					thumbprint.append(':');
-				}
-				byte b = digest[i];
-				thumbprint.append(HEX.charAt((b & 0xF0) >> 4));
-				thumbprint.append(HEX.charAt(b & 0x0F));
-			}
-			return thumbprint.toString();
 		}
 
 		@Override
