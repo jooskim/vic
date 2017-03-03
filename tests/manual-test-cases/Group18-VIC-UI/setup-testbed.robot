@@ -3,8 +3,8 @@ Documentation  Set up testbed before running the UI tests
 Resource  ../../resources/Util.robot
 
 *** Variables ***
-${MACOS_SELENIUM_IP}    TBD
-${UBUNTU_SELENIUM_IP}   10.160.122.158
+${MACOS_SELENIUM_IP}    10.20.121.143
+${UBUNTU_SELENIUM_IP}   10.20.121.145
 
 *** Keywords ***
 Check If Nimbus VMs Exist
