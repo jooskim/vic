@@ -106,8 +106,7 @@ build:
     commands:
       - make mark
       - npm install -g yarn > /dev/null
-      - version=`$BIN/vic-machine-linux version`
-      - version=`echo $version | awk '{print $3}' | awk -F- '{print $1}' | cut -c 2-`
+      - version=`git describe --abbrev=0 --tags`
       - sed "s/0.0.1/${version}/" ./$VICUI_SOURCE_PATH/plugin-package.xml > ./$VICUI_SOURCE_PATH/new_plugin-package.xml
       - sed "s/1.0.0/${version}/" ./$VICUI_H5_UI_PATH/plugin-package.xml > ./$VICUI_H5_UI_PATH/new_plugin-package.xml
       - sed "s/UI_VERSION_PLACEHOLDER/${version}/" ./$VICUI_H5_SERVICE_PATH/src/main/resources/configs.properties > ./$VICUI_H5_SERVICE_PATH/src/main/resources/new_configs.properties
