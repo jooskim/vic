@@ -168,6 +168,15 @@ public class VicUIPropertyProvider implements PropertyProviderAdapter, ClientSes
 
 	private ServiceContent getServiceContent(String serverGuid) {
 		ServerInfo serverInfoObject = getServerInfoObject(serverGuid);
+		ServerInfo[] sInfos = _userSessionService.getUserSession().serversInfo;
+		_logger.info("start checking servers info");
+		_logger.info("serverGuid provided for getProperties is : " + serverGuid);
+        for (ServerInfo sInfo : sInfos) {
+            if (sInfo.serviceGuid != null) {
+				_logger.info("found one ! " + sInfo.serviceGuid);
+            }
+		}
+		_logger.info("end checking servers info. serverGuid should match with the first array item's serverGuid, otherwise it will not pass validation");
 		setThumbprint(serverInfoObject);
 		String sessionCookie = serverInfoObject.sessionCookie;
 		String serviceUrl = serverInfoObject.serviceUrl;

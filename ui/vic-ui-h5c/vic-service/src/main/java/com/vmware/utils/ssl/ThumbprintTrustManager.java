@@ -62,6 +62,8 @@ public class ThumbprintTrustManager implements javax.net.ssl.TrustManager, javax
 
    public static void checkThumbprint(String thumbprint) throws CertificateException {
 	   synchronized(ThumbprintTrustManager.class) {
+	       _logger.info("thumbprints found on this vc : " + _thumbprints);
+	       _logger.info("trying to verify thumbprint : " + thumbprint);
 		   if (_thumbprints.contains(thumbprint)) {
 			   return;
 		   }
