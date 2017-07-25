@@ -24,9 +24,11 @@ env:
     - ENV_FLEX_SDK_HOME="/tmp/sdk/flex_sdk_min"
     - ENV_HTML_SDK_HOME="/tmp/sdk/html-client-sdk"
     - BUILD_NUMBER="$TRAVIS_BUILD_NUMBER"
+    - TAG="v1.2.0"
+    - TAG_NUM="1.2.0"
 before_install:
-  - export TAG=$(git for-each-ref --format="%(refname:short)" --sort=authordate --count=1 refs/tags)
-  - export TAG_NUM=$(git for-each-ref --format="%(refname:short)" --sort=-authordate --count=1 refs/tags | cut -c 2-)
+  # - export TAG=$(git for-each-ref --format="%(refname:short)" --sort=authordate --count=1 refs/tags)
+  # - export TAG_NUM=$(git for-each-ref --format="%(refname:short)" --sort=-authordate --count=1 refs/tags | cut -c 2-)
   - sudo apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg
   - echo "deb http://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
   - wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
@@ -40,6 +42,7 @@ branches:
   only:
     - separate-ui-build-test
 script:
+  - echo $TAG
   - sed -e "s/0.0.1/$(printf %s ${TAG_NUM}.${BUILD_NUMBER})/" -e "s/\-rc[[:digit:]]//g" ./$VICUI_H5_UI_PATH/plugin-package.xml > ./$VICUI_H5_UI_PATH/new_plugin-package.xml
   - sed -e "s/0.0.1/$(printf %s ${TAG_NUM}.${BUILD_NUMBER})/" -e "s/\-rc[[:digit:]]//g" ./$VICUI_SOURCE_PATH/plugin-package.xml > ./$VICUI_SOURCE_PATH/new_plugin-package.xml
   - sed "s/UI_VERSION_PLACEHOLDER/$(printf %s ${TAG}.${BUILD_NUMBER})/" ./$VICUI_H5_SERVICE_PATH/src/main/resources/configs.properties > ./$VICUI_H5_SERVICE_PATH/src/main/resources/new_configs.properties
@@ -50,8 +53,8 @@ script:
   - wget -nv $GCP_DOWNLOAD_PATH$SDK_PACKAGE_ARCHIVE -O /tmp/$SDK_PACKAGE_ARCHIVE
   - wget -nv $GCP_DOWNLOAD_PATH$UI_INSTALLER_WIN_UTILS_ARCHIVE -O /tmp/$UI_INSTALLER_WIN_UTILS_ARCHIVE
   - tar --warning=no-unknown-keyword -xzf /tmp/$SDK_PACKAGE_ARCHIVE -C /tmp/
-  - sudo ant -f ui/vic-ui/build-deployable.xml -Denv.VSPHERE_SDK_HOME=$ENV_VSPHERE_SDK_HOME -Denv.FLEX_HOME=$ENV_FLEX_SDK_HOME
+  - ant -f ui/vic-ui/build-deployable.xml -Denv.VSPHERE_SDK_HOME=$ENV_VSPHERE_SDK_HOME -Denv.FLEX_HOME=$ENV_FLEX_SDK_HOME
   - tar --warning=no-unknown-keyword -xzf /tmp/$UI_INSTALLER_WIN_UTILS_ARCHIVE -C $UI_INSTALLER_WIN_PATH
-  - sudo ant -f ui/vic-ui-h5c/build-deployable.xml -Denv.VSPHERE_SDK_HOME=$ENV_VSPHERE_SDK_HOME -Denv.FLEX_HOME=$ENV_FLEX_SDK_HOME -Denv.VSPHERE_H5C_SDK_HOME=$ENV_HTML_SDK_HOME -Denv.BUILD_MODE=prod
+  - ant -f ui/vic-ui-h5c/build-deployable.xml -Denv.VSPHERE_SDK_HOME=$ENV_VSPHERE_SDK_HOME -Denv.FLEX_HOME=$ENV_FLEX_SDK_HOME -Denv.VSPHERE_H5C_SDK_HOME=$ENV_HTML_SDK_HOME -Denv.BUILD_MODE=prod
   - mkdir -p $BIN/ui
   - cp -rf ui/installer/* $BIN/ui
