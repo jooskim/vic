@@ -5,15 +5,11 @@ node_js:
   - "6"
 cache:
   apt: true
+  yarn: true
 addons:
   apt:
     packages:
       - wget
-      - curl
-      - zip
-      - unzip
-      - ant
-      - ant-optional
 env:
   global:
     - BIN="bin"
@@ -27,6 +23,7 @@ env:
     - ENV_VSPHERE_SDK_HOME="/tmp/sdk/vc_sdk_min"
     - ENV_FLEX_SDK_HOME="/tmp/sdk/flex_sdk_min"
     - ENV_HTML_SDK_HOME="/tmp/sdk/html-client-sdk"
+    - BUILD_NUMBER="$TRAVIS_BUILD_NUMBER"
 before_install:
   - export TAG=$(git for-each-ref --format="%(refname:short)" --sort=authordate --count=1 refs/tags)
   - export TAG_NUM=$(git for-each-ref --format="%(refname:short)" --sort=-authordate --count=1 refs/tags | cut -c 2-)
@@ -37,7 +34,7 @@ before_install:
   - curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
   - echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
   - sudo apt-get update -qq
-  - sudo apt-get install -y openjdk-7-jdk maven ant google-chrome-stable yarn=0.24.6-1
+  - sudo apt-get install -y openjdk-7-jdk maven ant ant-optional google-chrome-stable yarn=0.24.6-1
   - export PATH=/usr/share/yarn/bin:$PATH
 branches:
   only:
@@ -53,8 +50,8 @@ script:
   - wget -nv $GCP_DOWNLOAD_PATH$SDK_PACKAGE_ARCHIVE -O /tmp/$SDK_PACKAGE_ARCHIVE
   - wget -nv $GCP_DOWNLOAD_PATH$UI_INSTALLER_WIN_UTILS_ARCHIVE -O /tmp/$UI_INSTALLER_WIN_UTILS_ARCHIVE
   - tar --warning=no-unknown-keyword -xzf /tmp/$SDK_PACKAGE_ARCHIVE -C /tmp/
-  - ant -f ui/vic-ui/build-deployable.xml -Denv.VSPHERE_SDK_HOME=$ENV_VSPHERE_SDK_HOME -Denv.FLEX_HOME=$ENV_FLEX_SDK_HOME
+  - sudo ant -f ui/vic-ui/build-deployable.xml -Denv.VSPHERE_SDK_HOME=$ENV_VSPHERE_SDK_HOME -Denv.FLEX_HOME=$ENV_FLEX_SDK_HOME
   - tar --warning=no-unknown-keyword -xzf /tmp/$UI_INSTALLER_WIN_UTILS_ARCHIVE -C $UI_INSTALLER_WIN_PATH
-  - ant -f ui/vic-ui-h5c/build-deployable.xml -Denv.VSPHERE_SDK_HOME=$ENV_VSPHERE_SDK_HOME -Denv.FLEX_HOME=$ENV_FLEX_SDK_HOME -Denv.VSPHERE_H5C_SDK_HOME=$ENV_HTML_SDK_HOME -Denv.BUILD_MODE=prod
+  - sudo ant -f ui/vic-ui-h5c/build-deployable.xml -Denv.VSPHERE_SDK_HOME=$ENV_VSPHERE_SDK_HOME -Denv.FLEX_HOME=$ENV_FLEX_SDK_HOME -Denv.VSPHERE_H5C_SDK_HOME=$ENV_HTML_SDK_HOME -Denv.BUILD_MODE=prod
   - mkdir -p $BIN/ui
   - cp -rf ui/installer/* $BIN/ui
