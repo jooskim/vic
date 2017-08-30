@@ -126,7 +126,11 @@ check_prerequisite () {
     fi
 
     # retrieve VC thumbprint
-    VC_THUMBPRINT=$($PLUGIN_MANAGER_BIN info $COMMONFLAGS --key com.vmware.vic.noop 2>&1 | grep -o "(thumbprint.*)" | awk -F= '{print $2}' | sed 's/.$//')
+    if [ ! -z $VIC_MACHINE_THUMBPRINT ] ; then
+        VC_THUMBPRINT=$VIC_MACHINE_THUMBPRINT
+    else
+        VC_THUMBPRINT=$($PLUGIN_MANAGER_BIN info $COMMONFLAGS --key com.vmware.vic.noop 2>&1 | grep -o "(thumbprint.*)" | awk -F= '{print $2}' | sed 's/.$//')
+    fi
 
     # verify the thumbprint of VC
     echo ""
