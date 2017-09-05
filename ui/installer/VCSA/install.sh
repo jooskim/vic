@@ -66,6 +66,12 @@ if [[ ! -f "configs" ]] ; then
     exit 1
 fi
 
+# check for the plugin manifest file
+if [[ ! -f ../plugin-manifest ]] ; then
+    echo "Error! Plugin manifest was not found!"
+    exit 1
+fi
+
 # load configs variable into env
 while IFS='' read -r line; do
     eval $line
@@ -75,12 +81,6 @@ read_vc_information $*
 
 # replace space delimiters with colon delimiters 
 VIC_UI_HOST_THUMBPRINT=$(echo $VIC_UI_HOST_THUMBPRINT | sed -e 's/[[:space:]]/\:/g')
-
-# check for the plugin manifest file
-if [[ ! -f ../plugin-manifest ]] ; then
-    echo "Error! Plugin manifest was not found!"
-    exit 1
-fi
 
 # load plugin manifest into env
 while IFS='' read -r p_line; do
